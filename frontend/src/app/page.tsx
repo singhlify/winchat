@@ -1,4 +1,4 @@
-import { Chat } from "@/components/chat/Chat";
+import { ChatShell } from "@/components/chat/ChatShell";
 import { fetchSources } from "@/lib/api/client";
 
 /**
@@ -17,9 +17,5 @@ export default async function Home() {
     // A number is nice to have; the chat works without it.
   }
 
-  return (
-    <div id="main">
-      <Chat sourceCount={sourceCount} />
-    </div>
-  );
+  return <ChatShell sourceCount={sourceCount} />;
 }
