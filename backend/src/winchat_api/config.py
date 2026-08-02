@@ -41,6 +41,20 @@ class Settings(BaseSettings):
     embedding_timeout_s: float = 30.0
     ollama_base_url: str = "http://localhost:11434"
 
+    # --- retrieval ---
+    # Wide recall then narrow precision: cast a big net with cheap retrieval, then let the
+    # expensive cross-encoder pick. A reranker cannot recover a passage retrieval never saw.
+    retrieval_dense_k: int = 50
+    retrieval_lexical_k: int = 50
+    retrieval_rrf_k: int = 60
+    rerank_pool: int = 40  # candidates handed to the reranker
+    retrieval_top_n: int = 6  # passages that reach the model
+
+    rerank_provider: str = "cohere"  # or "none"
+    rerank_model: str = "rerank-v3.5"
+    rerank_timeout_s: float = 15.0
+    cohere_api_key: str | None = None
+
     # --- data / database ---
     # Phase 2 will fill this in (Supabase Postgres + pgvector).
     database_url: str | None = None
