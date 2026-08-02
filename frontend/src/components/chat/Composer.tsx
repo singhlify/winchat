@@ -1,0 +1,161 @@
+"use client";
+
+import { ArrowUp, Square, Undo2 } from "lucide-react";
+import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+const MAX_LENGTH = 2000;
+const MAX_ROWS_HEIGHT = 200;
+
+export interface ComposerHandle {
+  focus: () => void;
+  setValue: (value: string) => void;
+}
+
+/**
+ * The input.
+ *
+ * A textarea, not an input: real questions wrap, and a single-line field that scrolls
+ * sideways hides what you typed. Enter sends and Shift+Enter adds a newline — the
+ * convention every chat app shares, so breaking it would be its own bug.
+ *
+ * Height grows with content up to a cap, then scrolls. Without the cap a pasted essay
+ * pushes the send button off-screen on a phone.
+ */
+export function Composer({
+  value,
+  onChange,
+  onSubmit,
+  onStop,
+  onUndo,
+  busy,
+  canUndo,
+  ref,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  onStop: () => void;
+  onUndo: () => void;
+  busy: boolean;
+  canUndo: boolean;
+  ref?: Ref<ComposerHandle>;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => textareaRef.current?.focus(),
+    setValue: (next: string) => {
+      onChange(next);
+      textareaRef.current?.focus();
+    },
+  }));
+
+  // Autosize. Reset to auto first or the box can only ever grow.
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, MAX_ROWS_HEIGHT)}px`;
+  }, [value]);
+
+  const remaining = MAX_LENGTH - value.length;
+  const nearLimit = remaining <= 200;
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
+      className="relative"
+    >
+      <div className="flex items-end gap-2 rounded-2xl border border-input bg-background p-2 shadow-sm transition-colors focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/25">
+        <label htmlFor="composer" className="sr-only">
+          Ask a question about the University of Windsor
+        </label>
+        <textarea
+          id="composer"
+          ref={textareaRef}
+          rows={1}
+          value={value}
+          maxLength={MAX_LENGTH}
+          onChange={(event) => onChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              onSubmit();
+            }
+            // Empty box + Backspace pulls the previous question back for editing —
+            // the same reflex as a terminal.
+            if (event.key === "Backspace" && value.length === 0 && canUndo && !busy) {
+              event.preventDefault();
+              onUndo();
+            }
+          }}
+          placeholder="Ask about admissions, fees, courses, campus…"
+          aria-describedby="composer-hint"
+          className="max-h-[200px] flex-1 resize-none bg-transparent px-2 py-1.5 text-[15px] leading-relaxed outline-none placeholder:text-muted-foreground/70"
+        />
+
+        {busy ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                onClick={onStop}
+                aria-label="Stop generating"
+                className="size-9 shrink-0 rounded-xl"
+              >
+                <Square className="size-3.5 fill-current" aria-hidden />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Stop generating</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Button
+            type="submit"
+            size="icon"
+            disabled={value.trim().length === 0}
+            aria-label="Send question"
+            className="size-9 shrink-0 rounded-xl"
+          >
+            <ArrowUp className="size-4" aria-hidden />
+          </Button>
+        )}
+      </div>
+
+      <div
+        id="composer-hint"
+        className="mt-1.5 flex items-center justify-between gap-3 px-1 text-[11px] text-muted-foreground"
+      >
+        <span className="hidden sm:inline">
+          <kbd className="rounded border border-border px-1 py-px font-sans">Enter</kbd> to send ·{" "}
+          <kbd className="rounded border border-border px-1 py-px font-sans">Shift</kbd>+
+          <kbd className="rounded border border-border px-1 py-px font-sans">Enter</kbd> for a new
+          line
+        </span>
+        {canUndo && !busy && (
+          <button
+            type="button"
+            onClick={onUndo}
+            className="inline-flex min-h-6 items-center gap-1 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:hidden"
+          >
+            <Undo2 className="size-3" aria-hidden />
+            Undo
+          </button>
+        )}
+        {/* Only shown when it starts to matter — a permanent counter is noise. */}
+        {nearLimit && (
+          <span aria-live="polite" className={remaining < 0 ? "text-destructive" : undefined}>
+            {remaining} characters left
+          </span>
+        )}
+      </div>
+    </form>
+  );
+}
