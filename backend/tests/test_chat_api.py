@@ -210,3 +210,43 @@ def test_an_invalid_bearer_token_is_rejected(client, monkeypatch):
     )
 
     assert response.status_code == 401
+
+
+def test_the_model_catalogue_marks_the_default_and_eval_reference(client):
+    response = client.get("/api/models")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert sum(1 for m in body["models"] if m["is_default"]) == 1
+    assert body["eval_reference"]
+
+
+def test_an_unlisted_model_is_rejected_not_silently_swapped(client, monkeypatch):
+    """Answering with a different model than asked for makes comparisons meaningless."""
+    _stub_pipeline(monkeypatch)
+
+    response = client.post(
+        "/api/chat", json={"message": "hi", "model": "some-expensive-frontier-model"}
+    )
+
+    assert response.status_code == 400
+
+
+def test_provider_errors_are_not_forwarded_verbatim(client, monkeypatch):
+    """A Groq rate-limit body contains the org id and the account's quota."""
+    from winchat_api.llm.base import ProviderError
+
+    leaky = ProviderError(
+        "groq: 429 rate limit for organization `org_01SECRET` limit 100000 tokens"
+    )
+
+    async def exploding_plan(**kwargs):
+        raise leaky
+
+    monkeypatch.setattr(chat_route, "plan_answer", exploding_plan)
+
+    raw = client.post("/api/chat", json={"message": "hello"}).text
+
+    assert "org_01SECRET" not in raw
+    assert "100000" not in raw
+    assert _events(raw)[0][0] == "error"

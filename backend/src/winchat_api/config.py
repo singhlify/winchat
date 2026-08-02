@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     # --- LLM (provider-agnostic; see llm/registry.py) ---
     llm_provider: str = "groq"
     llm_model: str = "llama-3.3-70b-versatile"
+    # A curated allowlist, not everything the provider serves. Exposing weak models makes
+    # the product look bad for a failure that is not the pipeline's, and an unvalidated
+    # model name from a client is an open proxy to whatever the provider will bill for.
+    llm_allowed_models: str = (
+        "llama-3.3-70b-versatile,openai/gpt-oss-120b,qwen/qwen3.6-27b,llama-3.1-8b-instant"
+    )
     llm_timeout_s: float = 30.0
     # Providers meter by tokens per minute and Groq's free tier is low enough to hit. How
     # long to wait is a per-caller decision: a user watching a chat box gets seconds.
@@ -121,6 +127,12 @@ class Settings(BaseSettings):
     # Phase 2 will fill this in (Supabase Postgres + pgvector).
     database_url: str | None = None
     corpus_path: Path = Field(default=REPO_ROOT / "data" / "ask_uwindsor" / "answers.jsonl")
+
+    @property
+    def allowed_models(self) -> list[str]:
+        models = [m.strip() for m in self.llm_allowed_models.split(",") if m.strip()]
+        # The configured default is always selectable, even if omitted from the list.
+        return models if self.llm_model in models else [self.llm_model, *models]
 
     @property
     def cors_origins(self) -> list[str]:

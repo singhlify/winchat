@@ -39,3 +39,22 @@ def reciprocal_rank_fusion(
         merged[chunk_id].scores["rrf"] = score
 
     return sorted(merged.values(), key=lambda chunk: fused_scores[chunk.chunk_id], reverse=True)
+
+
+def best_per_answer(chunks: Sequence[RetrievedChunk]) -> list[RetrievedChunk]:
+    """Keep only the highest-ranked chunk of each source answer, preserving order.
+
+    Measured need, not tidiness. Several golden cases failed with the correct answer at
+    dense rank 1 but fused rank 8, because the six final slots were being spent on two or
+    three distinct answers — the same FAQ article occupying three of them. Since citations
+    are grouped by answer anyway, a second chunk of an answer already represented adds
+    almost no new information while displacing an answer that would.
+    """
+    seen: set[str] = set()
+    unique: list[RetrievedChunk] = []
+    for chunk in chunks:
+        if chunk.a_id in seen:
+            continue
+        seen.add(chunk.a_id)
+        unique.append(chunk)
+    return unique

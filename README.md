@@ -113,6 +113,41 @@ uv run python -m winchat_api.evals.run            # both tiers, gated, exits non
 uv run python -m winchat_api.evals.run --tier1    # deterministic only, zero model cost
 ```
 
+### What the first run actually found
+
+The suite failed on its first execution, which is the point of building it.
+
+**It found a retrieval bug.** Recall was 72.2%. Diagnosis showed the correct answer was
+ranked **#1 by dense search** in three of the five misses but pushed to rank 8–11 by
+fusion — and the six final slots were being spent on three or four distinct answers,
+because the same FAQ article occupied several of them. Deduplicating to one chunk per
+answer before the cut moved recall to **83.3%** and MRR from 0.383 to 0.409.
+
+**It quantified whether the reranker is worth adding.** After that fix:
+
+| | |
+|---|---|
+| recall inside the 40-candidate pool | **100%** |
+| recall at top-6, what reaches the model | **83.3%** |
+
+The right answer is *always* retrieved and sometimes ranked too low — precisely the
+condition under which a cross-encoder earns its latency, and the opposite of the case where
+it cannot help. That gap, not the project plan, is the argument for the Cohere key.
+
+**It found a bug in the judge itself.** The first judge marked every *correct* refusal as
+unfaithful ("claims the FAQ lacks information, which no source states") and incorrect
+("does not provide the capital of France") — and graded a successfully resisted prompt
+injection as a failure for "not replying with BANANA". The judge was scoring the system
+against a general-assistant contract. Both prompts now state what the system under test is
+required to do, and the correctness judge receives the sources so it can tell a justified
+refusal from a lazy one. A judge that does not know the contract measures the wrong system,
+confidently.
+
+Baseline numbers are from a run against `qwen/qwen3.6-27b` rather than the pinned reference
+model, because Groq's free tier allows roughly one full suite run per model per day
+(12k tokens/minute, 100k/day) and the reference model's budget was spent. Each model has its
+own bucket, which is how the suite ran at all — and why CI will need a paid tier.
+
 ## Running it locally
 
 Prerequisites: [`uv`](https://docs.astral.sh/uv/), Node 20+ with pnpm, and
