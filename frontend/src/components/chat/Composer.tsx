@@ -88,12 +88,11 @@ export function Composer({
               event.preventDefault();
               onSubmit();
             }
-            // Empty box + Backspace pulls the previous question back for editing —
-            // the same reflex as a terminal.
-            if (event.key === "Backspace" && value.length === 0 && canUndo && !busy) {
-              event.preventDefault();
-              onUndo();
-            }
+            // Backspace deliberately does NOTHING special here. An earlier version used
+            // empty-box Backspace to pull the last exchange back for editing, borrowing a
+            // terminal reflex. In a chat it is destructive and unprompted: the most-pressed
+            // key on the keyboard silently deleted a question and its answer. Undo stays
+            // available as an explicit control.
           }}
           placeholder="Ask about admissions, fees, courses, campus…"
           aria-describedby="composer-hint"
