@@ -18,7 +18,8 @@ import asyncio
 import time
 from typing import Literal
 
-from fastapi import APIRouter, Response
+import asyncpg
+from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel
 
 from winchat_api import __version__
@@ -116,23 +117,50 @@ async def _check_embeddings() -> DependencyCheck:
     )
 
 
-async def _check_database() -> DependencyCheck:
+async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
+    """Query the corpus itself.
+
+    `select 1` would only prove the socket is open. Counting indexed chunks proves the
+    schema exists and the corpus was actually ingested — an empty index is a working
+    database and a broken assistant, and readiness should not call that healthy.
+    """
     settings = get_settings()
     if not settings.database_url:
+        return DependencyCheck(status="not_configured", detail="DATABASE_URL is not set")
+    if pool is None:
+        return DependencyCheck(status="error", detail="database pool failed to open at startup")
+
+    started = time.perf_counter()
+    try:
+        chunks = await pool.fetchval("select count(*) from faq_chunks")
+        answers = await pool.fetchval("select count(*) from faq_answers")
+    except Exception as exc:
+        return DependencyCheck(status="error", detail=str(exc)[:300])
+
+    latency_ms = round((time.perf_counter() - started) * 1000, 1)
+    if not chunks:
         return DependencyCheck(
-            status="not_configured", detail="DATABASE_URL is not set (wired in Phase 2)"
+            status="error",
+            latency_ms=latency_ms,
+            detail="no chunks indexed — run winchat_api.ingestion.run",
         )
-    # Phase 2 replaces this with a real `SELECT 1` plus a pgvector extension check.
-    return DependencyCheck(status="not_configured", detail="connection check not implemented yet")
+    return DependencyCheck(
+        status="ok",
+        provider="postgres",
+        latency_ms=latency_ms,
+        detail=f"{answers} answers, {chunks} chunks",
+    )
 
 
 @router.get("/readyz", response_model=ReadinessResponse)
-async def readyz(response: Response) -> ReadinessResponse:
+async def readyz(request: Request, response: Response) -> ReadinessResponse:
     """Readiness: every configured dependency answered a real call."""
     settings = get_settings()
 
     llm, embeddings, database = await asyncio.gather(
-        _check_llm(), _check_embeddings(), _check_database()
+        _check_llm(),
+        _check_embeddings(),
+        _check_database(getattr(request.app.state, "db_pool", None)),
     )
     checks = {"llm": llm, "embeddings": embeddings, "database": database}
     statuses = {check.status for check in checks.values()}

@@ -11,6 +11,8 @@ dependencies = [
     "pydantic-settings>=2.7",
     "httpx>=0.28",
     "groq>=0.20",
+    "asyncpg>=0.31.0",
+    "pgvector>=0.5.0",
 ]
 
 [dependency-groups]
