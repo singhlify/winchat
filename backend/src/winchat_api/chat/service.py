@@ -8,7 +8,13 @@ from dataclasses import dataclass, field
 import asyncpg
 
 from winchat_api.chat.context import Citation, build_context
-from winchat_api.chat.prompts import REWRITE_PROMPT, SYSTEM_PROMPT, build_user_message
+from winchat_api.chat.prompts import (
+    NO_CONTEXT_MESSAGE,
+    REWRITE_PROMPT,
+    SYSTEM_PROMPT,
+    build_user_message,
+)
+from winchat_api.chat.refusal import Refusal, should_refuse
 from winchat_api.embeddings.base import EmbeddingProvider
 from winchat_api.llm.base import ChatProvider, Message
 from winchat_api.retrieval.rerank.base import Reranker
@@ -35,6 +41,14 @@ class AnswerPlan:
     retrieval: RetrievalResult | None = None
     messages: list[Message] = field(default_factory=list)
     timings: dict[str, float] = field(default_factory=dict)
+    refusal: Refusal | None = None
+    # Shown to the user when refusing: what we did find, clearly labelled as not good
+    # enough to answer from. Hiding it would make the refusal look like a broken search.
+    near_misses: list[Citation] = field(default_factory=list)
+
+    @property
+    def refused(self) -> bool:
+        return self.refusal is not None
 
 
 async def rewrite_query(
@@ -85,6 +99,23 @@ async def plan_answer(
     )
     context = build_context(retrieval.chunks)
 
+    refusal = should_refuse(retrieval)
+    if refusal is not None:
+        # The model is never called. Refusing costs no tokens and cannot hallucinate.
+        logger.info(
+            "refusing: %s (score=%.4f < %.2f)", refusal.reason, refusal.score, refusal.threshold
+        )
+        return AnswerPlan(
+            question=question,
+            search_query=search_query,
+            citations=[],
+            near_misses=context.citations[:3],
+            retrieval=retrieval,
+            messages=[],
+            timings={"rewrite": rewrite_ms, **retrieval.latency_ms},
+            refusal=refusal,
+        )
+
     messages = [
         Message(role="system", content=SYSTEM_PROMPT),
         *[
@@ -105,6 +136,10 @@ async def plan_answer(
 
 
 async def stream_answer(llm: ChatProvider, plan: AnswerPlan) -> AsyncIterator[str]:
+    if plan.refused:
+        yield NO_CONTEXT_MESSAGE
+        return
+
     async for token in llm.stream(plan.messages, temperature=0.1, max_tokens=800):
         yield token
 
@@ -141,6 +176,9 @@ async def answer_question(
         question=question,
         history=history,
     )
+    if plan.refused:
+        return Answer(text=NO_CONTEXT_MESSAGE, plan=plan, model=llm.model)
+
     started = time.perf_counter()
     completion = await llm.complete(plan.messages, temperature=0.1, max_tokens=800)
     plan.timings["generate"] = round((time.perf_counter() - started) * 1000, 1)
