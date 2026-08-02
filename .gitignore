@@ -1,0 +1,33 @@
+# Secrets / config
+.env
+.env.*
+!.env.example
+
+# Scraped corpus — regenerable via scripts/scrape_ask_uwindsor.py, large, drifts from source
+data/ask_uwindsor/
+data/**/raw/
+*.jsonl
+
+# Python (uv)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+
+# Vector store artifacts (if any local)
+chroma/
+
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
