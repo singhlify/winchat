@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     llm_provider: str = "groq"
     llm_model: str = "llama-3.3-70b-versatile"
     llm_timeout_s: float = 30.0
+    # Providers meter by tokens per minute and Groq's free tier is low enough to hit. How
+    # long to wait is a per-caller decision: a user watching a chat box gets seconds.
+    llm_retry_budget_s: float = 20.0
     groq_api_key: str | None = None
 
     # --- embeddings (provider-agnostic; see embeddings/registry.py) ---
@@ -40,6 +43,11 @@ class Settings(BaseSettings):
     embedding_model: str = "nomic-embed-text"
     embedding_timeout_s: float = 30.0
     ollama_base_url: str = "http://localhost:11434"
+    # For EMBEDDING_PROVIDER=openai_compatible (deployment). Must serve the SAME model the
+    # corpus was ingested with — a query embedded by a different model retrieves confident
+    # nonsense rather than raising.
+    embedding_base_url: str | None = None
+    embedding_api_key: str | None = None
 
     # --- retrieval ---
     # Wide recall then narrow precision: cast a big net with cheap retrieval, then let the
@@ -64,6 +72,50 @@ class Settings(BaseSettings):
     rerank_model: str = "rerank-v3.5"
     rerank_timeout_s: float = 15.0
     cohere_api_key: str | None = None
+
+    # --- evaluation ---
+    # Pinned separately from the app model. Users may pick any model; a quality claim is
+    # only coherent if it names one, so the eval always runs against this one.
+    eval_model: str = "llama-3.3-70b-versatile"
+    # A different model family from the generator on purpose — models prefer their own
+    # outputs, and a same-family judge inflates every score it produces.
+    eval_judge_model: str = "openai/gpt-oss-120b"
+    # Low on purpose: the whole suite against one model exceeds Groq's free-tier
+    # tokens-per-minute budget, so concurrency mostly buys retries, not speed.
+    eval_concurrency: int = 2
+    # Offline work can afford to wait out a per-minute budget; a chat request cannot.
+    eval_retry_budget_s: float = 900.0
+
+    # CI gates. Set from the first measured baseline, then ratcheted up — never guessed,
+    # because a threshold nobody can meet gets disabled and one nobody can fail is decoration.
+    eval_min_retrieval_recall: float = 0.85
+    eval_min_deterministic_pass: float = 0.85
+    eval_min_faithfulness: float = 0.90
+    eval_min_correctness: float = 0.85
+
+    # --- auth & abuse control ---
+    supabase_url: str | None = None
+    supabase_jwt_secret: str | None = None  # only for legacy HS256 projects
+    # Signing in is optional: the FAQ is public, and gating a public question behind a
+    # login is theatre. Auth buys history, isolation, and a higher rate limit.
+    require_auth: bool = False
+
+    rate_limit_per_hour: int = 20
+    rate_limit_per_day: int = 60
+    rate_limit_global_per_day: int = 2000  # the actual spend ceiling (OWASP LLM10)
+    # Salts the hash of anonymous client addresses. Change it and every anonymous caller
+    # becomes a new subject, which is the intended blast radius of rotating it.
+    rate_limit_salt: str = "winchat-dev-salt"
+    # Off by default. X-Forwarded-For is client-supplied; trusting it without a proxy in
+    # front lets anyone mint a fresh rate-limit identity per request. Turn it on only where
+    # a known proxy (Render, Vercel) actually sets it.
+    trust_proxy_headers: bool = False
+
+    @property
+    def supabase_jwks_url(self) -> str | None:
+        if not self.supabase_url:
+            return None
+        return f"{self.supabase_url.rstrip('/')}/auth/v1/.well-known/jwks.json"
 
     # --- data / database ---
     # Phase 2 will fill this in (Supabase Postgres + pgvector).

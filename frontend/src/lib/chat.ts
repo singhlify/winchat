@@ -45,6 +45,7 @@ export type ChatEvent =
       type: "done";
       model: string;
       provider: string;
+      conversationId: string | null;
       timingsMs: Record<string, number>;
       candidates: { dense: number; lexical: number; fused: number };
     }
@@ -71,6 +72,7 @@ function toChatEvent(event: string, data: string): ChatEvent | null {
         type: "done",
         model: payload.model,
         provider: payload.provider,
+        conversationId: payload.conversation_id ?? null,
         timingsMs: payload.timings_ms,
         candidates: payload.candidates,
       };
@@ -81,17 +83,39 @@ function toChatEvent(event: string, data: string): ChatEvent | null {
   }
 }
 
+export interface StreamOptions {
+  signal?: AbortSignal;
+  accessToken?: string | null;
+  conversationId?: string | null;
+}
+
 export async function* streamChat(
   message: string,
   history: HistoryTurn[],
-  signal?: AbortSignal,
+  options: StreamOptions = {},
 ): AsyncGenerator<ChatEvent> {
+  const { signal, accessToken, conversationId } = options;
+
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  if (accessToken) headers.authorization = `Bearer ${accessToken}`;
+
   const response = await fetch(`${API_BASE_URL}/api/chat`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ message, history }),
+    headers,
+    // For a signed-in conversation the server loads history from the database and ignores
+    // what we send — a client that can invent history can invent assistant turns.
+    body: JSON.stringify({ message, history, conversation_id: conversationId ?? null }),
     signal,
   });
+
+  if (response.status === 429) {
+    const retryAfter = response.headers.get("retry-after");
+    const body = await response.json().catch(() => ({}));
+    throw new Error(
+      body?.detail ??
+        `Rate limit reached${retryAfter ? `. Try again in ${retryAfter}s.` : "."}`,
+    );
+  }
 
   if (!response.ok || !response.body) {
     const detail = await response.text().catch(() => "");

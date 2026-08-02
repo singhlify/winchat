@@ -1,61 +1,181 @@
-# WinChat v2 — Production RAG (UWindsor FAQ assistant)
+# WinChat — production RAG over the UWindsor FAQ
 
-A production-grade RAG (retrieval-augmented generation) web app that answers University of
-Windsor FAQ questions, grounded in the public `ask.uwindsor.ca` knowledge base. Built as a
-showcase of shipping **secure, evaluated, useful** RAG systems.
+A retrieval-augmented generation (RAG) assistant that answers University of Windsor
+questions grounded in the public `ask.uwindsor.ca` knowledge base — with clickable
+citations, a calibrated "I don't know", and an evaluation suite that gates CI.
 
-> Stage 2 of a two-stage project. Stage 1 (`../winchat`) was a from-scratch learning rebuild
-> of the AI layer; this is the production build.
+> RAG = retrieve relevant passages from a corpus, then have a language model answer using
+> only those passages. The interesting engineering is in the retrieval and in proving the
+> answers are actually grounded — not in the model call.
 
-## Stack
-- **Backend / AI core:** Python (FastAPI) — retrieval, reranking, grounded generation, eval
-- **Frontend:** Next.js (React/TypeScript) — streaming chat with inline citations
-- **Vector store + data:** Postgres + pgvector (Supabase), with Auth + Row-Level Security
-- **LLM:** open-weight models via Groq, behind a provider-agnostic interface (swappable)
-- **Retrieval:** hybrid (dense + BM25) + RRF + Cohere Rerank
-- **Evaluation:** LLM-as-judge (faithfulness + correctness) over a golden set, gated in CI
+**556 FAQ answers · 665 indexed chunks · hybrid retrieval · 81 backend tests**
+
+---
+
+## Why the pieces are the way they are
+
+| Decision | Reason |
+|---|---|
+| **Python (FastAPI) is the AI core** | Retrieval, generation and evaluation are all Python. The frontend is a client, not the identity of the system. |
+| **Provider-agnostic LLM layer** | Every call goes through a `ChatProvider` protocol. Swapping Groq for Anthropic is one registry entry and one env var — written by hand rather than delegated to a framework, because that abstraction is the point. |
+| **Open-weight models via Groq** | Groq is a fast host for open weights, not an open-source vendor. The win is portability: the same model runs on Groq, Together, or self-hosted vLLM. |
+| **Open embeddings (`nomic-embed-text`)** | Keeps the whole pipeline free of lock-in. Ollama locally, an OpenAI-compatible endpoint in production, same weights either way. |
+| **pgvector inside Postgres** | Vectors and application data in one database. A second managed vector store is a system to operate, back up and pay for, at a scale that does not need it. |
+| **Plain SQL, never `supabase-js`** | Supabase is ordinary Postgres. Keeping data access in SQL means the database can move to any host unchanged. `supabase-js` is used in one place only: browser login. |
+| **The eval harness is the centrepiece** | Anyone can wire an LLM to a vector store. Being able to say *how good it is, measured how* is the part that separates a system from a demo. |
+
+## Architecture
+
+```
+ Browser (Next.js, Vercel)
+      │  POST /api/chat        ← SSE stream: sources first, then tokens
+      ▼
+ FastAPI  (Render)  ── the AI core
+      │
+      ├─ rate limit + circuit breaker      Postgres counters (OWASP LLM10)
+      ├─ auth: verify Supabase JWT         local ES256 verification via JWKS
+      ├─ query rewrite (multi-turn only)
+      ├─ hybrid retrieval  ──┬─ dense: pgvector cosine, top 50
+      │                      └─ lexical: Postgres FTS, top 50
+      ├─ Reciprocal Rank Fusion (k=60, ranks not scores)
+      ├─ Cohere Rerank → top 6            optional; degrades to fused order
+      ├─ refusal gate                     calibrated similarity threshold
+      └─ grounded generation (Groq)       cites [n]; URLs never enter the prompt
+      ▼
+ Postgres + pgvector (Supabase) · Row Level Security FORCEd on user data
+
+ OFFLINE — never in the request path
+   ingestion:  answers.jsonl → chunk → embed → upsert → reconcile deletions
+   evaluation: golden set → deterministic checks → LLM judge → CI gate
+```
+
+Ingestion and evaluation never run inside a request. Embedding documents during a chat
+request is the classic mistake this separation exists to avoid.
+
+## Retrieval, and why it is hybrid
+
+Dense vector search fails *structurally* on exact strings — course codes, form numbers,
+`UWinsite` — because a fixed-length vector cannot encode exact string identity. No better
+embedding model fixes it. Keyword search has the mirror failure: it cannot connect "how
+much does it cost" to "tuition fees". Both arms run concurrently and are fused.
+
+Fusion is over **ranks, not scores**. Cosine similarity and `ts_rank_cd` are not on
+comparable scales, and a weighted sum of the two would invent a calibration that does not
+exist.
+
+One measured example: the first lexical implementation used `plainto_tsquery`, which ANDs
+every term — so *"deadline to drop a course without penalty"* required all six words in one
+chunk and matched **nothing**. Rewriting the operators to OR moved the correct answer to
+rank 1.
+
+## The "I don't know", and why there are two of them
+
+A refusal threshold was **calibrated, not guessed** — the best dense similarity measured
+over 8 on-topic and 8 off-topic questions against this corpus:
+
+| | range |
+|---|---|
+| on-topic | 0.7329 – 0.8328 |
+| off-topic | 0.5323 – 0.6952 *(one outlier at 0.7849)* |
+
+A threshold of **0.70** sits in that gap. Below it the model is never called at all — no
+tokens, no latency, no opportunity to hallucinate.
+
+The outlier is the argument for a second defence. *"What are the admission requirements at
+the University of Toronto?"* scores 0.7849 against UWindsor's own admissions FAQ, because
+the questions genuinely are near-identical in meaning. No threshold can separate them; only
+a reader notices it names a different university. The prompt's grounding rule catches it —
+the model replies that the sources cover Windsor, not Toronto.
+
+The threshold is specific to `nomic-embed-text` and this corpus. Cosine scores are not
+comparable across embedding models, so changing either means recalibrating.
+
+## Evaluation
+
+Three properties make it worth trusting:
+
+1. **It runs the real pipeline.** The same `answer_question` the HTTP endpoint calls — an
+   eval against a parallel implementation eventually measures something users never touch.
+2. **Two tiers.** Deterministic checks first (citation validity, required facts, forbidden
+   patterns, retrieval recall and MRR) — no model, no cost, no variance. Then an LLM judge
+   for faithfulness and correctness, scored separately because they fail independently.
+3. **The judge is a different model family from the generator.** Models prefer their own
+   outputs; a same-family judge inflates every number it produces. The generator is Llama,
+   the judge is GPT-OSS, and the report always names both — "92% faithful" is meaningless
+   without saying who graded it.
+
+The golden set is hand-written with expectations read out of the actual corpus, including
+a case whose correct answer is *a pointer, not a date* (the FAQ deliberately does not state
+the drop deadline) — with a regex asserting no date is invented.
+
+```bash
+uv run python -m winchat_api.evals.run            # both tiers, gated, exits non-zero on failure
+uv run python -m winchat_api.evals.run --tier1    # deterministic only, zero model cost
+```
 
 ## Running it locally
 
 Prerequisites: [`uv`](https://docs.astral.sh/uv/), Node 20+ with pnpm, and
-[Ollama](https://ollama.com) running with the embedding model pulled
-(`ollama pull nomic-embed-text`).
+[Ollama](https://ollama.com) (`ollama pull nomic-embed-text`).
 
 ```bash
 # backend — the AI core
 cd backend
-cp .env.example .env          # then set GROQ_API_KEY
+cp .env.example .env          # set GROQ_API_KEY and DATABASE_URL
 uv sync
-uv run uvicorn winchat_api.main:app --reload    # http://localhost:8000
+uv run python -m winchat_api.db.migrate          # schema + pgvector + RLS
+uv run python -m winchat_api.ingestion.run       # chunk, embed, upsert
+uv run uvicorn winchat_api.main:app --reload     # http://localhost:8000
 
-# frontend — in a second terminal
+# frontend — second terminal
 cd frontend
 cp .env.example .env.local
-pnpm install
-pnpm dev                                         # http://localhost:3000
+pnpm install && pnpm dev                          # http://localhost:3000
 ```
 
-Verify the whole chain:
+Checks:
 
 ```bash
-curl localhost:8000/healthz              # liveness — no external calls
-curl localhost:8000/readyz               # readiness — one real call per dependency
-cd backend && uv run python -m winchat_api.smoke   # real generation + embeddings
+curl localhost:8000/healthz      # liveness — no external calls
+curl localhost:8000/readyz       # readiness — one real call per dependency
+cd backend && uv run python -m winchat_api.ask "how do I drop a course?"
 ```
 
-`http://localhost:3000` shows the same readiness report in the browser, which also proves
-the cross-origin path the streaming chat will use.
+`/healthz` and `/readyz` are separate on purpose. Liveness makes no external calls, so a
+slow third party never restarts the service. Readiness exercises every dependency and
+reports each one's status, model and latency — and an unconfigured dependency reports
+`not_configured`, never `ok`, which is fatal outside local development. A health check that
+reports green while missing its API key is worse than no health check.
 
-Checks: `cd backend && uv run pytest && uv run ruff check .` · `cd frontend && pnpm lint`
+## Security posture
+
+- **Row Level Security, FORCEd.** `ENABLE` alone is not enough: Postgres exempts a table's
+  owner from its own policies, and the API owns these tables — so the policy would look
+  right in the schema and enforce nothing. Verified by test: a second user reads zero rows
+  even when targeting a conversation id directly, and cannot forge a row as someone else.
+- **Rate limits as a feature** (OWASP LLM10). A per-subject rolling window plus a global
+  daily circuit breaker, because per-user limits do not bound total spend — users are not
+  bounded. Anonymous callers are identified by a *salted hash* of their address; rate
+  limiting needs to tell clients apart, not to identify anyone.
+- **Prompt injection** (OWASP LLM01). For RAG the dangerous form is indirect — instructions
+  smuggled inside a retrieved document. The system prompt treats source text as content,
+  never as instructions, and the golden set contains injection attempts as test cases.
+- **Signed-in history comes from the database, not the request body.** A client that can
+  invent its own history can invent assistant turns to steer the model.
+- **JWTs are verified locally** against the project's published JWKS, so the API's
+  availability does not depend on the auth service being reachable.
 
 ## Documentation
+
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — goal, hard constraints, how to work
-- [`docs/STATE.md`](./docs/STATE.md) — current status, next steps, decisions made
-- [`docs/PLAN.md`](./docs/PLAN.md) — architecture, hosting, phased build, feature→signal map
-- [`docs/RESEARCH.md`](./docs/RESEARCH.md) — the verified research behind every choice
+- [`docs/STATE.md`](./docs/STATE.md) — current status, decisions, what was rejected
+- [`docs/PLAN.md`](./docs/PLAN.md) — architecture, hosting, phased build
+- [`docs/RESEARCH.md`](./docs/RESEARCH.md) — the research behind every choice
 - [`docs/DATA.md`](./docs/DATA.md) — the corpus and its scraper
 
-## Status
-Phase 1 complete — scaffold runs end to end (browser → FastAPI → Groq + embeddings), with a
-readiness endpoint that exercises every dependency. Ingestion into pgvector is next. See
-`docs/STATE.md`.
+## Scaling story
+
+Stateless backend behind a load balancer; Postgres read replicas; move vectors to a
+dedicated store past roughly a million chunks; a queue for ingestion; swap Groq for
+self-hosted vLLM if volume ever justifies it; add online drift monitoring alongside the
+offline CI gate. Detail in `docs/RESEARCH.md` §2, §5, §8.

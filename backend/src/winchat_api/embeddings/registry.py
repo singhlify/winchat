@@ -12,6 +12,7 @@ from functools import lru_cache
 from winchat_api.config import Settings, get_settings
 from winchat_api.embeddings.base import EmbeddingError, EmbeddingProvider
 from winchat_api.embeddings.ollama_provider import OllamaEmbeddingProvider
+from winchat_api.embeddings.openai_compatible import OpenAICompatibleEmbeddingProvider
 
 
 def _build_ollama(settings: Settings) -> EmbeddingProvider:
@@ -22,8 +23,18 @@ def _build_ollama(settings: Settings) -> EmbeddingProvider:
     )
 
 
+def _build_openai_compatible(settings: Settings) -> EmbeddingProvider:
+    return OpenAICompatibleEmbeddingProvider(
+        base_url=settings.embedding_base_url or "",
+        api_key=settings.embedding_api_key or "",
+        model=settings.embedding_model,
+        timeout_s=settings.embedding_timeout_s,
+    )
+
+
 _BUILDERS: dict[str, Callable[[Settings], EmbeddingProvider]] = {
     "ollama": _build_ollama,
+    "openai_compatible": _build_openai_compatible,
 }
 
 

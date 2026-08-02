@@ -19,13 +19,9 @@ def _stub_client(captured: list[dict]) -> httpx.AsyncClient:
     def handler(request: httpx.Request) -> httpx.Response:
         payload = json.loads(request.content)
         captured.append(payload)
-        return httpx.Response(
-            200, json={"embeddings": [[0.1, 0.2, 0.3] for _ in payload["input"]]}
-        )
+        return httpx.Response(200, json={"embeddings": [[0.1, 0.2, 0.3] for _ in payload["input"]]})
 
-    return httpx.AsyncClient(
-        transport=httpx.MockTransport(handler), base_url="http://ollama.test"
-    )
+    return httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://ollama.test")
 
 
 async def test_nomic_task_prefixes_are_applied():

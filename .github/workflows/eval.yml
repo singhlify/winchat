@@ -1,0 +1,78 @@
+name: Eval gate
+
+# The quality gate. It runs the real pipeline against the golden set and fails the build
+# when retrieval recall, faithfulness or correctness drop below their thresholds.
+#
+# Separate from CI on purpose:
+#   * it needs secrets, so it cannot run on fork pull requests;
+#   * it spends model tokens, so it should not run on every push to a branch;
+#   * it is slow — Groq's free tier meters by tokens per minute, and the suite deliberately
+#     waits that budget out rather than failing.
+#
+# Ollama runs as a service container so query embeddings come from the same model the
+# corpus was embedded with. Embedding a query with a different model than the index is the
+# failure this cannot be allowed to have.
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/eval.yml"
+  schedule:
+    - cron: "0 7 * * 1" # Mondays, to catch drift from corpus refreshes
+  workflow_dispatch:
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      ollama:
+        image: ollama/ollama:latest
+        ports:
+          - 11434:11434
+
+    env:
+      APP_ENV: ci
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+      OLLAMA_BASE_URL: http://localhost:11434
+      EMBEDDING_PROVIDER: ollama
+      EMBEDDING_MODEL: nomic-embed-text
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - run: uv sync --locked
+
+      - name: Pull the embedding model
+        run: |
+          for _ in $(seq 30); do
+            curl -sf http://localhost:11434/api/tags >/dev/null && break
+            sleep 2
+          done
+          curl -sf http://localhost:11434/api/pull -d '{"model":"nomic-embed-text"}' >/dev/null
+
+      - name: Run the eval suite
+        run: uv run python -m winchat_api.evals.run --json eval-report.json
+
+      - name: Publish the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: backend/eval-report.json

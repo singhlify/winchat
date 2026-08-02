@@ -57,9 +57,7 @@ def _parse_timestamp(value: str | None) -> datetime | None:
 def load_answers(path: Path) -> list[Answer]:
     """Read every answer, skipping nothing silently — a bad record raises."""
     if not path.exists():
-        raise CorpusError(
-            f"corpus not found at {path}; run scripts/scrape_ask_uwindsor.py first"
-        )
+        raise CorpusError(f"corpus not found at {path}; run scripts/scrape_ask_uwindsor.py first")
 
     answers = list(_iter_answers(path))
     if not answers:
