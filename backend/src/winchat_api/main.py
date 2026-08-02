@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from winchat_api import __version__
-from winchat_api.api.routes import chat, health, models
+from winchat_api.api.routes import chat, feedback, health, models, sources
 from winchat_api.config import get_settings
 from winchat_api.db.pool import create_pool
 
@@ -61,6 +61,8 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(chat.router)
     app.include_router(models.router)
+    app.include_router(sources.router)
+    app.include_router(feedback.router)
     return app
 
 

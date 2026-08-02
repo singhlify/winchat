@@ -27,12 +27,8 @@ from winchat_api.llm.base import ProviderError
 from winchat_api.llm.registry import build_chat_provider, get_chat_provider
 from winchat_api.retrieval.rerank.registry import get_reranker
 from winchat_api.security.auth import AuthenticatedUser, optional_user
-from winchat_api.security.rate_limit import (
-    anonymous_subject,
-    check_limits,
-    record_usage,
-    user_subject,
-)
+from winchat_api.security.identity import subject_for
+from winchat_api.security.rate_limit import check_limits, record_usage
 
 logger = logging.getLogger(__name__)
 
@@ -71,21 +67,6 @@ def _error_event(message: str, exc: Exception) -> str:
     return _sse("error", {"message": message, "detail": detail})
 
 
-def _client_ip(request: Request) -> str:
-    """The caller's address, trusting the proxy header only when configured to.
-
-    Render and Vercel both sit in front of this service, so the socket address is the
-    proxy's. `X-Forwarded-For` is client-supplied and trivially spoofed, which would let
-    anyone mint a fresh rate-limit identity per request — so the leftmost entry is used
-    only when a proxy is expected, and the direct address otherwise.
-    """
-    if get_settings().trust_proxy_headers:
-        forwarded = request.headers.get("x-forwarded-for", "")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
-
-
 CurrentUser = Annotated[AuthenticatedUser | None, Depends(optional_user)]
 
 
@@ -95,7 +76,7 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
     if pool is None:
         raise HTTPException(status_code=503, detail="database is not available")
 
-    subject = user_subject(user.id) if user else anonymous_subject(_client_ip(request))
+    subject = subject_for(request, user)
 
     # Checked before retrieval and before the model: a rejected request should cost
     # nothing beyond two indexed counts.

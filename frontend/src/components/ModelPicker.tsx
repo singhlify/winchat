@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-import { fetchModels, type ModelInfo } from "@/lib/chat";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { fetchModels } from "@/lib/api/client";
 
 /**
  * Model selector.
  *
- * The list comes from the API, never hard-coded here: the backend owns the allowlist, and
- * a client-side list would drift from what the server will actually accept.
+ * The list comes from the API and is never hard-coded here: the backend owns the
+ * allowlist, and a client-side copy would drift from what the server will actually accept.
  *
- * The eval reference model is labelled. Users can pick freely, but every published quality
- * number was measured on one specific model, and the UI should not let those two facts
- * blur together.
+ * The eval reference model is labelled. Users may pick freely, but every published quality
+ * number was measured on one specific model, and the UI should not let those blur.
  */
 export function ModelPicker({
   value,
@@ -21,46 +27,37 @@ export function ModelPicker({
   value: string | null;
   onChange: (model: string | null) => void;
 }) {
-  const [models, setModels] = useState<ModelInfo[]>([]);
-  const [reference, setReference] = useState<string | null>(null);
+  const { data } = useQuery({
+    queryKey: ["models"],
+    queryFn: ({ signal }) => fetchModels({ signal }),
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-    fetchModels().then(
-      (catalogue) => {
-        if (cancelled) return;
-        setModels(catalogue.models);
-        setReference(catalogue.eval_reference);
-      },
-      () => {
-        // A missing catalogue just hides the picker; the backend default still applies.
-        if (!cancelled) setModels([]);
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  const models = data?.models ?? [];
   if (models.length <= 1) return null;
 
   const selected = value ?? models.find((model) => model.is_default)?.id ?? models[0].id;
 
   return (
-    <label className="flex items-center gap-1.5 text-xs text-neutral-500">
-      <span className="sr-only">Model</span>
-      <select
-        value={selected}
-        onChange={(event) => onChange(event.target.value)}
-        className="rounded border border-neutral-300 bg-transparent px-1.5 py-1 text-xs dark:border-neutral-700"
+    <Select value={selected} onValueChange={onChange}>
+      <SelectTrigger
+        size="sm"
+        aria-label="Language model"
+        className="hidden max-w-[13rem] font-mono text-xs sm:flex"
       >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent align="end">
         {models.map((model) => (
-          <option key={model.id} value={model.id}>
+          <SelectItem key={model.id} value={model.id} className="font-mono text-xs">
             {model.id}
-            {model.id === reference ? " (eval reference)" : ""}
-          </option>
+            {model.is_eval_reference && (
+              <span className="ml-1.5 font-sans text-[10px] text-muted-foreground">
+                eval reference
+              </span>
+            )}
+          </SelectItem>
         ))}
-      </select>
-    </label>
+      </SelectContent>
+    </Select>
   );
 }

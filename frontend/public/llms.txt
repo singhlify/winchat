@@ -1,0 +1,33 @@
+# WinChat
+
+> A retrieval-augmented assistant that answers University of Windsor questions using only
+> the university's own published FAQ articles, with a link to the source article behind
+> every claim. It declines to answer when the corpus does not cover a question rather than
+> guessing.
+
+WinChat is not affiliated with or operated by the University of Windsor. It is an
+independent project built on the university's public FAQ service at https://ask.uwindsor.ca.
+For anything official, use the university's own pages.
+
+## What it covers
+
+556 published FAQ articles from ask.uwindsor.ca, spanning admissions, tuition and fees,
+OSAP and financial aid, UWinsite Student, UWin accounts, the UwinCARD, course registration,
+transcripts, residence, co-op, campus buildings and student services.
+
+The complete list of source articles, each linking to the university's own page:
+- [All sources](/sources): every article WinChat can answer from
+
+## How it answers
+
+- Hybrid retrieval: vector similarity over pgvector plus Postgres full-text search, fused
+  with Reciprocal Rank Fusion.
+- Answers cite their sources inline; each citation links to the original article.
+- Below a calibrated similarity threshold it declines to answer instead of guessing.
+- Source content belongs to the University of Windsor. WinChat quotes and links; it does
+  not republish the corpus.
+
+## Pages
+
+- [WinChat](/): the assistant
+- [All sources](/sources): the full source list
