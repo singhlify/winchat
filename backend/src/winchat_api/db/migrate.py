@@ -40,9 +40,7 @@ async def apply_migrations(connection: asyncpg.Connection) -> list[str]:
             continue
         async with connection.transaction():
             await connection.execute(path.read_text())
-            await connection.execute(
-                "insert into schema_migrations (version) values ($1)", version
-            )
+            await connection.execute("insert into schema_migrations (version) values ($1)", version)
         newly_applied.append(version)
 
     return newly_applied

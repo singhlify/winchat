@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 
 import { AnswerText } from "@/components/AnswerText";
+import { AuthPanel } from "@/components/AuthPanel";
 import { Refusal } from "@/components/Refusal";
 import { Sources } from "@/components/Sources";
 import {
@@ -36,6 +37,16 @@ export function Chat() {
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  // Kept in refs, not state: neither should re-render the conversation when it changes,
+  // and `send` must read the current value without being rebuilt.
+  const tokenRef = useRef<string | null>(null);
+  const conversationRef = useRef<string | null>(null);
+
+  const handleSession = useCallback((accessToken: string | null) => {
+    tokenRef.current = accessToken;
+    // A different identity means a different conversation thread.
+    conversationRef.current = null;
+  }, []);
 
   const send = useCallback(
     async (question: string) => {
@@ -67,7 +78,11 @@ export function Chat() {
         });
 
       try {
-        for await (const event of streamChat(trimmed, history, controller.signal)) {
+        for await (const event of streamChat(trimmed, history, {
+          signal: controller.signal,
+          accessToken: tokenRef.current,
+          conversationId: conversationRef.current,
+        })) {
           if (event.type === "sources") {
             updateAnswer({
               citations: event.citations,
@@ -84,6 +99,7 @@ export function Chat() {
               return next;
             });
           } else if (event.type === "done") {
+            if (event.conversationId) conversationRef.current = event.conversationId;
             updateAnswer({ model: event.model });
           } else if (event.type === "error") {
             updateAnswer({ error: event.detail ?? event.message });
@@ -108,11 +124,14 @@ export function Chat() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-10">
-        <header>
-          <h1 className="text-xl font-semibold tracking-tight">WinChat</h1>
-          <p className="text-sm text-neutral-500">
-            Answers grounded in the University of Windsor FAQ, with sources.
-          </p>
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">WinChat</h1>
+            <p className="text-sm text-neutral-500">
+              Answers grounded in the University of Windsor FAQ, with sources.
+            </p>
+          </div>
+          <AuthPanel onSession={handleSession} />
         </header>
 
         {turns.length === 0 && (

@@ -80,9 +80,7 @@ async def _check_llm() -> DependencyCheck:
     started = time.perf_counter()
     try:
         provider = get_chat_provider()
-        completion = await provider.complete(
-            [Message(role="user", content="ping")], max_tokens=1
-        )
+        completion = await provider.complete([Message(role="user", content="ping")], max_tokens=1)
     except Exception as exc:
         return DependencyCheck(
             status="error", provider=settings.llm_provider, detail=str(exc)[:300]

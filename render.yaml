@@ -1,0 +1,65 @@
+# Render blueprint for the FastAPI backend.
+#
+# The frontend deploys to Vercel and the database is Supabase, so this file covers exactly
+# one service. Secrets are marked sync:false — they are set in the Render dashboard and
+# never live in the repository.
+
+services:
+  - type: web
+    name: winchat-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: ohio
+    healthCheckPath: /healthz # liveness, not /readyz — see the Dockerfile note
+
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+
+      # The Vercel origin. CORS is an allowlist, never "*", because credentials are sent.
+      - key: CORS_ALLOW_ORIGINS
+        sync: false
+
+      # Render terminates TLS in front of the container, so X-Forwarded-For is set by a
+      # proxy we control and can be trusted for rate-limit identity.
+      - key: TRUST_PROXY_HEADERS
+        value: "true"
+
+      - key: LLM_PROVIDER
+        value: groq
+      - key: LLM_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_API_KEY
+        sync: false
+
+      # Ollama does not fit a small instance, so deployment uses a hosted endpoint serving
+      # the SAME open weights the corpus was ingested with.
+      - key: EMBEDDING_PROVIDER
+        value: openai_compatible
+      - key: EMBEDDING_MODEL
+        sync: false
+      - key: EMBEDDING_BASE_URL
+        sync: false
+      - key: EMBEDDING_API_KEY
+        sync: false
+
+      - key: RERANK_PROVIDER
+        value: cohere
+      - key: COHERE_API_KEY
+        sync: false
+
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+
+      - key: RATE_LIMIT_SALT
+        generateValue: true
+      - key: RATE_LIMIT_PER_HOUR
+        value: "20"
+      - key: RATE_LIMIT_GLOBAL_PER_DAY
+        value: "2000"

@@ -51,9 +51,7 @@ class AnswerPlan:
         return self.refusal is not None
 
 
-async def rewrite_query(
-    llm: ChatProvider, question: str, history: Sequence[ChatTurn]
-) -> str:
+async def rewrite_query(llm: ChatProvider, question: str, history: Sequence[ChatTurn]) -> str:
     """Make a follow-up self-contained: "how much is it?" means nothing to a search index.
 
     Skipped entirely on the first turn — an extra model call that cannot improve anything
@@ -94,9 +92,7 @@ async def plan_answer(
     search_query = await rewrite_query(llm, question, history)
     rewrite_ms = round((time.perf_counter() - started) * 1000, 1)
 
-    retrieval = await retrieve(
-        pool=pool, embedder=embedder, reranker=reranker, query=search_query
-    )
+    retrieval = await retrieve(pool=pool, embedder=embedder, reranker=reranker, query=search_query)
     context = build_context(retrieval.chunks)
 
     refusal = should_refuse(retrieval)

@@ -9,16 +9,27 @@ from collections.abc import AsyncIterator, Sequence
 from groq import APIError, AsyncGroq
 
 from winchat_api.llm.base import ChatProvider, Completion, Message, ProviderError
+from winchat_api.llm.retry import with_rate_limit_retry
 
 
 class GroqChatProvider(ChatProvider):
     name = "groq"
 
-    def __init__(self, *, api_key: str, model: str, timeout_s: float = 30.0) -> None:
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        model: str,
+        timeout_s: float = 30.0,
+        retry_budget_s: float = 20.0,
+    ) -> None:
         if not api_key:
             raise ProviderError("GROQ_API_KEY is not set")
         self.model = model
-        self._client = AsyncGroq(api_key=api_key, timeout=timeout_s)
+        self._retry_budget_s = retry_budget_s
+        # SDK retries are disabled: `with_rate_limit_retry` owns the schedule, because a
+        # token-per-minute budget needs waits far longer than the SDK is willing to take.
+        self._client = AsyncGroq(api_key=api_key, timeout=timeout_s, max_retries=0)
 
     @staticmethod
     def _to_payload(messages: Sequence[Message]) -> list[dict[str, str]]:
@@ -30,13 +41,20 @@ class GroqChatProvider(ChatProvider):
         *,
         temperature: float = 0.0,
         max_tokens: int | None = None,
+        json_object: bool = False,
     ) -> Completion:
+        extra = {"response_format": {"type": "json_object"}} if json_object else {}
         try:
-            response = await self._client.chat.completions.create(
-                model=self.model,
-                messages=self._to_payload(messages),
-                temperature=temperature,
-                max_tokens=max_tokens,
+            response = await with_rate_limit_retry(
+                lambda: self._client.chat.completions.create(
+                    model=self.model,
+                    messages=self._to_payload(messages),
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    **extra,
+                ),
+                budget_s=self._retry_budget_s,
+                label=f"groq/{self.model}",
             )
         except APIError as exc:  # surface a clean message, never the raw SDK traceback
             raise ProviderError(f"groq: {exc.message}") from exc
@@ -58,12 +76,18 @@ class GroqChatProvider(ChatProvider):
         max_tokens: int | None = None,
     ) -> AsyncIterator[str]:
         try:
-            stream = await self._client.chat.completions.create(
-                model=self.model,
-                messages=self._to_payload(messages),
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stream=True,
+            # Retried only up to the first token — once bytes are flowing, a retry would
+            # replay text the user has already seen.
+            stream = await with_rate_limit_retry(
+                lambda: self._client.chat.completions.create(
+                    model=self.model,
+                    messages=self._to_payload(messages),
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stream=True,
+                ),
+                budget_s=self._retry_budget_s,
+                label=f"groq/{self.model}",
             )
             async for chunk in stream:
                 delta = chunk.choices[0].delta.content

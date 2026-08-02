@@ -46,8 +46,14 @@ class ChatProvider(Protocol):
         *,
         temperature: float = 0.0,
         max_tokens: int | None = None,
+        json_object: bool = False,
     ) -> Completion:
-        """Generate the full response."""
+        """Generate the full response.
+
+        `json_object` asks the provider to constrain output to valid JSON. The eval
+        judge depends on it: parsing a verdict out of prose is a source of flaky scores,
+        and a grader that fails to parse silently biases the number it produces.
+        """
         ...
 
     def stream(

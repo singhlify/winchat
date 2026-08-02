@@ -10,6 +10,7 @@ from winchat_api.chat.context import Citation
 from winchat_api.chat.service import AnswerPlan
 from winchat_api.main import create_app
 from winchat_api.retrieval.service import RetrievalResult
+from winchat_api.security.rate_limit import LimitDecision
 
 
 @pytest.fixture
@@ -21,8 +22,20 @@ def client(monkeypatch):
     monkeypatch.setattr(chat_route, "get_chat_provider", lambda: _StubLLM())
     monkeypatch.setattr(chat_route, "get_embedding_provider", lambda: object())
     monkeypatch.setattr(chat_route, "get_reranker", lambda: object())
+    _allow_all(monkeypatch)
 
     return TestClient(app)
+
+
+def _allow_all(monkeypatch):
+    async def allow(pool, subject):
+        return LimitDecision(allowed=True, used=0, limit=20, scope="subject_hour")
+
+    async def noop(pool, subject, **kwargs):
+        return None
+
+    monkeypatch.setattr(chat_route, "check_limits", allow)
+    monkeypatch.setattr(chat_route, "record_usage", noop)
 
 
 class _StubLLM:
@@ -144,3 +157,56 @@ def test_chat_without_a_database_is_unavailable(monkeypatch):
     response = TestClient(app).post("/api/chat", json={"message": "hello"})
 
     assert response.status_code == 503
+
+
+def test_a_rate_limited_caller_gets_429_with_retry_after(monkeypatch):
+    """Rejection must be cheap: no retrieval, no model, just a status and a header."""
+    app = create_app()
+    app.state.db_pool = object()
+
+    async def deny(pool, subject):
+        return LimitDecision(
+            allowed=False, reason="Rate limit reached.", retry_after_s=600, scope="subject_hour"
+        )
+
+    async def explode(**kwargs):
+        raise AssertionError("the pipeline must not run for a rate-limited request")
+
+    monkeypatch.setattr(chat_route, "check_limits", deny)
+    monkeypatch.setattr(chat_route, "plan_answer", explode)
+    monkeypatch.setattr(chat_route, "get_chat_provider", lambda: _StubLLM())
+    monkeypatch.setattr(chat_route, "get_embedding_provider", lambda: object())
+    monkeypatch.setattr(chat_route, "get_reranker", lambda: object())
+
+    response = TestClient(app).post("/api/chat", json={"message": "hello"})
+
+    assert response.status_code == 429
+    assert response.headers["retry-after"] == "600"
+
+
+def test_usage_is_recorded_before_the_answer_is_produced(client, monkeypatch):
+    """Recording on accept means a refused or failed question still counts against quota."""
+    recorded = []
+
+    async def record(pool, subject, **kwargs):
+        recorded.append(subject)
+
+    monkeypatch.setattr(chat_route, "record_usage", record)
+    _stub_pipeline(monkeypatch)
+
+    client.post("/api/chat", json={"message": "hello"})
+
+    assert len(recorded) == 1
+    assert recorded[0].kind == "anonymous"
+
+
+def test_an_invalid_bearer_token_is_rejected(client, monkeypatch):
+    _stub_pipeline(monkeypatch)
+
+    response = client.post(
+        "/api/chat",
+        json={"message": "hello"},
+        headers={"authorization": "Bearer not-a-real-token"},
+    )
+
+    assert response.status_code == 401
