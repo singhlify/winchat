@@ -79,11 +79,7 @@ export function ChatShell({
 
   return (
     <div className="flex h-[100dvh] overflow-hidden bg-background">
-      <Sidebar
-        open={sidebarOpen}
-        onClose={() => setOverride(false)}
-        onOpen={() => setOverride(true)}
-      />
+      <Sidebar open={sidebarOpen} onClose={() => setOverride(false)} isDesktop={isDesktop} />
       <div className="relative flex min-w-0 flex-1 flex-col">
         <Chat
           // Remounting on id change resets every piece of conversation state at once —
@@ -93,6 +89,7 @@ export function ChatShell({
           onTurnsChange={persist}
           sourceCount={sourceCount}
           sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setOverride(!sidebarOpen)}
           model={model}
           onModelChange={setModel}
         />

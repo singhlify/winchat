@@ -15,13 +15,15 @@ export function Chat({
   initialTurns,
   onTurnsChange,
   sidebarOpen,
+  onToggleSidebar,
   model,
   onModelChange,
 }: {
   sourceCount?: number;
   initialTurns?: Turn[];
   onTurnsChange?: (turns: Turn[]) => void;
-  sidebarOpen?: boolean;
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
   model: string | null;
   onModelChange: (model: string | null) => void;
 }) {
@@ -116,6 +118,7 @@ export function Chat({
         onModelChange={onModelChange}
         onNewChat={turns.length > 0 ? clear : undefined}
         sidebarOpen={sidebarOpen}
+        onToggleSidebar={onToggleSidebar}
       />
 
       {/* Two live regions, both mounted for the lifetime of the page and never hidden.
