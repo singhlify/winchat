@@ -23,15 +23,29 @@ question.
 Answer in the same language the user asked in."""
 
 
-def build_user_message(question: str, context: str) -> str:
-    """Context first, question last — recall is best at the edges of a long prompt."""
+def build_user_message(question: str, context: str, search_query: str | None = None) -> str:
+    """Context first, question last — recall is best at the edges of a long prompt.
+
+    When a follow-up was resolved into a standalone query, the model is told what it was
+    resolved to. Without this it sees only the raw follow-up: asked "what timings?" over
+    passages about academic-advising hours, it answered with those, because a vague
+    question makes almost any hours look responsive. Shown "resolved to: UwinCARD Office
+    hours", the same passages are visibly about something else and rule 3 applies.
+
+    The resolution is labelled as a search interpretation rather than presented as the
+    user's words, so a bad rewrite does not silently replace the question that was asked.
+    """
+    resolved = ""
+    if search_query and search_query.strip().lower() != question.strip().lower():
+        resolved = f"\n(For searching, this was resolved to: {search_query})"
+
     return f"""Sources:
 
 {context}
 
 ---
 
-Question: {question}"""
+Question: {question}{resolved}"""
 
 
 NO_CONTEXT_MESSAGE = (

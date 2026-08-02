@@ -118,7 +118,10 @@ async def plan_answer(
             Message(role=turn.role, content=turn.content)  # type: ignore[arg-type]
             for turn in history[-MAX_HISTORY_TURNS:]
         ],
-        Message(role="user", content=build_user_message(question, context.text)),
+        Message(
+            role="user",
+            content=build_user_message(question, context.text, search_query),
+        ),
     ]
 
     return AnswerPlan(
