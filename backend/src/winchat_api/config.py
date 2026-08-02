@@ -74,7 +74,10 @@ class Settings(BaseSettings):
     # Cohere key; shipping an uncalibrated threshold is worse than shipping none.
     refusal_min_rerank_score: float | None = None
 
-    rerank_provider: str = "cohere"  # or "none"
+    rerank_provider: str = "cohere"  # cohere | llm | none
+    # Ordering candidates is far easier than answering from them, so the rerank stage
+    # uses a small fast model; putting the slow one here doubles every question's latency.
+    rerank_llm_model: str = "llama-3.1-8b-instant"
     rerank_model: str = "rerank-v3.5"
     rerank_timeout_s: float = 15.0
     cohere_api_key: str | None = None

@@ -45,10 +45,25 @@ NO_CONTEXT_MESSAGE = (
 # Our corpus is a curated university FAQ, so the practical risk is low — but the corpus is
 # scraped from a site we do not control, so the instruction is not free to omit.
 
-REWRITE_PROMPT = """Rewrite the user's latest message into a standalone search query.
+REWRITE_PROMPT = """Rewrite the user's latest message into a SHORT standalone search query.
 
-Resolve pronouns and references using the conversation. Keep the user's own wording and \
-any specific terms, names, or numbers. Do not answer the question. Do not add words that \
-are not implied by the conversation.
+Resolve pronouns and implicit references using the conversation, so the query makes sense \
+on its own. Keep the user's own terminology and any names, codes or numbers they used.
 
-Reply with the rewritten query and nothing else."""
+Keep it short — this is a search query, not a sentence. Include the subject and what is \
+being asked about it, and nothing else. Do NOT copy addresses, lists, steps or other \
+details out of the assistant's previous answer that the user did not ask about.
+
+Do not answer the question. Reply with the rewritten query and nothing else.
+
+Example:
+  user: where to get my id card?
+  assistant: Visit the UwinCARD Office in the Joyce Entrepreneurship Centre, 1st Floor...
+  user: what timings?
+  -> UwinCARD Office hours"""
+
+# The example is not decoration. Without it the model produced "UwinCARD Office timings in
+# the Joyce Entrepreneurship Centre, 1st Floor, West Entrance." for exactly this exchange —
+# a faithful rewrite that dragged the whole address into the embedding and dropped the top
+# similarity from 0.7465 to 0.6408, far enough to trip the refusal gate. Every extra word
+# not in the question pulls the query vector away from the passage that answers it.

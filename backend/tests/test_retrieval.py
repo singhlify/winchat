@@ -96,3 +96,70 @@ def test_empty_retrieval_builds_empty_context():
 
     assert context.text == ""
     assert context.citations == []
+
+
+# ----------------------------------------------------------------- llm reranker
+
+
+class _StubJudgeLLM:
+    """Returns a canned ordering; records the prompt it was given."""
+
+    name = "stub"
+    model = "stub"
+
+    def __init__(self, payload: str):
+        self.payload = payload
+        self.prompt = ""
+
+    async def complete(self, messages, **kwargs):
+        from winchat_api.llm.base import Completion
+
+        self.prompt = messages[-1].content
+        assert kwargs.get("json_object") is True
+        return Completion(text=self.payload, model="stub", provider="stub")
+
+
+async def test_llm_rerank_reorders_by_the_returned_ranking():
+    from winchat_api.retrieval.rerank.llm_provider import LLMReranker
+
+    chunks = [_chunk(1, a_id="a"), _chunk(2, a_id="b"), _chunk(3, a_id="c")]
+    reranker = LLMReranker(llm=_StubJudgeLLM('{"ranked": [3, 1]}'))
+
+    result = await reranker.rerank("q", chunks, top_n=6)
+
+    assert [chunk.a_id for chunk in result] == ["c", "a"]
+    assert result[0].scores["rerank"] > result[1].scores["rerank"]
+
+
+async def test_llm_rerank_ignores_out_of_range_and_duplicate_indexes():
+    """A hallucinated index must be dropped, never wrapped around into a wrong passage."""
+    from winchat_api.retrieval.rerank.llm_provider import LLMReranker
+
+    chunks = [_chunk(1, a_id="a"), _chunk(2, a_id="b")]
+    reranker = LLMReranker(llm=_StubJudgeLLM('{"ranked": [99, 2, 2, -1, "x"]}'))
+
+    result = await reranker.rerank("q", chunks, top_n=6)
+
+    assert [chunk.a_id for chunk in result] == ["b"]
+
+
+async def test_llm_rerank_keeping_nothing_is_a_verdict_not_a_fallback():
+    """Empty means "none of these are relevant" — the refusal gate must see that."""
+    from winchat_api.retrieval.rerank.llm_provider import LLMReranker
+
+    reranker = LLMReranker(llm=_StubJudgeLLM('{"ranked": []}'))
+
+    assert await reranker.rerank("q", [_chunk(1)], top_n=6) == []
+
+
+async def test_llm_rerank_surfaces_unparseable_output_as_a_rerank_error():
+    """The service layer catches RerankError and degrades to fused order, visibly."""
+    import pytest
+
+    from winchat_api.retrieval.rerank.base import RerankError
+    from winchat_api.retrieval.rerank.llm_provider import LLMReranker
+
+    reranker = LLMReranker(llm=_StubJudgeLLM("not json"))
+
+    with pytest.raises(RerankError):
+        await reranker.rerank("q", [_chunk(1)], top_n=6)
