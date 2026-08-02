@@ -10,10 +10,23 @@ import { submitFeedback } from "@/lib/api/client";
 import { useStickToBottom } from "@/components/chat/use-stick-to-bottom";
 import { Header } from "@/components/Header";
 
-export function Chat({ sourceCount }: { sourceCount?: number }) {
+export function Chat({
+  sourceCount,
+  initialTurns,
+  onTurnsChange,
+  sidebarOpen,
+  model,
+  onModelChange,
+}: {
+  sourceCount?: number;
+  initialTurns?: Turn[];
+  onTurnsChange?: (turns: Turn[]) => void;
+  sidebarOpen?: boolean;
+  model: string | null;
+  onModelChange: (model: string | null) => void;
+}) {
   const [draft, setDraft] = useState("");
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [model, setModel] = useState<string | null>(null);
   const composerRef = useRef<ComposerHandle>(null);
 
   const onFeedback = useCallback(
@@ -42,8 +55,16 @@ export function Chat({ sourceCount }: { sourceCount?: number }) {
   const { turns, busy, send, stop, retry, undo, clear, rate } = useChat({
     accessToken,
     model,
+    initialTurns,
     onFeedback,
   });
+
+  // Persist whenever the transcript settles. Gated on `busy` so a streaming answer is not
+  // written to storage on every token.
+  useEffect(() => {
+    if (busy || turns.length === 0) return;
+    onTurnsChange?.(turns);
+  }, [busy, turns, onTurnsChange]);
 
   const { scrollRef, bottomRef, isPinned, scrollToBottom } = useStickToBottom([turns]);
 
@@ -87,14 +108,14 @@ export function Chat({ sourceCount }: { sourceCount?: number }) {
       : "";
 
   return (
-    // 100dvh, not 100vh: on mobile the browser chrome collapses and `vh` leaves the
-    // composer stranded under the viewport edge.
-    <div className="flex h-[100dvh] flex-col bg-background">
+    // The shell owns the viewport height; this fills whatever column it is given.
+    <div className="flex h-full min-h-0 flex-col">
       <Header
         onSession={handleSession}
         model={model}
-        onModelChange={setModel}
+        onModelChange={onModelChange}
         onNewChat={turns.length > 0 ? clear : undefined}
+        sidebarOpen={sidebarOpen}
       />
 
       {/* Two live regions, both mounted for the lifetime of the page and never hidden.

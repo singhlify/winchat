@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, Check, Copy, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Markdown } from "@/components/chat/Markdown";
 import { SourceLink, SourcePanel } from "@/components/chat/SourcePanel";
@@ -12,11 +12,63 @@ import { cn } from "@/lib/utils";
 
 export function UserMessage({ content }: { content: string }) {
   return (
-    <li className="flex justify-end">
+    // `group/message` + the button's opacity rules mean the control appears on hover for
+    // pointer users and is always present on touch, where there is no hover to reveal it.
+    <li className="group/message flex items-center justify-end gap-1">
+      <CopyButton
+        text={content}
+        label="Copy your message"
+        className="opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/message:opacity-100 sm:group-hover/message:opacity-100"
+      />
       <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground sm:max-w-[75%]">
         <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>
       </div>
     </li>
+  );
+}
+
+/**
+ * Copy-to-clipboard, shared by both message kinds.
+ *
+ * The confirmation is the icon swapping to a tick for a moment — no toast. A toast for
+ * something the user just did, whose result is obvious, is noise.
+ */
+function CopyButton({
+  text,
+  label,
+  className,
+}: {
+  text: string;
+  label: string;
+  className?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 1600);
+    // Cleared on unmount so the timer cannot fire into an unmounted component.
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      // The Clipboard API needs a secure context and can be denied. Silently doing
+      // nothing beats an error dialog for a convenience action.
+    }
+  }
+
+  return (
+    <IconAction
+      label={copied ? "Copied" : label}
+      onClick={() => void copy()}
+      className={className}
+    >
+      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+    </IconAction>
   );
 }
 
@@ -150,25 +202,11 @@ function MessageActions({
   onRetry: () => void;
   onRate: (vote: "up" | "down") => void;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(turn.content);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      // Clipboard access can be denied; failing silently is better than an alert.
-    }
-  }
-
   return (
     // Visible on hover for pointer users, but always reachable by keyboard and always
     // visible on touch, where there is no hover to reveal them.
     <div className="mt-2 flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/message:opacity-100 sm:focus-within:opacity-100">
-      <IconAction label={copied ? "Copied" : "Copy answer"} onClick={() => void copy()}>
-        {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      </IconAction>
+      <CopyButton text={turn.content} label="Copy answer" />
 
       {isLast && (
         <IconAction label="Regenerate answer" onClick={onRetry}>
@@ -206,11 +244,13 @@ function IconAction({
   label,
   onClick,
   pressed,
+  className,
   children,
 }: {
   label: string;
   onClick: () => void;
   pressed?: boolean;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -222,6 +262,7 @@ function IconAction({
         className={cn(
           "inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           pressed && "bg-muted text-foreground",
+          className,
         )}
       >
         {children}

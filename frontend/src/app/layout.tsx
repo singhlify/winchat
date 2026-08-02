@@ -73,7 +73,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en-CA" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
-      <body className="bg-background text-foreground antialiased">
+      {/* suppressHydrationWarning on <body> too, not just <html>.
+          Browser extensions inject attributes onto the body before React hydrates —
+          ColorZilla adds `cz-shortcut-listen`, Grammarly adds its own — and React reports
+          that as a hydration mismatch even though the app's own markup matches perfectly.
+          It suppresses attribute noise on this element only, not mismatches in children. */}
+      <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
         {/* First tab stop on every page. Without it a keyboard user traverses the whole
             header on every navigation before reaching content (WCAG 2.4.1). */}
         <a

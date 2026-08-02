@@ -1,6 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 
 import { ApiError } from "@/lib/api/client";
@@ -37,8 +38,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
-    </QueryClientProvider>
+    // `defaultTheme="system"` respects the OS setting until the user overrides it, and
+    // next-themes writes the class in a blocking inline script before paint — which is
+    // what prevents the white flash a dark-mode user gets from a client-side toggle.
+    // `disableTransitionOnChange` stops every coloured surface animating at once when the
+    // theme flips, which reads as a glitch rather than a transition.
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

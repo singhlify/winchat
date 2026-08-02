@@ -1,0 +1,102 @@
+"use client";
+
+import { useCallback, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { Chat } from "@/components/chat/Chat";
+import { Sidebar } from "@/components/chat/Sidebar";
+import type { Turn } from "@/components/chat/use-chat";
+import {
+  getConversation,
+  newConversationId,
+  saveConversation,
+  titleFrom,
+} from "@/lib/conversations";
+import { useMediaQuery } from "@/lib/use-media-query";
+import { usePersistentState } from "@/lib/use-persistent-state";
+
+/**
+ * The application shell: sidebar plus the active conversation.
+ *
+ * It owns three things the chat view should not: which conversation is open, whether the
+ * sidebar is showing, and persistence. Keeping them here means `Chat` stays a view of a
+ * conversation rather than a manager of all of them.
+ */
+export function ChatShell({
+  conversationId,
+  sourceCount,
+}: {
+  conversationId?: string;
+  sourceCount?: number;
+}) {
+  const router = useRouter();
+
+  // Open by default on desktop, closed on mobile — but only until the user decides,
+  // after which their choice wins for the rest of the session.
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [override, setOverride] = useState<boolean | null>(null);
+  const sidebarOpen = override ?? isDesktop;
+
+  // Restored once, synchronously on first render, so the transcript is never briefly empty
+  // before its own content appears.
+  const [initialTurns] = useState<Turn[]>(
+    () => (conversationId ? (getConversation(conversationId)?.turns ?? []) : []),
+  );
+
+  // State, not a ref: this id is read during render (as the remount key), and a ref read
+  // in render is exactly the pattern that goes stale without re-rendering.
+  const [id] = useState(() => conversationId ?? newConversationId());
+
+  // Persisted so an explicit choice survives the /-to-/c/{id} navigation and reloads.
+  const [model, setModel] = usePersistentState<string | null>("winchat:model", null);
+  const navigatedRef = useRef(Boolean(conversationId));
+
+  const persist = useCallback(
+    (turns: Turn[]) => {
+      const firstQuestion = turns.find((turn) => turn.role === "user");
+      if (!firstQuestion) return;
+
+      const existing = getConversation(id);
+      saveConversation({
+        id,
+        // A manual rename must survive later messages, so an existing title wins.
+        title: existing?.title ?? titleFrom(firstQuestion.content),
+        createdAt: existing?.createdAt ?? Date.now(),
+        updatedAt: Date.now(),
+        turns,
+      });
+
+      // Move to the conversation's own URL after the first exchange. `replace`, not
+      // `push`: Back should return to wherever the user came from, not to the same chat
+      // in its empty state.
+      if (!navigatedRef.current) {
+        navigatedRef.current = true;
+        router.replace(`/c/${id}`, { scroll: false });
+      }
+    },
+    [id, router],
+  );
+
+  return (
+    <div className="flex h-[100dvh] overflow-hidden bg-background">
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setOverride(false)}
+        onOpen={() => setOverride(true)}
+      />
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <Chat
+          // Remounting on id change resets every piece of conversation state at once —
+          // far safer than trying to reconcile a half-streamed answer with a new thread.
+          key={id}
+          initialTurns={initialTurns}
+          onTurnsChange={persist}
+          sourceCount={sourceCount}
+          sidebarOpen={sidebarOpen}
+          model={model}
+          onModelChange={setModel}
+        />
+      </div>
+    </div>
+  );
+}

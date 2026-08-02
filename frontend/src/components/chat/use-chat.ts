@@ -50,6 +50,8 @@ const nextId = () => `t${Date.now().toString(36)}-${counter++}`;
 export interface UseChatOptions {
   accessToken: string | null;
   model: string | null;
+  /** Turns restored from storage when opening an existing conversation. */
+  initialTurns?: Turn[];
   /** `question` is resolved here rather than by the caller: this hook already owns the
    *  turn list, and having the view re-derive it would mean reading state during render. */
   onFeedback?: (turn: Turn, vote: "up" | "down", question: string) => void;
@@ -63,8 +65,8 @@ export interface UseChatOptions {
  * inside a cache that has nothing to cache. Query handles the request/response endpoints
  * (models, sources); the stream is its own thing.
  */
-export function useChat({ accessToken, model, onFeedback }: UseChatOptions) {
-  const [turns, setTurns] = useState<Turn[]>([]);
+export function useChat({ accessToken, model, initialTurns, onFeedback }: UseChatOptions) {
+  const [turns, setTurns] = useState<Turn[]>(initialTurns ?? []);
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const conversationRef = useRef<string | null>(null);
