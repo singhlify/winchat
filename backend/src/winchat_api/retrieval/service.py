@@ -39,6 +39,10 @@ class RetrievalResult:
     reranker: str = "none"
     rerank_skipped_reason: str | None = None
     latency_ms: dict[str, float] = field(default_factory=dict)
+    # Measured over the full dense candidate list, before fusion or truncation. This is the
+    # honest "did we find anything topically close at all?" signal, and the one the refusal
+    # threshold is calibrated against.
+    best_dense_score: float = 0.0
 
     @property
     def top_score(self) -> float:
@@ -75,6 +79,7 @@ async def retrieve(
     result.latency_ms["search"] = round((time.perf_counter() - started) * 1000, 1)
     result.dense_count = len(dense)
     result.lexical_count = len(lexical)
+    result.best_dense_score = max((chunk.scores["dense"] for chunk in dense), default=0.0)
 
     fused = reciprocal_rank_fusion([dense, lexical])
     result.fused_count = len(fused)

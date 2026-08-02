@@ -22,6 +22,13 @@ export interface HistoryTurn {
   content: string;
 }
 
+export interface RefusalInfo {
+  reason: string;
+  score: number;
+  threshold: number;
+  stage: string;
+}
+
 export type ChatEvent =
   | {
       type: "sources";
@@ -29,6 +36,9 @@ export type ChatEvent =
       citations: Citation[];
       reranker: string;
       rerankSkippedReason: string | null;
+      refused: boolean;
+      refusal: RefusalInfo | null;
+      nearMisses: Citation[];
     }
   | { type: "token"; text: string }
   | {
@@ -50,6 +60,9 @@ function toChatEvent(event: string, data: string): ChatEvent | null {
         citations: payload.citations,
         reranker: payload.reranker,
         rerankSkippedReason: payload.rerank_skipped_reason,
+        refused: Boolean(payload.refused),
+        refusal: payload.refusal ?? null,
+        nearMisses: payload.near_misses ?? [],
       };
     case "token":
       return { type: "token", text: payload.text };

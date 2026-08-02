@@ -77,6 +77,11 @@ async def chat(request: Request, body: ChatRequest) -> StreamingResponse:
                 "citations": [asdict(citation) for citation in plan.citations],
                 "reranker": retrieval.reranker if retrieval else "none",
                 "rerank_skipped_reason": retrieval.rerank_skipped_reason if retrieval else None,
+                # Refusal is surfaced, not hidden. A user who is told "I don't know" deserves
+                # to see that the system searched and what it nearly matched.
+                "refused": plan.refused,
+                "refusal": asdict(plan.refusal) if plan.refusal else None,
+                "near_misses": [asdict(citation) for citation in plan.near_misses],
             },
         )
 

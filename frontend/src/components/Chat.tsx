@@ -3,8 +3,14 @@
 import { useCallback, useRef, useState } from "react";
 
 import { AnswerText } from "@/components/AnswerText";
+import { Refusal } from "@/components/Refusal";
 import { Sources } from "@/components/Sources";
-import { streamChat, type Citation, type HistoryTurn } from "@/lib/chat";
+import {
+  streamChat,
+  type Citation,
+  type HistoryTurn,
+  type RefusalInfo,
+} from "@/lib/chat";
 
 interface Turn {
   role: "user" | "assistant";
@@ -14,6 +20,9 @@ interface Turn {
   model?: string;
   error?: string;
   streaming?: boolean;
+  refused?: boolean;
+  refusal?: RefusalInfo | null;
+  nearMisses?: Citation[];
 }
 
 const SUGGESTIONS = [
@@ -60,7 +69,13 @@ export function Chat() {
       try {
         for await (const event of streamChat(trimmed, history, controller.signal)) {
           if (event.type === "sources") {
-            updateAnswer({ citations: event.citations, reranker: event.reranker });
+            updateAnswer({
+              citations: event.citations,
+              reranker: event.reranker,
+              refused: event.refused,
+              refusal: event.refusal,
+              nearMisses: event.nearMisses,
+            });
           } else if (event.type === "token") {
             setTurns((previous) => {
               const next = [...previous];
@@ -129,6 +144,12 @@ export function Chat() {
                   <p className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
                     {turn.error}
                   </p>
+                ) : turn.refused ? (
+                  <Refusal
+                    text={turn.content}
+                    refusal={turn.refusal ?? null}
+                    nearMisses={turn.nearMisses ?? []}
+                  />
                 ) : (
                   <>
                     {turn.content ? (

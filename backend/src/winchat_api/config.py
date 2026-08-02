@@ -50,6 +50,16 @@ class Settings(BaseSettings):
     rerank_pool: int = 40  # candidates handed to the reranker
     retrieval_top_n: int = 6  # passages that reach the model
 
+    # Refuse to answer when nothing retrieved is close enough. Calibrated by measuring the
+    # best dense similarity over 8 on-topic and 8 off-topic questions against this corpus:
+    # on-topic 0.7329-0.8328, off-topic 0.5323-0.6952 with one outlier at 0.7849. 0.70 sits
+    # in that gap. The number is specific to nomic-embed-text and this corpus — RECALIBRATE
+    # when either changes, because cosine scores are not comparable across models.
+    refusal_min_dense_score: float = 0.70
+    # A second gate on reranker relevance. Left off until it can be calibrated with a real
+    # Cohere key; shipping an uncalibrated threshold is worse than shipping none.
+    refusal_min_rerank_score: float | None = None
+
     rerank_provider: str = "cohere"  # or "none"
     rerank_model: str = "rerank-v3.5"
     rerank_timeout_s: float = 15.0
