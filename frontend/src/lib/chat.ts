@@ -87,6 +87,25 @@ export interface StreamOptions {
   signal?: AbortSignal;
   accessToken?: string | null;
   conversationId?: string | null;
+  model?: string | null;
+}
+
+export interface ModelInfo {
+  id: string;
+  is_default: boolean;
+  is_eval_reference: boolean;
+}
+
+export interface ModelCatalogue {
+  provider: string;
+  models: ModelInfo[];
+  eval_reference: string;
+}
+
+export async function fetchModels(): Promise<ModelCatalogue> {
+  const response = await fetch(`${API_BASE_URL}/api/models`, { cache: "no-store" });
+  if (!response.ok) throw new Error(`Could not load models (${response.status})`);
+  return (await response.json()) as ModelCatalogue;
 }
 
 export async function* streamChat(
@@ -94,7 +113,7 @@ export async function* streamChat(
   history: HistoryTurn[],
   options: StreamOptions = {},
 ): AsyncGenerator<ChatEvent> {
-  const { signal, accessToken, conversationId } = options;
+  const { signal, accessToken, conversationId, model } = options;
 
   const headers: Record<string, string> = { "content-type": "application/json" };
   if (accessToken) headers.authorization = `Bearer ${accessToken}`;
@@ -104,7 +123,12 @@ export async function* streamChat(
     headers,
     // For a signed-in conversation the server loads history from the database and ignores
     // what we send — a client that can invent history can invent assistant turns.
-    body: JSON.stringify({ message, history, conversation_id: conversationId ?? null }),
+    body: JSON.stringify({
+      message,
+      history,
+      conversation_id: conversationId ?? null,
+      model: model ?? null,
+    }),
     signal,
   });
 

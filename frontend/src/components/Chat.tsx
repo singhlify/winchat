@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 import { AnswerText } from "@/components/AnswerText";
 import { AuthPanel } from "@/components/AuthPanel";
+import { ModelPicker } from "@/components/ModelPicker";
 import { Refusal } from "@/components/Refusal";
 import { Sources } from "@/components/Sources";
 import {
@@ -39,6 +40,7 @@ export function Chat() {
   const abortRef = useRef<AbortController | null>(null);
   // Kept in refs, not state: neither should re-render the conversation when it changes,
   // and `send` must read the current value without being rebuilt.
+  const [model, setModel] = useState<string | null>(null);
   const tokenRef = useRef<string | null>(null);
   const conversationRef = useRef<string | null>(null);
 
@@ -82,6 +84,7 @@ export function Chat() {
           signal: controller.signal,
           accessToken: tokenRef.current,
           conversationId: conversationRef.current,
+          model,
         })) {
           if (event.type === "sources") {
             updateAnswer({
@@ -118,7 +121,7 @@ export function Chat() {
         abortRef.current = null;
       }
     },
-    [busy, turns],
+    [busy, turns, model],
   );
 
   return (
@@ -131,7 +134,10 @@ export function Chat() {
               Answers grounded in the University of Windsor FAQ, with sources.
             </p>
           </div>
-          <AuthPanel onSession={handleSession} />
+          <div className="flex items-center gap-3">
+            <ModelPicker value={model} onChange={setModel} />
+            <AuthPanel onSession={handleSession} />
+          </div>
         </header>
 
         {turns.length === 0 && (

@@ -19,7 +19,7 @@ import asyncpg
 
 from winchat_api.config import get_settings
 from winchat_api.embeddings.base import EmbeddingProvider
-from winchat_api.retrieval.fusion import reciprocal_rank_fusion
+from winchat_api.retrieval.fusion import best_per_answer, reciprocal_rank_fusion
 from winchat_api.retrieval.models import RetrievedChunk
 from winchat_api.retrieval.rerank.base import Reranker, RerankError
 from winchat_api.retrieval.search import dense_search, lexical_search
@@ -81,7 +81,9 @@ async def retrieve(
     result.lexical_count = len(lexical)
     result.best_dense_score = max((chunk.scores["dense"] for chunk in dense), default=0.0)
 
-    fused = reciprocal_rank_fusion([dense, lexical])
+    # Deduplicated to one chunk per source answer before the final cut, so the top_n slots
+    # hold n distinct answers rather than three copies of one.
+    fused = best_per_answer(reciprocal_rank_fusion([dense, lexical]))
     result.fused_count = len(fused)
 
     started = time.perf_counter()

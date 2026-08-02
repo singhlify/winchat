@@ -23,7 +23,8 @@ from winchat_api.chat.history import load_history, save_turn
 from winchat_api.chat.service import ChatTurn, plan_answer, stream_answer
 from winchat_api.config import get_settings
 from winchat_api.embeddings.registry import get_embedding_provider
-from winchat_api.llm.registry import get_chat_provider
+from winchat_api.llm.base import ProviderError
+from winchat_api.llm.registry import build_chat_provider, get_chat_provider
 from winchat_api.retrieval.rerank.registry import get_reranker
 from winchat_api.security.auth import AuthenticatedUser, optional_user
 from winchat_api.security.rate_limit import (
@@ -49,10 +50,25 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
     history: list[HistoryTurn] = Field(default_factory=list, max_length=20)
     conversation_id: str | None = None
+    # Validated against the allowlist below — never passed to the provider as given.
+    model: str | None = Field(default=None, max_length=100)
 
 
 def _sse(event: str, payload: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+
+
+def _error_event(message: str, exc: Exception) -> str:
+    """A user-facing error, with the provider's own text kept server-side.
+
+    Upstream errors are not safe to forward verbatim: a Groq rate-limit body, for one,
+    contains the organisation id and the account's quota. The full exception is logged;
+    the client gets a sentence it can act on.
+    """
+    detail = "The service is busy right now. Please try again shortly."
+    if isinstance(exc, ProviderError) and "rate limit" not in str(exc).lower():
+        detail = "The language model could not be reached."
+    return _sse("error", {"message": message, "detail": detail})
 
 
 def _client_ip(request: Request) -> str:
@@ -92,7 +108,13 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
         )
     await record_usage(pool, subject)
 
-    llm = get_chat_provider()
+    # An unrecognised model is rejected outright rather than quietly falling back to the
+    # default: silently answering with a different model than the caller asked for would
+    # make any comparison between models meaningless.
+    if body.model and body.model not in get_settings().allowed_models:
+        raise HTTPException(status_code=400, detail=f"unsupported model: {body.model}")
+
+    llm = build_chat_provider(model=body.model) if body.model else get_chat_provider()
     embedder = get_embedding_provider()
     reranker = get_reranker()
 
@@ -115,7 +137,7 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
             )
         except Exception as exc:
             logger.exception("retrieval failed")
-            yield _sse("error", {"message": "Retrieval failed.", "detail": str(exc)[:200]})
+            yield _error_event("Could not search the FAQ.", exc)
             return
 
         retrieval = plan.retrieval
@@ -143,7 +165,7 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
             # The stream has already started, so an HTTP error code is no longer available.
             # The client renders this event instead of silently truncating.
             logger.exception("generation failed mid-stream")
-            yield _sse("error", {"message": "Generation failed.", "detail": str(exc)[:200]})
+            yield _error_event("The answer could not be completed.", exc)
             return
 
         conversation_id = body.conversation_id
