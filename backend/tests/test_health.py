@@ -24,8 +24,14 @@ def test_healthz_is_ok_without_touching_dependencies():
     assert body["service"] == "winchat-api"
 
 
-def _stub_checks(monkeypatch, llm: health.DependencyCheck, embeddings: health.DependencyCheck):
+def _stub_checks(
+    monkeypatch,
+    llm: health.DependencyCheck,
+    embeddings: health.DependencyCheck,
+    database: health.DependencyCheck | None = None,
+):
     """Readiness must be testable without a network — stub the dependency probes."""
+    database = database or health.DependencyCheck(status="not_configured")
 
     async def fake_llm() -> health.DependencyCheck:
         return llm
@@ -33,8 +39,12 @@ def _stub_checks(monkeypatch, llm: health.DependencyCheck, embeddings: health.De
     async def fake_embeddings() -> health.DependencyCheck:
         return embeddings
 
+    async def fake_database(pool) -> health.DependencyCheck:
+        return database
+
     monkeypatch.setattr(health, "_check_llm", fake_llm)
     monkeypatch.setattr(health, "_check_embeddings", fake_embeddings)
+    monkeypatch.setattr(health, "_check_database", fake_database)
 
 
 def test_readyz_is_ok_when_every_dependency_answers(monkeypatch):
@@ -43,12 +53,8 @@ def test_readyz_is_ok_when_every_dependency_answers(monkeypatch):
         monkeypatch,
         llm=health.DependencyCheck(status="ok", provider="groq"),
         embeddings=health.DependencyCheck(status="ok", provider="ollama"),
+        database=health.DependencyCheck(status="ok", provider="postgres"),
     )
-
-    async def fake_database() -> health.DependencyCheck:
-        return health.DependencyCheck(status="ok")
-
-    monkeypatch.setattr(health, "_check_database", fake_database)
 
     response = client.get("/readyz")
     assert response.status_code == 200
