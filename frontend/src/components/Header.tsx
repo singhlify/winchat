@@ -2,6 +2,8 @@
 
 import { PenSquare } from "lucide-react";
 
+import { SidebarToggle } from "@/components/chat/Sidebar";
+
 import { AuthPanel } from "@/components/AuthPanel";
 import { ModelPicker } from "@/components/ModelPicker";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -14,20 +16,24 @@ export function Header({
   onModelChange,
   onNewChat,
   sidebarOpen,
+  onToggleSidebar,
 }: {
   onSession: (token: string | null) => void;
   model: string | null;
   onModelChange: (model: string | null) => void;
   onNewChat?: () => void;
-  sidebarOpen?: boolean;
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-3xl items-center gap-2 px-4 py-2.5 sm:px-6">
-        {/* Leaves room for the floating sidebar toggle when the sidebar is hidden. */}
-        {!sidebarOpen && <span className="w-9 shrink-0" aria-hidden />}
+        {/* Always present, every breakpoint. Previously this lived in a floating button
+            that lost a z-index fight with this header, leaving mobile with no way to open
+            the sidebar at all. */}
+        <SidebarToggle open={sidebarOpen} onToggle={onToggleSidebar} />
 
-        <span className="truncate text-sm text-muted-foreground">
+        <span className="hidden truncate text-sm text-muted-foreground sm:inline">
           UWindsor FAQ, answered with sources
         </span>
 
