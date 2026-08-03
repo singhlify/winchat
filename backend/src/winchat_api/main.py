@@ -11,6 +11,7 @@ from winchat_api import __version__
 from winchat_api.api.routes import chat, feedback, health, models, sources
 from winchat_api.config import get_settings
 from winchat_api.db.pool import create_pool
+from winchat_api.embeddings.registry import get_embedding_provider
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             app.state.db_pool = await create_pool()
         except Exception:
             logger.exception("could not open the database pool; /readyz will report it")
+
+    # Load the embedding model before serving. On a scale-to-zero host the alternative is
+    # that the first user after a cold start waits for it on top of their own query.
+    embedder = get_embedding_provider()
+    warm = getattr(embedder, "warm", None)
+    if warm is not None:
+        try:
+            await warm()
+            logger.info("embeddings warm: %s", embedder.model_id)
+        except Exception:
+            logger.exception("could not warm the embedding model; first request will be slow")
 
     try:
         yield

@@ -22,6 +22,21 @@ COPY migrations ./migrations
 COPY evals ./evals
 RUN uv sync --locked --no-dev
 
+# Bake the embedding model into the image.
+#
+# Without this the first request after every cold start downloads ~280 MB before it can
+# answer anything — on a scale-to-zero host that is most requests. Downloading it at build
+# time makes the image bigger and the container start predictable, which is the right trade
+# for a service that sleeps.
+#
+# It also removes a runtime dependency on Hugging Face being reachable: a model that is
+# already on disk cannot fail to download.
+ENV FASTEMBED_CACHE_DIR=/app/.fastembed
+RUN uv run python -c "\
+from fastembed import TextEmbedding; \
+TextEmbedding(model_name='nomic-ai/nomic-embed-text-v1.5', cache_dir='/app/.fastembed')" \
+    && du -sh /app/.fastembed
+
 # Runs unprivileged: a container that does not need root should not have it.
 RUN useradd --create-home --uid 10001 winchat && chown -R winchat:winchat /app
 USER winchat
