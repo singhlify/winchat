@@ -24,13 +24,22 @@ def test_healthz_is_ok_without_touching_dependencies():
     assert body["service"] == "winchat-api"
 
 
+# Module-level so it is not a function call in a default argument.
+_RERANKER_OK = health.DependencyCheck(status="ok", provider="cohere")
+
+
 def _stub_checks(
     monkeypatch,
     llm: health.DependencyCheck,
     embeddings: health.DependencyCheck,
     database: health.DependencyCheck | None = None,
+    reranker: health.DependencyCheck | None = _RERANKER_OK,
 ):
-    """Readiness must be testable without a network — stub the dependency probes."""
+    """Readiness must be testable without a network — stub the dependency probes.
+
+    `reranker=None` leaves the real check in place, for the tests that are about the
+    reranker itself.
+    """
     database = database or health.DependencyCheck(status="not_configured")
 
     async def fake_llm() -> health.DependencyCheck:
@@ -45,6 +54,13 @@ def _stub_checks(
     monkeypatch.setattr(health, "_check_llm", fake_llm)
     monkeypatch.setattr(health, "_check_embeddings", fake_embeddings)
     monkeypatch.setattr(health, "_check_database", fake_database)
+
+    if reranker is not None:
+
+        async def fake_reranker() -> health.DependencyCheck:
+            return reranker
+
+        monkeypatch.setattr(health, "_check_reranker", fake_reranker)
 
 
 def test_readyz_is_ok_when_every_dependency_answers(monkeypatch):
@@ -120,6 +136,7 @@ def test_a_requested_but_inactive_reranker_is_an_error_not_a_shrug(monkeypatch):
         monkeypatch,
         llm=health.DependencyCheck(status="ok", provider="groq"),
         embeddings=health.DependencyCheck(status="ok", provider="ollama"),
+        reranker=None,
     )
 
     response = client.get("/readyz")
@@ -143,6 +160,7 @@ def test_reranking_switched_off_on_purpose_is_not_an_error(monkeypatch):
         monkeypatch,
         llm=health.DependencyCheck(status="ok", provider="groq"),
         embeddings=health.DependencyCheck(status="ok", provider="ollama"),
+        reranker=None,
     )
 
     assert client.get("/readyz").json()["checks"]["reranker"]["status"] == "not_configured"
