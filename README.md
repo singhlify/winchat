@@ -8,7 +8,12 @@ citations, a calibrated "I don't know", and an evaluation suite that gates CI.
 > only those passages. The interesting engineering is in the retrieval and in proving the
 > answers are actually grounded — not in the model call.
 
-**556 FAQ answers · 665 indexed chunks · hybrid retrieval · 81 backend tests**
+**556 FAQ answers · 665 indexed chunks · hybrid retrieval · 96 backend tests**
+
+> **Not affiliated with the University of Windsor.** WinChat is an independent project
+> built over the university's public FAQ service at ask.uwindsor.ca. It quotes and links
+> to that content; it does not republish it, and it is not an official channel. For
+> anything official, use [ask.uwindsor.ca](https://ask.uwindsor.ca).
 
 ---
 

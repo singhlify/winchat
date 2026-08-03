@@ -80,7 +80,8 @@ export default async function SourcesPage() {
             >
               ask.uwindsor.ca
             </a>{" "}
-            — the University of Windsor&rsquo;s official answer service.
+            — the University of Windsor&rsquo;s official answer service. WinChat is an
+            independent project and is not affiliated with or operated by the university.
           </p>
         </header>
 

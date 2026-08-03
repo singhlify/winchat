@@ -132,11 +132,14 @@ export function Composer({
         id="composer-hint"
         className="mt-1.5 flex items-center justify-between gap-3 px-1 text-[11px] text-muted-foreground"
       >
-        <span className="hidden sm:inline">
-          <kbd className="rounded border border-border px-1 py-px font-sans">Enter</kbd> to send ·{" "}
-          <kbd className="rounded border border-border px-1 py-px font-sans">Shift</kbd>+
-          <kbd className="rounded border border-border px-1 py-px font-sans">Enter</kbd> for a new
-          line
+        {/* The name contains "Win", which reads as Windsor, so independence has to be
+            stated where people actually look — not in a footer nobody scrolls to. This
+            sits under the composer, the one element present on every screen. */}
+        <span className="min-w-0 truncate">
+          Independent project · not affiliated with the University of Windsor
+        </span>
+        <span className="hidden shrink-0 sm:inline">
+          <kbd className="rounded border border-border px-1 py-px font-sans">Enter</kbd> to send
         </span>
         {canUndo && !busy && (
           <button

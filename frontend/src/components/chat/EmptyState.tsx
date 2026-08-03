@@ -37,6 +37,19 @@ export function EmptyState({
           links back to them, so you can check it yourself. If the answer isn&rsquo;t in
           there, it says so instead of guessing.
         </p>
+        <p className="max-w-prose text-sm text-muted-foreground text-pretty">
+          An independent project, not affiliated with or operated by the University of
+          Windsor. For anything official, use{" "}
+          <a
+            href="https://ask.uwindsor.ca"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground"
+          >
+            ask.uwindsor.ca
+          </a>
+          .
+        </p>
       </div>
 
       <div>
