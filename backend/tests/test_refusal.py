@@ -28,17 +28,17 @@ def _result(best_dense: float, *, rerank: float | None = None) -> RetrievalResul
 
 
 def test_a_close_match_is_answered():
-    """0.7329 was the weakest on-topic query during calibration."""
-    assert should_refuse(_result(0.7329)) is None
+    """0.7577 was the weakest on-topic query in the fastembed calibration."""
+    assert should_refuse(_result(0.7577)) is None
 
 
 def test_a_distant_match_is_refused():
-    """0.5609 was "how do I bake sourdough bread" against this corpus."""
-    refusal = should_refuse(_result(0.5609))
+    """0.4446 was the weakest off-topic query in the fastembed calibration."""
+    refusal = should_refuse(_result(0.4446))
 
     assert refusal is not None
     assert refusal.stage == "dense"
-    assert refusal.score == 0.5609
+    assert refusal.score == 0.4446
 
 
 def test_empty_retrieval_is_refused():
@@ -46,9 +46,17 @@ def test_empty_retrieval_is_refused():
 
 
 def test_the_threshold_boundary_is_inclusive():
-    """Exactly at the threshold answers; the gate is "below", not "at or below"."""
-    assert should_refuse(_result(0.70)) is None
-    assert should_refuse(_result(0.6999)) is not None
+    """Exactly at the threshold answers; the gate is "below", not "at or below".
+
+    Reads the configured threshold rather than hardcoding it. The number is
+    runtime-specific — it moved from 0.70 to 0.66 when embeddings changed from Ollama to
+    fastembed — and a test pinned to one value fails on a legitimate recalibration while
+    testing nothing about the rule it claims to cover.
+    """
+    threshold = get_settings().refusal_min_dense_score
+
+    assert should_refuse(_result(threshold)) is None
+    assert should_refuse(_result(threshold - 0.0001)) is not None
 
 
 def test_the_rerank_gate_is_off_until_it_is_calibrated():
@@ -68,10 +76,10 @@ def test_the_rerank_gate_refuses_once_enabled(monkeypatch):
 
 def test_the_dense_threshold_is_configurable(monkeypatch):
     """It is model- and corpus-specific, so it must be tunable without a code change."""
-    monkeypatch.setenv("REFUSAL_MIN_DENSE_SCORE", "0.5")
+    monkeypatch.setenv("REFUSAL_MIN_DENSE_SCORE", "0.4")
     get_settings.cache_clear()
 
-    assert should_refuse(_result(0.5609)) is None
+    assert should_refuse(_result(0.4446)) is None
 
 
 async def test_a_refused_plan_never_calls_the_model():
