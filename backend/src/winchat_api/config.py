@@ -71,12 +71,19 @@ class Settings(BaseSettings):
     rerank_pool: int = 40  # candidates handed to the reranker
     retrieval_top_n: int = 6  # passages that reach the model
 
-    # Refuse to answer when nothing retrieved is close enough. Calibrated by measuring the
-    # best dense similarity over 8 on-topic and 8 off-topic questions against this corpus:
-    # on-topic 0.7329-0.8328, off-topic 0.5323-0.6952 with one outlier at 0.7849. 0.70 sits
-    # in that gap. The number is specific to nomic-embed-text and this corpus — RECALIBRATE
-    # when either changes, because cosine scores are not comparable across models.
-    refusal_min_dense_score: float = 0.70
+    # Refuse to answer when nothing retrieved is close enough. Recalibrated for the
+    # fastembed runtime over the same 8 on-topic / 8 off-topic questions:
+    #   on-topic  0.7577-0.8735
+    #   off-topic 0.4446-0.5678, plus one outlier at 0.8050
+    # 0.66 sits mid-gap with ~0.09 margin either side. The Ollama runtime needed 0.70 and
+    # had only 0.038 of gap, so fastembed separates the two classes about five times better.
+    #
+    # The outlier is the same one as before — "admission requirements at the University of
+    # Toronto" against UWindsor's own admissions FAQ. No threshold can catch it; the
+    # prompt's grounding rule does.
+    #
+    # This number is specific to the model AND the runtime. RECALIBRATE if either changes.
+    refusal_min_dense_score: float = 0.66
     # A second gate on reranker relevance. Left off until it can be calibrated with a real
     # Cohere key; shipping an uncalibrated threshold is worse than shipping none.
     refusal_min_rerank_score: float | None = None
