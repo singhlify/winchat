@@ -14,7 +14,9 @@ WORKDIR /app
 
 # Dependencies are installed from the lockfile in their own layer, so editing source code
 # does not reinstall the world on every build.
-COPY pyproject.toml uv.lock ./
+# README.md is copied because pyproject declares `readme = "README.md"`; without it
+# hatchling fails metadata validation and the build dies with an unhelpful traceback.
+COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --locked --no-install-project --no-dev
 
 COPY src ./src

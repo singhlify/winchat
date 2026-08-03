@@ -38,4 +38,17 @@ async def create_pool(
         min_size=min_size,
         max_size=max_size,
         init=_init_connection if with_vector_type else None,
+        # Recycle idle connections before the server does.
+        #
+        # Supabase's pooler closes connections that sit idle, and asyncpg does not find out
+        # until it hands one to a query — which then dies mid-statement with
+        # ConnectionDoesNotExistError. Keeping our own idle lifetime well under the
+        # server's means asyncpg discards them first and opens a fresh one.
+        #
+        # This bites during QUIET periods, not busy ones: a request after a lull gets the
+        # stale connection. On a scale-to-zero host that is a common shape.
+        max_inactive_connection_lifetime=60.0,
+        # A dead connection can still be handed out inside the race window above. One
+        # retry on acquire turns a user-visible 500 into an invisible reconnect.
+        command_timeout=60.0,
     )
