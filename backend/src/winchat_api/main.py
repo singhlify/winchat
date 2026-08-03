@@ -26,6 +26,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     app.state.db_pool = None
 
+    # Logged at boot because .env changes need a restart to take effect, and a silently
+    # inactive reranker costs 17 points of retrieval recall with no other symptom.
+    from winchat_api.retrieval.rerank.registry import get_reranker
+
+    reranker = get_reranker()
+    if reranker.name == "none" and settings.rerank_provider != "none":
+        logger.warning(
+            "RERANK_PROVIDER=%s but no reranker is active — check the API key",
+            settings.rerank_provider,
+        )
+    else:
+        logger.info("reranker: %s (%s)", reranker.name, reranker.model)
+
     if settings.database_url:
         try:
             app.state.db_pool = await create_pool()

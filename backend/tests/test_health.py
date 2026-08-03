@@ -101,3 +101,49 @@ def test_unconfigured_dependency_fails_readiness_outside_local(monkeypatch):
     response = client.get("/readyz")
     assert response.status_code == 503
     assert response.json()["status"] == "degraded"
+
+
+def test_a_requested_but_inactive_reranker_is_an_error_not_a_shrug(monkeypatch):
+    """The incident this guards: the API ran a whole session with reranking silently off
+    because it was started before the key was added. 17 points of recall, no symptom."""
+    monkeypatch.setenv("RERANK_PROVIDER", "cohere")
+    # Set empty rather than deleted: pydantic-settings also reads backend/.env, so
+    # removing the process variable alone leaves the real key in place.
+    monkeypatch.setenv("COHERE_API_KEY", "")
+    get_settings.cache_clear()
+
+    from winchat_api.retrieval.rerank.registry import get_reranker
+
+    get_reranker.cache_clear()
+
+    _stub_checks(
+        monkeypatch,
+        llm=health.DependencyCheck(status="ok", provider="groq"),
+        embeddings=health.DependencyCheck(status="ok", provider="ollama"),
+    )
+
+    response = client.get("/readyz")
+    body = response.json()
+
+    assert body["checks"]["reranker"]["status"] == "error"
+    assert "restart" in body["checks"]["reranker"]["detail"]
+    assert response.status_code == 503
+    get_reranker.cache_clear()
+
+
+def test_reranking_switched_off_on_purpose_is_not_an_error(monkeypatch):
+    monkeypatch.setenv("RERANK_PROVIDER", "none")
+    get_settings.cache_clear()
+
+    from winchat_api.retrieval.rerank.registry import get_reranker
+
+    get_reranker.cache_clear()
+
+    _stub_checks(
+        monkeypatch,
+        llm=health.DependencyCheck(status="ok", provider="groq"),
+        embeddings=health.DependencyCheck(status="ok", provider="ollama"),
+    )
+
+    assert client.get("/readyz").json()["checks"]["reranker"]["status"] == "not_configured"
+    get_reranker.cache_clear()

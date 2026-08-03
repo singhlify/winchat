@@ -27,6 +27,7 @@ from winchat_api.config import get_settings
 from winchat_api.embeddings.registry import get_embedding_provider
 from winchat_api.llm.base import Message
 from winchat_api.llm.registry import get_chat_provider
+from winchat_api.retrieval.rerank.registry import get_reranker
 
 router = APIRouter(tags=["health"])
 
@@ -115,6 +116,36 @@ async def _check_embeddings() -> DependencyCheck:
     )
 
 
+async def _check_reranker() -> DependencyCheck:
+    """Report which reranker is actually live.
+
+    This exists because of a real incident: the API was started before a Cohere key was
+    added to .env, settings are cached per process, and it ran for a whole session with
+    reranking silently off — answering "the sources do not mention it" for questions the
+    corpus does answer. Retrieval recall differs by 17 points between those two states, and
+    nothing surfaced the difference.
+
+    A degraded stage that no health check reports is indistinguishable from a broken app.
+    """
+    settings = get_settings()
+    configured = settings.rerank_provider
+    reranker = get_reranker()
+
+    if configured == "none":
+        return DependencyCheck(status="not_configured", detail="reranking disabled by config")
+
+    if reranker.name == "none":
+        # Asked for a reranker and did not get one — almost always a missing key, or a
+        # process started before the key was added.
+        return DependencyCheck(
+            status="error",
+            provider=configured,
+            detail=f"{configured} requested but inactive — check the API key, then restart",
+        )
+
+    return DependencyCheck(status="ok", provider=reranker.name, model=reranker.model)
+
+
 async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
     """Query the corpus itself.
 
@@ -155,12 +186,18 @@ async def readyz(request: Request, response: Response) -> ReadinessResponse:
     """Readiness: every configured dependency answered a real call."""
     settings = get_settings()
 
-    llm, embeddings, database = await asyncio.gather(
+    llm, embeddings, reranker, database = await asyncio.gather(
         _check_llm(),
         _check_embeddings(),
+        _check_reranker(),
         _check_database(getattr(request.app.state, "db_pool", None)),
     )
-    checks = {"llm": llm, "embeddings": embeddings, "database": database}
+    checks = {
+        "llm": llm,
+        "embeddings": embeddings,
+        "reranker": reranker,
+        "database": database,
+    }
     statuses = {check.status for check in checks.values()}
 
     if "error" in statuses:
