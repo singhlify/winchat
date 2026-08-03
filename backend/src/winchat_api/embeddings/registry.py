@@ -11,6 +11,7 @@ from functools import lru_cache
 
 from winchat_api.config import Settings, get_settings
 from winchat_api.embeddings.base import EmbeddingError, EmbeddingProvider
+from winchat_api.embeddings.fastembed_provider import FastEmbedProvider
 from winchat_api.embeddings.ollama_provider import OllamaEmbeddingProvider
 from winchat_api.embeddings.openai_compatible import OpenAICompatibleEmbeddingProvider
 
@@ -32,8 +33,13 @@ def _build_openai_compatible(settings: Settings) -> EmbeddingProvider:
     )
 
 
+def _build_fastembed(settings: Settings) -> EmbeddingProvider:
+    return FastEmbedProvider(model=settings.fastembed_model, cache_dir=settings.fastembed_cache_dir)
+
+
 _BUILDERS: dict[str, Callable[[Settings], EmbeddingProvider]] = {
     "ollama": _build_ollama,
+    "fastembed": _build_fastembed,
     "openai_compatible": _build_openai_compatible,
 }
 
