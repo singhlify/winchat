@@ -29,6 +29,15 @@ concurrency:
 jobs:
   eval:
     runs-on: ubuntu-latest
+    # The credentials live in the `prod` environment rather than at repository level, so
+    # the job has to name it — environment secrets are injected only into jobs that do.
+    # Without this line every secret below resolves to an empty string and the run fails
+    # on a confusing auth error instead of a missing-secret one.
+    #
+    # It is also the better scoping: a workflow edited in some future pull request cannot
+    # reach these keys unless it names the environment, and the environment can carry
+    # approval or branch rules that repository secrets cannot.
+    environment: prod
     timeout-minutes: 45
     defaults:
       run:
