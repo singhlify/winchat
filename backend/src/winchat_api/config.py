@@ -80,6 +80,9 @@ class Settings(BaseSettings):
     rerank_llm_model: str = "llama-3.1-8b-instant"
     rerank_model: str = "rerank-v3.5"
     rerank_timeout_s: float = 15.0
+    # Small on purpose: this is in the request path. Cohere trial keys allow 10 calls
+    # per minute, and without any retry a burst degrades to unranked order silently.
+    rerank_retry_budget_s: float = 8.0
     cohere_api_key: str | None = None
 
     # --- evaluation ---

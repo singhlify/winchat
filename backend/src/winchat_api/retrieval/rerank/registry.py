@@ -14,6 +14,7 @@ def _build_cohere(settings: Settings) -> Reranker:
         api_key=settings.cohere_api_key or "",
         model=settings.rerank_model,
         timeout_s=settings.rerank_timeout_s,
+        retry_budget_s=settings.rerank_retry_budget_s,
     )
 
 
