@@ -9,9 +9,13 @@ name: Eval gate
 #   * it is slow — Groq's free tier meters by tokens per minute, and the suite deliberately
 #     waits that budget out rather than failing.
 #
-# Ollama runs as a service container so query embeddings come from the same model the
-# corpus was embedded with. Embedding a query with a different model than the index is the
-# failure this cannot be allowed to have.
+# Embeddings are hosted, so there is no service container and no model to pull. The
+# invariant that mattered is unchanged: query embeddings must come from the same model the
+# corpus was embedded with, because embedding a query with a different model than the index
+# returns confident nonsense rather than an error. This job used to run Ollama as a service
+# for exactly that reason; now it just has to name the same provider the corpus was
+# ingested with. Getting it wrong is no longer silent — the index is 1024-dimensional and a
+# 768-dimensional query is rejected by Postgres outright.
 
 on:
   pull_request:
@@ -43,20 +47,18 @@ jobs:
       run:
         working-directory: backend
 
-    services:
-      ollama:
-        image: ollama/ollama:latest
-        ports:
-          - 11434:11434
-
     env:
       APP_ENV: ci
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # One key, two roles: embeddings and reranking.
       COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
-      OLLAMA_BASE_URL: http://localhost:11434
-      EMBEDDING_PROVIDER: ollama
-      EMBEDDING_MODEL: nomic-embed-text
+      EMBEDDING_PROVIDER: cohere
+      # The suite issues rerank calls back to back, which a trial key's 10-per-minute limit
+      # will throttle. A reranker that gives up falls back to unranked order, so without a
+      # budget long enough to wait the window out this job would quietly grade a pipeline
+      # running without its reranker — worth 17 points of retrieval recall.
+      RERANK_RETRY_BUDGET_S: "120"
 
     steps:
       - uses: actions/checkout@v5
@@ -67,14 +69,6 @@ jobs:
           cache-dependency-glob: backend/uv.lock
 
       - run: uv sync --locked
-
-      - name: Pull the embedding model
-        run: |
-          for _ in $(seq 30); do
-            curl -sf http://localhost:11434/api/tags >/dev/null && break
-            sleep 2
-          done
-          curl -sf http://localhost:11434/api/pull -d '{"model":"nomic-embed-text"}' >/dev/null
 
       - name: Run the eval suite
         run: uv run python -m winchat_api.evals.run --json eval-report.json

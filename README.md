@@ -24,7 +24,7 @@ citations, a calibrated "I don't know", and an evaluation suite that gates CI.
 | **Python (FastAPI) is the AI core** | Retrieval, generation and evaluation are all Python. The frontend is a client, not the identity of the system. |
 | **Provider-agnostic LLM layer** | Every call goes through a `ChatProvider` protocol. Swapping Groq for Anthropic is one registry entry and one env var — written by hand rather than delegated to a framework, because that abstraction is the point. |
 | **Open-weight models via Groq** | Groq is a fast host for open weights, not an open-source vendor. The win is portability: the same model runs on Groq, Together, or self-hosted vLLM. |
-| **Open embeddings (`nomic-embed-text`)** | Keeps the whole pipeline free of lock-in. Ollama locally, an OpenAI-compatible endpoint in production, same weights either way. |
+| **Embeddings behind a provider interface** | Four implementations — open `nomic-embed-text` (Ollama or in-process ONNX) and hosted Cohere — selected by one env var. **The deployed configuration uses Cohere, which is not open-weight.** That is a deliberate trade and is called out rather than glossed: see below. |
 | **pgvector inside Postgres** | Vectors and application data in one database. A second managed vector store is a system to operate, back up and pay for, at a scale that does not need it. |
 | **Plain SQL, never `supabase-js`** | Supabase is ordinary Postgres. Keeping data access in SQL means the database can move to any host unchanged. `supabase-js` is used in one place only: browser login. |
 | **The eval harness is the centrepiece** | Anyone can wire an LLM to a vector store. Being able to say *how good it is, measured how* is the part that separates a system from a demo. |
@@ -92,8 +92,29 @@ the questions genuinely are near-identical in meaning. No threshold can separate
 a reader notices it names a different university. The prompt's grounding rule catches it —
 the model replies that the sources cover Windsor, not Toronto.
 
-The threshold is specific to `nomic-embed-text` and this corpus. Cosine scores are not
-comparable across embedding models, so changing either means recalibrating.
+The threshold is specific to the embedding model and this corpus. Cosine scores are not
+comparable across models, so changing either means recalibrating — three times so far
+(0.70 → 0.66 → 0.38), which is why `python -m winchat_api.chat.calibrate` reproduces the
+whole procedure in one command instead of living in a runbook.
+
+## The open-weight claim, stated honestly
+
+The pipeline was built to be free of vendor lock-in, and the LLM layer still is: Groq hosts
+open weights and swaps to Anthropic or a self-hosted vLLM through one registry entry.
+
+**Embeddings in the deployed configuration do not meet that bar.** They run on Cohere's
+`embed-v4.0`, whose weights are closed. The reason is hosting economics, not quality: the
+in-process open model made the container 920 MB and no free tier fits that. Hosted
+embeddings took it to 51 MB.
+
+What survives the trade is the part that was actually load-bearing — the interface. Going
+back is `EMBEDDING_PROVIDER=fastembed`, `uv sync --extra local`, and a re-ingest; the
+provider is still in the tree and still tested. The swap was gated on measured retrieval
+quality rather than assumed to be harmless, and recall held at 100% while MRR improved
+0.741 → 0.847.
+
+An architecture that claims portability and has never exercised it is a claim. This one has
+now been moved across three embedding runtimes and two dimensionalities, which is evidence.
 
 ## Evaluation
 
@@ -155,13 +176,17 @@ own bucket, which is how the suite ran at all — and why CI will need a paid ti
 
 ## Running it locally
 
-Prerequisites: [`uv`](https://docs.astral.sh/uv/), Node 20+ with pnpm, and
-[Ollama](https://ollama.com) (`ollama pull nomic-embed-text`).
+Prerequisites: [`uv`](https://docs.astral.sh/uv/) and Node 20+ with pnpm. Embeddings are
+hosted by default, so nothing needs to be downloaded to run this — set `COHERE_API_KEY` and
+go. To run them locally on open weights instead, add `uv sync --extra local` and set
+`EMBEDDING_PROVIDER=fastembed` (in-process, no daemon) or `ollama` (needs
+`ollama pull nomic-embed-text`). Either choice re-embeds the corpus on the next ingest,
+automatically, because the stored `model_id` changes.
 
 ```bash
 # backend — the AI core
 cd backend
-cp .env.example .env          # set GROQ_API_KEY and DATABASE_URL
+cp .env.example .env          # set GROQ_API_KEY, COHERE_API_KEY and DATABASE_URL
 uv sync
 uv run python -m winchat_api.db.migrate          # schema + pgvector + RLS
 uv run python -m winchat_api.ingestion.run       # chunk, embed, upsert

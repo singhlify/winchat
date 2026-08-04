@@ -130,7 +130,12 @@ class Settings(BaseSettings):
 
     # CI gates. Set from the first measured baseline, then ratcheted up — never guessed,
     # because a threshold nobody can meet gets disabled and one nobody can fail is decoration.
-    eval_min_retrieval_recall: float = 0.85
+    # Ratcheted from 0.85: recall has measured 100% across three embedding models and two
+    # rerankers, so 0.85 no longer fails anything. Retrieval is the least noisy metric here
+    # — it does not depend on a judge — which makes it the one safe to tighten. The
+    # judge-scored gates below stay where they are; a metric that moves a few points between
+    # identical runs needs headroom or it gets switched off the first time it cries wolf.
+    eval_min_retrieval_recall: float = 0.95
     eval_min_deterministic_pass: float = 0.85
     eval_min_faithfulness: float = 0.90
     eval_min_correctness: float = 0.85
