@@ -12,7 +12,7 @@ from pathlib import Path
 
 from winchat_api.config import get_settings
 from winchat_api.db.pool import create_pool
-from winchat_api.embeddings.registry import get_embedding_provider
+from winchat_api.embeddings.registry import build_embedding_provider
 from winchat_api.ingestion.pipeline import ingest
 
 logger = logging.getLogger("ingestion")
@@ -34,7 +34,12 @@ async def main() -> None:
     args = parse_args()
     settings = get_settings()
 
-    provider = get_embedding_provider()
+    # A long retry budget, unlike the request path: a hosted embedding endpoint meters per
+    # minute and this run makes one call per answer, so hitting the limit is expected. The
+    # right response is to wait, not to abort several hundred answers in.
+    provider = build_embedding_provider(
+        settings, retry_budget_s=settings.embedding_ingest_retry_budget_s
+    )
     logger.info("embedding with %s / %s", provider.name, provider.model_id)
 
     pool = await create_pool(max_size=4)

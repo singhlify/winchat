@@ -12,6 +12,15 @@ configuration and 66.7% in another; without this script that difference is invis
 
 Also verifies the configured Cohere model name against the account, because a wrong model
 id returns a 404 that is easy to misread as "reranking does not work".
+
+**The harness raises its own rate-limit budget, on purpose.** It fires one rerank call per
+case as fast as the database answers, which no real user does — against a trial key's
+10 calls/minute that self-inflicts 429s, and the reranker's designed response to a 429 it
+cannot wait out is to fall back to unranked order. The result is a measurement of a
+half-disabled reranker reported as if it were the real one: this run first scored MRR 0.713
+that way, against 0.847 once the budget could ride out the window. A benchmark that
+silently measures the wrong system is worse than no benchmark, so the budget here is set
+for measurement rather than copied from the request path.
 """
 
 import asyncio
@@ -25,12 +34,16 @@ from winchat_api.config import BACKEND_ROOT, get_settings
 from winchat_api.db.pool import create_pool
 from winchat_api.embeddings.registry import get_embedding_provider
 from winchat_api.retrieval.rerank.base import NoOpReranker, Reranker
-from winchat_api.retrieval.rerank.registry import get_reranker
+from winchat_api.retrieval.rerank.registry import build_reranker
 from winchat_api.retrieval.service import retrieve
 
 logger = logging.getLogger(__name__)
 
 GOLDEN = BACKEND_ROOT / "evals" / "golden" / "uwindsor.jsonl"
+
+# Well past a trial key's one-minute window. Offline work can afford to wait; the point is
+# to measure the reranker that ships, not the one a rate limit left half-running.
+MEASUREMENT_RETRY_BUDGET_S = 120.0
 
 
 async def cohere_rerank_models(api_key: str) -> list[str]:
@@ -93,7 +106,8 @@ async def main() -> int:
             print(f"cohere rerank models: {', '.join(available)}")
             print(f"configured RERANK_MODEL={settings.rerank_model} -> {mark}\n")
 
-    reranker = get_reranker()
+    # Long enough to sit out a whole per-minute window rather than degrade to RRF order.
+    reranker = build_reranker(settings, retry_budget_s=MEASUREMENT_RETRY_BUDGET_S)
     if reranker.name == "none":
         print("No reranker is active — check RERANK_PROVIDER and the API key.")
         return 2

@@ -14,8 +14,18 @@ dependencies = [
     "asyncpg>=0.31.0",
     "pgvector>=0.5.0",
     "pyjwt[crypto]>=2.13.0",
-    "fastembed>=0.8.0",
 ]
+
+# Optional because it is large, not because it is unsupported. fastembed pulls onnxruntime
+# and the nomic weights — together most of a 920 MB image, against a 512 MB free tier.
+# Embeddings are hosted in the deployed configuration, so the container does not need it.
+#
+#   uv sync --extra local     # to run embeddings on your own machine instead
+#
+# The provider imports fastembed lazily and raises a clear EmbeddingError when it is
+# absent, so a missing extra is a legible message rather than an ImportError at startup.
+[project.optional-dependencies]
+local = ["fastembed>=0.8.0"]
 
 [dependency-groups]
 dev = [

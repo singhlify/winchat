@@ -61,6 +61,19 @@ class Settings(BaseSettings):
     fastembed_model: str = "nomic-ai/nomic-embed-text-v1.5"
     # Baked into the image at build time so a cold start does not download the model.
     fastembed_cache_dir: str | None = None
+    # For EMBEDDING_PROVIDER=cohere (the deployed configuration). Hosted, so the model is
+    # not resident in the container — which is the entire reason it is the shipped choice.
+    # The dimension is part of the vector space, not a formatting detail: embed-v4.0 is
+    # Matryoshka-trained and serves 256/512/1024/1536 from the same weights, so it is
+    # carried in model_id and must match `faq_chunks.embedding`'s declared width.
+    cohere_embed_model: str = "embed-v4.0"
+    cohere_embed_dimension: int = 1024
+    # Two budgets because the two callers have opposite tolerances. A user waiting on a
+    # chat response gets seconds; an offline ingest can afford to sit out a whole
+    # rate-limit window rather than abort 400 answers in. Cohere trial keys allow 100
+    # embed calls/minute and ingestion makes one per answer, so it WILL hit the limit.
+    embedding_retry_budget_s: float = 20.0
+    embedding_ingest_retry_budget_s: float = 300.0
 
     # --- retrieval ---
     # Wide recall then narrow precision: cast a big net with cheap retrieval, then let the
@@ -71,19 +84,22 @@ class Settings(BaseSettings):
     rerank_pool: int = 40  # candidates handed to the reranker
     retrieval_top_n: int = 6  # passages that reach the model
 
-    # Refuse to answer when nothing retrieved is close enough. Recalibrated for the
-    # fastembed runtime over the same 8 on-topic / 8 off-topic questions:
-    #   on-topic  0.7577-0.8735
-    #   off-topic 0.4446-0.5678, plus one outlier at 0.8050
-    # 0.66 sits mid-gap with ~0.09 margin either side. The Ollama runtime needed 0.70 and
-    # had only 0.038 of gap, so fastembed separates the two classes about five times better.
+    # Refuse to answer when nothing retrieved is close enough. Recalibrated for Cohere
+    # embed-v4.0 by `python -m winchat_api.chat.calibrate`:
+    #   on-topic  0.4641-0.7117
+    #   off-topic 0.1492-0.2891
+    # 0.38 sits mid-gap with ~0.09 margin either side. Note the absolute numbers are much
+    # lower than nomic's and mean nothing on their own — what matters is the separation,
+    # and this model spreads the two classes across 38% of the on-topic floor where the
+    # Ollama runtime managed 5%.
     #
-    # The outlier is the same one as before — "admission requirements at the University of
-    # Toronto" against UWindsor's own admissions FAQ. No threshold can catch it; the
-    # prompt's grounding rule does.
+    # "Admission requirements at the University of Toronto" still scores 0.4852, inside the
+    # on-topic range, on this model as on every previous one. No threshold catches it; the
+    # prompt's grounding rule does. That is why there are two defences.
     #
-    # This number is specific to the model AND the runtime. RECALIBRATE if either changes.
-    refusal_min_dense_score: float = 0.66
+    # This number is specific to the model AND the runtime. RECALIBRATE if either changes —
+    # the calibrate script exists so that costs one command.
+    refusal_min_dense_score: float = 0.38
     # A second gate on reranker relevance. Left off until it can be calibrated with a real
     # Cohere key; shipping an uncalibrated threshold is worse than shipping none.
     refusal_min_rerank_score: float | None = None
