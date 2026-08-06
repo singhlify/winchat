@@ -108,6 +108,12 @@ def test_unconfigured_dependency_is_tolerated_locally(monkeypatch):
 def test_unconfigured_dependency_fails_readiness_outside_local(monkeypatch):
     """A deployed app missing its API key is not ready, however cheerful it feels."""
     monkeypatch.setenv("APP_ENV", "production")
+    # A valid deployment configuration, so this test fails for the reason it claims to.
+    # Without these the config check also errors and readiness reports "error" instead of
+    # "degraded" — a passing assertion about the wrong thing.
+    monkeypatch.setenv("RATE_LIMIT_SALT", "a-real-random-value-not-the-default")
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
+    monkeypatch.setenv("TRUST_PROXY_HEADERS", "true")
     _stub_checks(
         monkeypatch,
         llm=health.DependencyCheck(status="not_configured", provider="groq"),
@@ -165,3 +171,69 @@ def test_reranking_switched_off_on_purpose_is_not_an_error(monkeypatch):
 
     assert client.get("/readyz").json()["checks"]["reranker"]["status"] == "not_configured"
     get_reranker.cache_clear()
+
+
+# --- production configuration guard -------------------------------------------------
+
+
+def test_non_deployed_envs_skip_the_deployment_checks():
+    """The dev defaults are correct off a server; flagging them there is just noise.
+
+    The suite runs with APP_ENV=test, which must be exempt — an earlier version exempted
+    only "local" and turned every readiness test red.
+    """
+    get_settings.cache_clear()
+
+    assert health._check_config().status == "ok"
+
+
+def test_the_default_rate_limit_salt_is_an_error_in_production(monkeypatch):
+    """A public salt makes anonymous subject hashes computable, and nothing else notices.
+
+    This is the failure mode the check exists for: the app works perfectly with the default
+    salt. Nothing breaks, no request fails, no log line appears — the limiter is simply
+    weaker than it looks, until someone works out that the salt is in the repository.
+    """
+    monkeypatch.setenv("APP_ENV", "production")
+    get_settings.cache_clear()
+
+    check = health._check_config()
+
+    assert check.status == "error"
+    assert "RATE_LIMIT_SALT" in (check.detail or "")
+
+
+def test_localhost_cors_in_production_is_an_error(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("RATE_LIMIT_SALT", "a-real-random-value-not-the-default")
+    monkeypatch.setenv("TRUST_PROXY_HEADERS", "true")
+    get_settings.cache_clear()
+
+    check = health._check_config()
+
+    assert check.status == "error"
+    assert "CORS" in (check.detail or "")
+
+
+def test_proxy_headers_off_in_production_is_an_error(monkeypatch):
+    """Off behind a proxy, every visitor collapses into one rate-limit identity."""
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("RATE_LIMIT_SALT", "a-real-random-value-not-the-default")
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
+    monkeypatch.setenv("TRUST_PROXY_HEADERS", "false")
+    get_settings.cache_clear()
+
+    check = health._check_config()
+
+    assert check.status == "error"
+    assert "TRUST_PROXY_HEADERS" in (check.detail or "")
+
+
+def test_a_correctly_configured_production_passes(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("RATE_LIMIT_SALT", "a-real-random-value-not-the-default")
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
+    monkeypatch.setenv("TRUST_PROXY_HEADERS", "true")
+    get_settings.cache_clear()
+
+    assert health._check_config().status == "ok"

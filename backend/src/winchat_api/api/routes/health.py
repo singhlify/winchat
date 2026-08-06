@@ -23,7 +23,7 @@ from fastapi import APIRouter, Request, Response
 from pydantic import BaseModel
 
 from winchat_api import __version__
-from winchat_api.config import get_settings
+from winchat_api.config import Settings, get_settings
 from winchat_api.embeddings.registry import get_embedding_provider
 from winchat_api.llm.base import Message
 from winchat_api.llm.registry import get_chat_provider
@@ -32,6 +32,11 @@ from winchat_api.retrieval.rerank.registry import get_reranker
 router = APIRouter(tags=["health"])
 
 CheckStatus = Literal["ok", "error", "not_configured"]
+
+# Environments where the deployment-hardening checks below do not apply. Everything NOT in
+# this set is treated as a real deployment — the safe direction to be wrong in, since a new
+# env name like "staging" then gets checked rather than silently exempted.
+NON_DEPLOYED_ENVS = frozenset({"local", "test", "ci", "dev", "development"})
 
 
 class LivenessResponse(BaseModel):
@@ -181,6 +186,50 @@ async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
     )
 
 
+def _check_config() -> DependencyCheck:
+    """Settings that are safe locally and dangerous in production.
+
+    A dependency check answers "can I reach it". This one answers "am I configured the way
+    a deployed service must be" — a different question, and one nothing else asks. Both
+    failures below are silent: the app works perfectly with either, right up until someone
+    exploits it.
+    """
+    settings = get_settings()
+    if settings.app_env in NON_DEPLOYED_ENVS:
+        return DependencyCheck(
+            status="ok", detail=f"{settings.app_env} — deployment checks skipped"
+        )
+
+    problems: list[str] = []
+
+    # The salt is what makes an anonymous subject unguessable. With the shipped default it
+    # is public knowledge, so anyone can compute the hash for a given IP — enough to
+    # confirm whether someone used the service, and to reason about the counter keyspace.
+    if settings.rate_limit_salt == Settings.model_fields["rate_limit_salt"].default:
+        problems.append("RATE_LIMIT_SALT is still the built-in default — set a random value")
+
+    # Behind a proxy, `request.client.host` is the PROXY's address, identical for everyone.
+    # With this off in production, every anonymous visitor hashes to the same subject and
+    # shares one 20-per-hour budget — the first user of the hour locks out the rest. The
+    # opposite mistake (on, with no proxy in front) lets a client forge X-Forwarded-For and
+    # mint a fresh identity per request; the app cannot detect that, so it stays a
+    # documented deploy-time decision rather than a check.
+    if not settings.trust_proxy_headers:
+        problems.append(
+            "TRUST_PROXY_HEADERS is off — behind a proxy every visitor shares one "
+            "rate-limit identity"
+        )
+
+    # An allowlist that still names localhost in production is either a forgotten setting
+    # or a frontend that cannot talk to this API. Both are worth surfacing.
+    if any("localhost" in origin for origin in settings.cors_origins):
+        problems.append("CORS_ALLOW_ORIGINS still contains localhost")
+
+    if problems:
+        return DependencyCheck(status="error", detail="; ".join(problems))
+    return DependencyCheck(status="ok", detail="production settings look right")
+
+
 @router.get("/readyz", response_model=ReadinessResponse)
 async def readyz(request: Request, response: Response) -> ReadinessResponse:
     """Readiness: every configured dependency answered a real call."""
@@ -193,6 +242,7 @@ async def readyz(request: Request, response: Response) -> ReadinessResponse:
         _check_database(getattr(request.app.state, "db_pool", None)),
     )
     checks = {
+        "config": _check_config(),
         "llm": llm,
         "embeddings": embeddings,
         "reranker": reranker,

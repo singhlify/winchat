@@ -1,0 +1,41 @@
+# Automated dependency-vulnerability alerts and update PRs.
+#
+# Worth having because this repo is about to be public, and a public repo is where a known
+# CVE in a transitive dependency stops being theoretical: the dependency tree is readable by
+# anyone, so "nobody knows what we run" was never a control and is now visibly not one.
+#
+# Weekly, not daily, and capped — a bot that opens more PRs than anyone reads gets muted,
+# and a muted bot is worse than none because it looks like coverage.
+
+version: 2
+updates:
+  # Python. The lockfile is uv.lock; `uv` is the ecosystem that understands it. If GitHub
+  # ever reports this ecosystem as unsupported, `pip` also reads pyproject.toml — it just
+  # will not respect the lock.
+  - package-ecosystem: "uv"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for the routine churn, separate PRs for majors. Patch bumps reviewed
+      # individually is exactly the noise that trains people to merge without looking.
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  # The workflows themselves. A compromised or abandoned action runs with access to this
+  # repo's secrets — the `prod` environment holds the Groq, Cohere and database credentials.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
