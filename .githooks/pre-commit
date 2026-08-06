@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Refuse the commit if a credential-shaped string is staged.
+#
+# Enable it (hooks are not cloned, so every machine has to opt in once):
+#   git config core.hooksPath .githooks
+#
+# This is the last cheap moment to stop a leak. After `git push` to a public repo the only
+# honest response is to rotate the key — bots scan new commits within minutes, and no amount
+# of history rewriting un-reads something that was already read.
+#
+# Bypass with `git commit --no-verify` when you are certain it is a false positive. If you
+# find yourself doing that twice for the same string, fix the rule instead.
+
+exec ./scripts/scan_secrets.sh --staged
