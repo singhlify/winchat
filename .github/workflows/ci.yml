@@ -14,6 +14,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Runs first in importance, if not in order. The pre-commit hook catches a leak before it
+  # leaves the machine, but a hook is developer-cooperative — `git commit --no-verify` skips
+  # it, and a fresh clone has no hooks at all until someone runs
+  # `git config core.hooksPath .githooks`. This job is the layer nobody can forget.
+  #
+  # It scans FULL history, not the diff: a secret introduced in an earlier commit and
+  # removed later is still in the repository and still exploitable. GitGuardian measured 70%
+  # of secrets leaked in 2022 as still valid in 2025, so "we deleted it" is not a fix.
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # a shallow clone would scan one commit and report clean
+
+      # Installed explicitly rather than left to the script's fallback: without it the scan
+      # silently drops to the built-in regex layer and still exits 0 — the worst kind of
+      # green build, one that reports a check which did not really run.
+      - name: Install gitleaks
+        run: |
+          set -euo pipefail
+          V=$(curl -sf https://api.github.com/repos/gitleaks/gitleaks/releases/latest \
+              | grep -oP '"tag_name":\s*"\K[^"]+')
+          mkdir -p "$HOME/.local/bin"
+          curl -sfL "https://github.com/gitleaks/gitleaks/releases/download/${V}/gitleaks_${V#v}_linux_x64.tar.gz" \
+            | tar -xz -C "$HOME/.local/bin" gitleaks
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/gitleaks" version
+
+      - name: Scan for committed credentials
+        run: ./scripts/scan_secrets.sh
+
   backend:
     runs-on: ubuntu-latest
     defaults:

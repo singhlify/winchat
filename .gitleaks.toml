@@ -1,0 +1,37 @@
+# gitleaks configuration.
+#
+# Starts from the full default rule set (~170 providers plus entropy-based generic rules)
+# and narrows it as little as possible. Every allowlist entry below is a place a real
+# credential could hide, so each one names what it exempts and why.
+#
+#   gitleaks git --staged .    # what is about to be committed (the pre-commit hook)
+#   gitleaks git .             # every reachable commit
+#   gitleaks dir .             # the working tree, including untracked files
+#
+# Run through ./scripts/scan_secrets.sh rather than directly — that wrapper also runs the
+# dependency-free scanner, so the check still does something on a machine without gitleaks.
+
+[extend]
+useDefault = true
+
+# Allowlists match on the SECRET VALUE, deliberately not on the file path.
+#
+# Path exclusions are the tempting fix and the wrong one: excluding
+# `backend/tests/test_security.py` would silence today's false positive and also blind the
+# scanner to a real key pasted into that file tomorrow. Exempting the specific known-fake
+# string keeps the rest of the file under scrutiny.
+[[allowlists]]
+description = "HS256 test fixture — a self-describing fake, long only to stop PyJWT warning about key length in test output"
+regexTarget = "match"
+regexes = [
+    '''test-secret-long-enough-for-hs256-[a-z]+''',
+]
+
+[[allowlists]]
+description = "Placeholder values in committed example config. Real slots in .env.example are blank; these are documentation."
+regexTarget = "match"
+regexes = [
+    '''change-me''',
+    '''your-[a-z-]*key''',
+    '''<[a-z-]+>''',
+]
