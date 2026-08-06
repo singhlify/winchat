@@ -14,6 +14,35 @@
 [extend]
 useDefault = true
 
+# gitleaks' `generic-api-key` rule is KEYWORD-anchored, not pure entropy: it wants a word
+# like key / secret / token / password near the value. Probed against this exact config,
+# a 45-character random string was detected next to `api_key`, `DB_PASSWORD`, `JWT_SECRET`
+# and `SESSION_SIGNING_KEY` — and MISSED next to `SUPABASE_SERVICE_ROLE` and `salt`.
+#
+# Both misses are real variable names in this project. `RATE_LIMIT_SALT` is in `.env.example`
+# and a Supabase service-role credential is the single most damaging thing that could leak
+# here, because it bypasses Row Level Security entirely — the control the whole security
+# story rests on. So the names this codebase actually uses get their own rule.
+#
+# Entropy gates it: `RATE_LIMIT_SALT=change-me` is documentation and scores far below 3.5,
+# while a real random salt scores above it. The threshold is what keeps the example file
+# quiet without a path exclusion.
+[[rules]]
+id = "winchat-project-secret"
+description = "High-entropy value assigned to one of this project's secret-bearing names"
+regex = '''(?i)\b(supabase[_-]?service[_-]?role|rate[_-]?limit[_-]?salt|jwt[_-]?signing|session[_-]?salt|anon[_-]?secret)[a-z_]*\s*[:=]\s*['"]?([A-Za-z0-9._+/=-]{20,})['"]?'''
+secretGroup = 2
+entropy = 3.5
+keywords = [
+    "supabase_service_role",
+    "supabase-service-role",
+    "rate_limit_salt",
+    "rate-limit-salt",
+    "jwt_signing",
+    "session_salt",
+    "anon_secret",
+]
+
 # Allowlists match on the SECRET VALUE, deliberately not on the file path.
 #
 # Path exclusions are the tempting fix and the wrong one: excluding
