@@ -79,6 +79,12 @@ class Settings(BaseSettings):
     # Wide recall then narrow precision: cast a big net with cheap retrieval, then let the
     # expensive cross-encoder pick. A reranker cannot recover a passage retrieval never saw.
     retrieval_dense_k: int = 50
+    # HNSW inspects at most `ef_search` candidates, so a value below the dense limit caps
+    # the arm silently — pgvector's default is 40 against a limit of 50. Higher costs
+    # latency and buys recall; 100 gives headroom over the limit without being reckless.
+    # Only applies once the corpus is large enough that the planner prefers the index over
+    # a sequential scan, which is exactly when nobody is looking.
+    retrieval_hnsw_ef_search: int = 100
     retrieval_lexical_k: int = 50
     retrieval_rrf_k: int = 60
     rerank_pool: int = 40  # candidates handed to the reranker

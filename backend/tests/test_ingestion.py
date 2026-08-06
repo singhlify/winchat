@@ -106,3 +106,49 @@ def test_answer_row_without_chunks_is_retried():
     """A run that died between writing the answer and its chunks must self-heal."""
     answer = _answer()
     assert _needs_work(answer, (answer.content_hash, None), "nomic-embed-text") is True
+
+
+# --- corpus provenance --------------------------------------------------------------
+
+
+def _corpus(tmp_path, url):
+    import json
+
+    p = tmp_path / "answers.jsonl"
+    p.write_text(
+        json.dumps({"a_id": "1", "question": "Q?", "answer_text": "A.", "url": url}) + "\n",
+        encoding="utf-8",
+    )
+    return p
+
+
+def test_the_real_source_host_is_accepted(tmp_path):
+    from winchat_api.ingestion.corpus import load_answers
+
+    answers = load_answers(_corpus(tmp_path, "https://ask.uwindsor.ca/app/answers/detail/a_id/1"))
+
+    assert len(answers) == 1
+
+
+def test_a_foreign_host_fails_the_ingest(tmp_path):
+    """Every citation is a link the UI invites the user to trust. A URL from a file on disk
+    must not inherit that trust unchecked."""
+    from winchat_api.ingestion.corpus import CorpusError, load_answers
+
+    with pytest.raises(CorpusError, match="not an allowed source"):
+        load_answers(_corpus(tmp_path, "https://evil.example/phish"))
+
+
+def test_a_suffix_lookalike_host_is_rejected(tmp_path):
+    """`endswith('uwindsor.ca')` would accept this. Exact host match is why it does not."""
+    from winchat_api.ingestion.corpus import CorpusError, load_answers
+
+    with pytest.raises(CorpusError, match="not an allowed source"):
+        load_answers(_corpus(tmp_path, "https://ask.uwindsor.ca.attacker.example/x"))
+
+
+def test_a_non_http_scheme_is_rejected(tmp_path):
+    from winchat_api.ingestion.corpus import CorpusError, load_answers
+
+    with pytest.raises(CorpusError, match="not http"):
+        load_answers(_corpus(tmp_path, "javascript:alert(1)"))
