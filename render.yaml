@@ -36,19 +36,23 @@ services:
       - key: GROQ_API_KEY
         sync: false
 
-      # Ollama does not fit a small instance, so deployment uses a hosted endpoint serving
-      # the SAME open weights the corpus was ingested with.
+      # Hosted, because an in-process model makes the image 920 MB against a 512 MB free
+      # tier. MUST match what the corpus was ingested with — the stored vectors are
+      # cohere/embed-v4.0/1024 and a query embedded by anything else retrieves confident
+      # nonsense rather than raising. Changing either value here means a re-ingest.
       - key: EMBEDDING_PROVIDER
-        value: openai_compatible
-      - key: EMBEDDING_MODEL
-        sync: false
-      - key: EMBEDDING_BASE_URL
-        sync: false
-      - key: EMBEDDING_API_KEY
-        sync: false
+        value: cohere
+      - key: COHERE_EMBED_MODEL
+        value: embed-v4.0
+      - key: COHERE_EMBED_DIMENSION
+        value: "1024"
 
       - key: RERANK_PROVIDER
         value: cohere
+      - key: RERANK_MODEL
+        value: rerank-v3.5
+
+      # One key, two roles: embeddings and reranking.
       - key: COHERE_API_KEY
         sync: false
 
