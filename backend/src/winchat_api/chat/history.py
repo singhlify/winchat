@@ -71,6 +71,54 @@ async def load_history(
     return [ChatTurn(role=row["role"], content=row["content"]) for row in reversed(rows)]
 
 
+async def list_conversations(pool: asyncpg.Pool, user_id: str, *, limit: int = 100) -> list[dict]:
+    """Every conversation belonging to this user, newest first.
+
+    Exists so a second device can find conversations it never created. Before this, history
+    was written for signed-in users and never readable back — the account stored your chats
+    and could not show them to you, which made "sign in to keep your history" a claim the
+    product did not deliver.
+
+    Runs through `user_scoped`, so Row Level Security is what scopes the result, not the
+    `where` clause. A query that filtered by user_id in application code would look correct
+    and would leak the day someone forgot the clause.
+    """
+    async with user_scoped(pool, user_id) as connection:
+        rows = await connection.fetch(
+            """
+            select c.id, c.title, c.created_at, c.updated_at,
+                   count(m.id) filter (where m.role = 'user') as question_count
+            from conversations c
+            left join messages m on m.conversation_id = c.id
+            group by c.id
+            order by c.updated_at desc
+            limit $1
+            """,
+            limit,
+        )
+    return [dict(row) for row in rows]
+
+
+async def load_conversation(pool: asyncpg.Pool, user_id: str, conversation_id: str) -> list[dict]:
+    """Full transcript for one conversation, oldest first.
+
+    Separate from `load_history`, which exists for a different job: that one loads the last
+    few turns as model context and returns bare role/content. This returns what a UI needs —
+    every turn, in order, with the retrieval trace so citations survive the round trip.
+    """
+    async with user_scoped(pool, user_id) as connection:
+        rows = await connection.fetch(
+            """
+            select role, content, trace, created_at
+            from messages
+            where conversation_id = $1
+            order by created_at asc
+            """,
+            conversation_id,
+        )
+    return [dict(row) for row in rows]
+
+
 async def save_turn(
     pool: asyncpg.Pool,
     user_id: str,

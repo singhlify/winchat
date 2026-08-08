@@ -12,6 +12,8 @@ import {
   saveConversation,
   titleFrom,
 } from "@/lib/conversations";
+import { useSession } from "@/lib/session";
+import { useConversationHydration } from "@/lib/use-conversation-hydration";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { usePersistentState } from "@/lib/use-persistent-state";
 
@@ -39,16 +41,26 @@ export function ChatShell({
 
   // Restored once, synchronously on first render, so the transcript is never briefly empty
   // before its own content appears.
-  const [initialTurns] = useState<Turn[]>(
-    () => (conversationId ? (getConversation(conversationId)?.turns ?? []) : []),
+  const [initialTurns] = useState<Turn[]>(() =>
+    conversationId ? (getConversation(conversationId)?.turns ?? []) : [],
   );
 
   // State, not a ref: this id is read during render (as the remount key), and a ref read
   // in render is exactly the pattern that goes stale without re-rendering.
   const [id] = useState(() => conversationId ?? newConversationId());
 
+  // A conversation synced from another device arrives as a stub with no turns; this
+  // fetches the transcript the first time it is opened. Returns null until it has
+  // something, so a locally-produced conversation is never blanked while a request is in
+  // flight.
+  const { accessToken } = useSession();
+  const hydrated = useConversationHydration(conversationId, accessToken);
+
   // Persisted so an explicit choice survives the /-to-/c/{id} navigation and reloads.
-  const [model, setModel] = usePersistentState<string | null>("winchat:model", null);
+  const [model, setModel] = usePersistentState<string | null>(
+    "winchat:model",
+    null,
+  );
   const navigatedRef = useRef(Boolean(conversationId));
 
   const persist = useCallback(
@@ -79,13 +91,20 @@ export function ChatShell({
 
   return (
     <div className="flex h-[100dvh] overflow-hidden bg-background">
-      <Sidebar open={sidebarOpen} onClose={() => setOverride(false)} isDesktop={isDesktop} />
+      <Sidebar
+        open={sidebarOpen}
+        onClose={() => setOverride(false)}
+        isDesktop={isDesktop}
+      />
       <div className="relative flex min-w-0 flex-1 flex-col">
         <Chat
           // Remounting on id change resets every piece of conversation state at once —
           // far safer than trying to reconcile a half-streamed answer with a new thread.
-          key={id}
-          initialTurns={initialTurns}
+          // Also remounts once a hydrated transcript arrives: `initialTurns` is read at
+          // mount, so without this the fetched turns would sit in storage unseen until the
+          // next navigation.
+          key={hydrated ? `${id}:hydrated` : id}
+          initialTurns={hydrated ?? initialTurns}
           onTurnsChange={persist}
           sourceCount={sourceCount}
           sidebarOpen={sidebarOpen}

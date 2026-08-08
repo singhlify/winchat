@@ -21,19 +21,17 @@ import { z } from "zod";
  * These values originate from a corpus scraped off a site we do not control, so the scheme
  * has to be checked, not assumed.
  */
-const httpUrl = z
-  .url()
-  .refine(
-    (value) => {
-      try {
-        const { protocol } = new URL(value);
-        return protocol === "http:" || protocol === "https:";
-      } catch {
-        return false;
-      }
-    },
-    { message: "must be an http(s) URL" },
-  );
+const httpUrl = z.url().refine(
+  (value) => {
+    try {
+      const { protocol } = new URL(value);
+      return protocol === "http:" || protocol === "https:";
+    } catch {
+      return false;
+    }
+  },
+  { message: "must be an http(s) URL" },
+);
 
 // ---------------------------------------------------------------- health
 
@@ -176,10 +174,49 @@ export function parseChatEvent(event: string, data: string): ChatEvent | null {
 export const chatRequestSchema = z.object({
   message: z.string().min(1).max(2000),
   history: z
-    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1) }))
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().min(1),
+      }),
+    )
     .max(20),
   conversation_id: z.string().nullable(),
   model: z.string().nullable(),
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
+
+/**
+ * A conversation saved to the signed-in user's account.
+ *
+ * Validated rather than trusted, like every other response: this data crosses a network
+ * boundary and is rendered into the UI, so a shape change upstream should fail loudly here
+ * instead of surfacing as an undefined halfway down a component tree.
+ */
+export const conversationSummarySchema = z.object({
+  id: z.string(),
+  title: z.string().nullable(),
+  question_count: z.number(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export const conversationListSchema = z.object({
+  conversations: z.array(conversationSummarySchema),
+});
+
+export const storedTurnSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string(),
+  trace: z.record(z.string(), z.unknown()).nullable().optional(),
+  created_at: z.string(),
+});
+
+export const conversationDetailSchema = z.object({
+  id: z.string(),
+  turns: z.array(storedTurnSchema),
+});
+
+export type ConversationSummary = z.infer<typeof conversationSummarySchema>;
+export type ConversationDetail = z.infer<typeof conversationDetailSchema>;

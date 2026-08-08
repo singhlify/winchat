@@ -8,9 +8,13 @@
 import type { z } from "zod";
 
 import {
+  conversationDetailSchema,
+  conversationListSchema,
   modelCatalogueSchema,
   readinessSchema,
   sourcesResponseSchema,
+  type ConversationDetail,
+  type ConversationSummary,
   type ModelCatalogue,
   type Readiness,
   type SourcesResponse,
@@ -101,7 +105,9 @@ function readRetryAfter(response: Response): number | undefined {
 export const fetchReadiness = (options?: RequestOptions): Promise<Readiness> =>
   request("/readyz", readinessSchema, options);
 
-export const fetchModels = (options?: RequestOptions): Promise<ModelCatalogue> =>
+export const fetchModels = (
+  options?: RequestOptions,
+): Promise<ModelCatalogue> =>
   request("/api/models", modelCatalogueSchema, options);
 
 export function fetchSources(
@@ -133,7 +139,9 @@ export async function submitFeedback(
   payload: FeedbackPayload,
   { accessToken }: { accessToken?: string | null } = {},
 ): Promise<void> {
-  const headers: Record<string, string> = { "content-type": "application/json" };
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
   if (accessToken) headers.authorization = `Bearer ${accessToken}`;
 
   try {
@@ -147,4 +155,33 @@ export async function submitFeedback(
   } catch {
     // Intentionally swallowed — see the note above.
   }
+}
+
+/**
+ * The signed-in user's saved conversations.
+ *
+ * Requires a token — this is the only part of the API that does. Anonymous visitors have
+ * no server-side history by design, so callers must treat "not signed in" as an empty list
+ * rather than an error state.
+ */
+export async function fetchConversations(
+  options: RequestOptions = {},
+): Promise<ConversationSummary[]> {
+  const data = await request(
+    "/api/conversations",
+    conversationListSchema,
+    options,
+  );
+  return data.conversations;
+}
+
+export async function fetchConversation(
+  id: string,
+  options: RequestOptions = {},
+): Promise<ConversationDetail> {
+  return request(
+    `/api/conversations/${encodeURIComponent(id)}`,
+    conversationDetailSchema,
+    options,
+  );
 }

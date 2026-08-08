@@ -390,3 +390,48 @@ def test_the_maintenance_token_still_gets_through_without_an_origin(monkeypatch)
     get_settings.cache_clear()
 
     require_browser_origin(_origin_req(token="the-real-token"))  # must not raise
+
+
+# --- conversation sync: the one endpoint that requires an account ---------------------
+
+
+async def test_conversations_require_authentication():
+    """Every other endpoint works anonymously on purpose. These do not: the rows are one
+    person's questions, not public FAQ content."""
+    from winchat_api.security.auth import require_user
+
+    with pytest.raises(HTTPException) as excinfo:
+        await require_user(_Req({}))
+
+    assert excinfo.value.status_code == 401
+
+
+async def test_a_conversation_belonging_to_someone_else_is_a_404_not_a_403(monkeypatch):
+    """Answering 403 for "not yours" and 404 for "does not exist" would confirm which
+    conversation ids exist — an enumeration oracle. RLS returns no rows in both cases, so
+    the handler cannot tell them apart, and 404 is the honest answer for both.
+
+    Driven through the handler rather than by reading its source: an earlier version of
+    this test asserted on the text of the function and failed on its own comment, which is
+    a good illustration of why source assertions are not tests.
+    """
+    from winchat_api.api.routes import conversations
+    from winchat_api.security.auth import AuthenticatedUser
+
+    # RLS filters the rows out, so the handler sees an empty result either way.
+    async def no_rows(pool, user_id, conversation_id):
+        return []
+
+    monkeypatch.setattr(conversations, "load_conversation", no_rows)
+
+    class _App:
+        state = type("S", (), {"db_pool": object()})()
+
+    request = type("R", (), {"app": _App()})()
+
+    with pytest.raises(HTTPException) as excinfo:
+        await conversations.get_conversation(
+            request, "1e5b0000-0000-0000-0000-000000000000", AuthenticatedUser(id="bob")
+        )
+
+    assert excinfo.value.status_code == 404

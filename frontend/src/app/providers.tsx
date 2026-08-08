@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { ApiError } from "@/lib/api/client";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SessionProvider } from "@/lib/session";
 
 /**
  * Client-side providers.
@@ -27,7 +28,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
             retry: (failureCount, error) => {
               // Retrying a 4xx just repeats the same rejection. A rate limit especially:
               // hammering it is what caused it.
-              if (error instanceof ApiError && error.status >= 400 && error.status < 500) {
+              if (
+                error instanceof ApiError &&
+                error.status >= 400 &&
+                error.status < 500
+              ) {
                 return false;
               }
               return failureCount < 2;
@@ -50,7 +55,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+        <SessionProvider>
+          <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
+        </SessionProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

@@ -7,6 +7,8 @@ import { Composer, type ComposerHandle } from "@/components/chat/Composer";
 import { EmptyState } from "@/components/chat/EmptyState";
 import { useChat, type Turn } from "@/components/chat/use-chat";
 import { submitFeedback } from "@/lib/api/client";
+import { useSession } from "@/lib/session";
+import { useAccountSync } from "@/lib/use-account-sync";
 import { useStickToBottom } from "@/components/chat/use-stick-to-bottom";
 import { Header } from "@/components/Header";
 
@@ -28,7 +30,13 @@ export function Chat({
   onModelChange: (model: string | null) => void;
 }) {
   const [draft, setDraft] = useState("");
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  // The session lives in context: ChatShell sits above this component and needs the same
+  // token to hydrate a conversation opened from another device.
+  const { accessToken, setAccessToken } = useSession();
+
+  // Signing in makes the account's saved conversations appear in the sidebar. Without
+  // this the server kept a history it could never show anyone.
+  useAccountSync(accessToken);
   const composerRef = useRef<ComposerHandle>(null);
 
   const onFeedback = useCallback(
@@ -68,9 +76,17 @@ export function Chat({
     onTurnsChange?.(turns);
   }, [busy, turns, onTurnsChange]);
 
-  const { scrollRef, bottomRef, isPinned, scrollToBottom } = useStickToBottom([turns]);
+  const { scrollRef, bottomRef, isPinned, scrollToBottom } = useStickToBottom([
+    turns,
+  ]);
 
-  const handleSession = useCallback((token: string | null) => setAccessToken(token), []);
+  // `setAccessToken` is a useState setter behind the context, so it is referentially
+  // stable and listing it costs nothing — but the linter cannot prove that through a
+  // context boundary, and silencing the rule is worse than satisfying it.
+  const handleSession = useCallback(
+    (token: string | null) => setAccessToken(token),
+    [setAccessToken],
+  );
 
   const submit = useCallback(() => {
     send(draft);

@@ -89,13 +89,16 @@ function subscribe(listener: Listener): () => void {
 export function newConversationId(): string {
   // `crypto.randomUUID` needs a secure context; localhost counts, but a plain-http
   // deployment would not, so there is a fallback rather than a crash.
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto)
+    return crypto.randomUUID();
   return `c-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 export function titleFrom(question: string): string {
   const cleaned = question.trim().replace(/\s+/g, " ");
-  return cleaned.length > 60 ? `${cleaned.slice(0, 57)}…` : cleaned || "New chat";
+  return cleaned.length > 60
+    ? `${cleaned.slice(0, 57)}…`
+    : cleaned || "New chat";
 }
 
 export function listConversations(): Conversation[] {
@@ -121,7 +124,9 @@ export function renameConversation(id: string, title: string): void {
   if (!trimmed) return;
   write(
     read().map((conversation) =>
-      conversation.id === id ? { ...conversation, title: trimmed } : conversation,
+      conversation.id === id
+        ? { ...conversation, title: trimmed }
+        : conversation,
     ),
   );
 }
@@ -139,4 +144,59 @@ export function useConversations(): Conversation[] {
     // server. A stable EMPTY reference keeps this from looping during hydration.
     () => EMPTY,
   );
+}
+
+/**
+ * Fold the account's saved conversations into this browser's list.
+ *
+ * The merge rule is deliberately one-directional and conservative: a server conversation
+ * this browser has never seen is ADDED, and one it already has is LEFT ALONE. Nothing local
+ * is overwritten and nothing is deleted.
+ *
+ * Why so timid. The two sides are not comparable histories — local holds full transcripts
+ * this device produced, while the server holds what was saved while signed in. A
+ * last-write-wins merge on `updatedAt` would let a stale row from another device replace a
+ * conversation the user is looking at, and the failure would be silent and unrecoverable
+ * because the local copy is the only copy. Adding is safe; overwriting is not, and there is
+ * no version vector here to make it safe.
+ *
+ * The consequence, stated so nobody is surprised: edits do not sync back, and a title
+ * renamed on one device stays renamed only there. That is a real limitation, and it is the
+ * right trade until conversations carry a revision the two sides can compare.
+ */
+export function mergeServerConversations(
+  remote: {
+    id: string;
+    title: string | null;
+    created_at: string;
+    updated_at: string;
+  }[],
+): number {
+  const local = read();
+  const known = new Set(local.map((conversation) => conversation.id));
+
+  const additions: Conversation[] = remote
+    .filter((conversation) => !known.has(conversation.id))
+    .map((conversation) => ({
+      id: conversation.id,
+      title: conversation.title ?? "Saved conversation",
+      createdAt: Date.parse(conversation.created_at) || Date.now(),
+      updatedAt: Date.parse(conversation.updated_at) || Date.now(),
+      // Turns are fetched on demand when the conversation is opened. Pulling every
+      // transcript up front would mean N requests to render a sidebar the user may never
+      // click, and localStorage is a small budget to spend on chats nobody opened.
+      turns: [],
+    }));
+
+  if (additions.length === 0) return 0;
+
+  write([...local, ...additions].sort((a, b) => b.updatedAt - a.updatedAt));
+  return additions.length;
+}
+
+/** Replace a conversation's turns once they have been fetched from the account. */
+export function hydrateConversation(id: string, turns: Turn[]): void {
+  const existing = getConversation(id);
+  if (!existing) return;
+  saveConversation({ ...existing, turns });
 }

@@ -119,6 +119,21 @@ async def verify_token(token: str) -> AuthenticatedUser:
     return AuthenticatedUser(id=str(claims["sub"]), email=claims.get("email"))
 
 
+async def require_user(request: Request) -> AuthenticatedUser:
+    """FastAPI dependency: the signed-in user, or 401.
+
+    The counterpart to `optional_user`, for the one thing in this API that is genuinely
+    private — a person's own saved conversations. Everything else stays anonymous-friendly
+    on purpose, so this is deliberately a separate dependency rather than a flag: a route
+    either requires an account or it does not, and that should be visible in its signature.
+    """
+    token = _bearer_token(request)
+    if token is None:
+        raise HTTPException(status_code=401, detail="Sign in to view your conversations.")
+    # `verify_token` raises 401 itself on a bad signature, expiry, issuer or audience.
+    return await verify_token(token)
+
+
 async def optional_user(request: Request) -> AuthenticatedUser | None:
     """FastAPI dependency: the signed-in user, or None when the request is anonymous."""
     settings = get_settings()
