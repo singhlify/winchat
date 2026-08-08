@@ -250,3 +250,36 @@ def test_provider_errors_are_not_forwarded_verbatim(client, monkeypatch):
     assert "org_01SECRET" not in raw
     assert "100000" not in raw
     assert _events(raw)[0][0] == "error"
+
+
+# --- query rewriting: only when the message cannot stand alone -----------------------
+
+
+def test_the_rewrite_prompt_demands_a_pass_through_for_standalone_messages():
+    """Guards a production failure, not a style preference.
+
+    The instruction was once an unconditional "rewrite the message", so the model rewrote
+    questions that did not need it. After a turn about UWin accounts, "where do i get my
+    student id?" became "UWin student ID retrieval" — plausible-looking, and wrong: it
+    reinterprets "student id" as a credential rather than the physical card, so retrieval
+    returned account-activation articles and the user was told to activate an account they
+    had already activated. The same question with no history retrieves the UwinCARD article.
+
+    Asserting on prompt text is weak, but a full multi-turn assertion needs a live model and
+    a database. This pins the one property whose absence caused the bug.
+    """
+    from winchat_api.chat.prompts import REWRITE_PROMPT
+
+    lowered = REWRITE_PROMPT.lower()
+    assert "unchanged" in lowered, "must tell the model to leave standalone messages alone"
+    # Both worked examples must survive: one that resolves a fragment, one that does not.
+    assert "what timings?" in lowered
+    assert "where do i get my student id?" in lowered
+
+
+def test_the_rewrite_prompt_still_forbids_dragging_in_answer_details():
+    """The older regression: rewriting "what timings?" into a query carrying a whole street
+    address dropped top similarity 0.7465 -> 0.6408 and tripped the refusal gate."""
+    from winchat_api.chat.prompts import REWRITE_PROMPT
+
+    assert "do not copy addresses" in REWRITE_PROMPT.lower()

@@ -66,10 +66,19 @@ NO_CONTEXT_MESSAGE = (
 # Our corpus is a curated university FAQ, so the practical risk is low — but the corpus is
 # scraped from a site we do not control, so the instruction is not free to omit.
 
-REWRITE_PROMPT = """Rewrite the user's latest message into a SHORT standalone search query.
+REWRITE_PROMPT = """Turn the user's latest message into a SHORT standalone search query.
 
-Resolve pronouns and implicit references using the conversation, so the query makes sense \
-on its own. Keep the user's own terminology and any names, codes or numbers they used.
+FIRST decide whether it needs rewriting at all. If the message already makes sense on its \
+own, return it UNCHANGED, word for word. Most messages do. Only rewrite when the message \
+cannot be understood without the conversation — a pronoun with no referent ("is it free?", \
+"where is that?") or an obvious fragment ("what timings?", "how much?").
+
+A message that names its own subject is standalone even when it follows a related topic. \
+Do not fold in words from earlier turns and do not translate the user's wording into \
+different terminology — you are resolving references, not summarising the conversation.
+
+Resolve those references using the conversation, so the query makes sense on its own. Keep \
+the user's own terminology and any names, codes or numbers they used.
 
 Keep it short — this is a search query, not a sentence. Include the subject and what is \
 being asked about it, and nothing else. Do NOT copy addresses, lists, steps or other \
@@ -77,14 +86,33 @@ details out of the assistant's previous answer that the user did not ask about.
 
 Do not answer the question. Reply with the rewritten query and nothing else.
 
-Example:
+Example — a fragment that DOES need resolving:
   user: where to get my id card?
   assistant: Visit the UwinCARD Office in the Joyce Entrepreneurship Centre, 1st Floor...
   user: what timings?
-  -> UwinCARD Office hours"""
+  -> UwinCARD Office hours
 
-# The example is not decoration. Without it the model produced "UwinCARD Office timings in
-# the Joyce Entrepreneurship Centre, 1st Floor, West Entrance." for exactly this exchange —
-# a faithful rewrite that dragged the whole address into the embedding and dropped the top
-# similarity from 0.7465 to 0.6408, far enough to trip the refusal gate. Every extra word
-# not in the question pulls the query vector away from the passage that answers it.
+Example — a standalone question that must be returned UNCHANGED:
+  user: How do I activate my UWin account?
+  assistant: Go to the First-time Student/Applicant Account Activation page...
+  user: where do i get my student id?
+  -> where do i get my student id?"""
+
+# Neither example is decoration; each encodes a failure measured in production.
+#
+# The FIRST: without it the model produced "UwinCARD Office timings in the Joyce
+# Entrepreneurship Centre, 1st Floor, West Entrance." for exactly this exchange — a faithful
+# rewrite that dragged the whole address into the embedding and dropped the top similarity
+# from 0.7465 to 0.6408, far enough to trip the refusal gate. Every extra word not in the
+# question pulls the query vector away from the passage that answers it.
+#
+# The SECOND: the instruction used to be an unconditional "rewrite the message", so the
+# model rewrote questions that did not need it. After a turn about UWin accounts, "where do
+# i get my student id?" became "UWin student ID retrieval" — which reads reasonable and is
+# wrong, because it silently reinterprets "student id" as a credential instead of the
+# physical card. Retrieval then returned account-activation articles and the user was told
+# how to activate an account they had already activated. The identical question with no
+# history retrieves "How do I get my UwinCARD?" and answers correctly.
+#
+# The general lesson: a query rewriter can only lose information. It earns its place on the
+# minority of messages that genuinely cannot stand alone, and must be a no-op on the rest.
