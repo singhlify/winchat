@@ -71,5 +71,9 @@ services:
 
       - key: RATE_LIMIT_PER_HOUR
         value: "20"
+      - key: RATE_LIMIT_USER_PER_HOUR
+        value: "100"
+      - key: RATE_LIMIT_USER_PER_DAY
+        value: "400"
       - key: RATE_LIMIT_GLOBAL_PER_DAY
         value: "2000"

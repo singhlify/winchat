@@ -81,7 +81,9 @@ async def test_a_fresh_caller_is_allowed():
 
 
 async def test_the_hourly_limit_blocks(monkeypatch):
-    monkeypatch.setenv("RATE_LIMIT_PER_HOUR", "5")
+    # The subject below is a signed-in user, so the USER tier is what governs it. Setting
+    # the anonymous variable here would silently test nothing.
+    monkeypatch.setenv("RATE_LIMIT_USER_PER_HOUR", "5")
     get_settings.cache_clear()
 
     decision = await check_limits(_FakePool(subject_hour=5), user_subject("u1"))
@@ -92,8 +94,8 @@ async def test_the_hourly_limit_blocks(monkeypatch):
 
 
 async def test_the_daily_limit_blocks_even_within_the_hourly_one(monkeypatch):
-    monkeypatch.setenv("RATE_LIMIT_PER_HOUR", "100")
-    monkeypatch.setenv("RATE_LIMIT_PER_DAY", "10")
+    monkeypatch.setenv("RATE_LIMIT_USER_PER_HOUR", "100")
+    monkeypatch.setenv("RATE_LIMIT_USER_PER_DAY", "10")
     get_settings.cache_clear()
 
     decision = await check_limits(_FakePool(subject_hour=1, subject_day=10), user_subject("u1"))
@@ -293,3 +295,33 @@ async def test_the_bypass_CANNOT_exceed_the_global_spend_ceiling():
 
     assert decision.allowed is False
     assert decision.scope == "global_day"
+
+
+def test_a_signed_in_caller_gets_a_larger_budget_than_an_anonymous_one():
+    """The docstrings promised this before the code did.
+
+    An anonymous subject is a salted hash of an IP — a VPN or a different network mints a
+    fresh one, so its budget must stay small. An account costs an email round-trip, so it is
+    harder to farm and can carry more. `kind` comes from a JWT this service verified itself,
+    never from anything the caller can set.
+    """
+    settings = get_settings()
+
+    assert settings.rate_limit_user_per_hour > settings.rate_limit_per_hour
+    assert settings.rate_limit_user_per_day > settings.rate_limit_per_day
+
+
+async def test_the_user_tier_is_applied_not_just_configured():
+    """Anonymous is blocked at a count that a signed-in subject is still allowed at."""
+    from winchat_api.security.rate_limit import Subject, check_limits
+
+    over_anon_under_user = get_settings().rate_limit_per_hour + 1
+    pool = _FakePool(
+        subject_hour=over_anon_under_user, subject_day=over_anon_under_user, global_day=1
+    )
+
+    anon = await check_limits(pool, Subject(key="anon:x", kind="anonymous"))
+    user = await check_limits(pool, Subject(key="user:abc", kind="user"))
+
+    assert anon.allowed is False
+    assert user.allowed is True

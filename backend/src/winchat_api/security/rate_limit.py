@@ -78,8 +78,15 @@ async def check_limits(
     """
     settings = get_settings()
 
-    per_hour = settings.rate_limit_per_hour
-    per_day = settings.rate_limit_per_day
+    # A signed-in account is a stronger identity than an IP hash, so it carries a larger
+    # budget. `kind` is set by `subject_for` from a JWT this service verified itself, so it
+    # cannot be chosen by the caller.
+    if subject.kind == "user":
+        per_hour = settings.rate_limit_user_per_hour
+        per_day = settings.rate_limit_user_per_day
+    else:
+        per_hour = settings.rate_limit_per_hour
+        per_day = settings.rate_limit_per_day
     global_per_day = settings.rate_limit_global_per_day
 
     row = await pool.fetchrow(
