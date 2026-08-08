@@ -22,9 +22,33 @@ export function getSupabase(): SupabaseClient | null {
   // The anon key is designed to be public: it grants nothing on its own, because Row Level
   // Security decides what a request may see. That is exactly why RLS is FORCEd server-side.
   client ??= createClient(url, anonKey, {
-    auth: { persistSession: true, autoRefreshToken: true },
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      // PKCE rather than the implicit flow. A browser app is a *public* client — it cannot
+      // keep a secret — so the implicit flow returns tokens directly in the URL fragment,
+      // where they land in history and in anything that logs URLs. PKCE returns a
+      // single-use code that is worthless without the verifier held in this tab.
+      flowType: "pkce",
+      // Lets the client finish an OAuth or recovery redirect on load, which is what makes
+      // /auth/callback and /auth/reset work without hand-rolling a code exchange.
+      detectSessionInUrl: true,
+    },
   });
   return client;
+}
+
+/**
+ * Where a provider or an email link should send the user back to.
+ *
+ * Read from the live origin rather than NEXT_PUBLIC_SITE_URL on purpose: preview
+ * deployments have their own origin, and a hardcoded production URL would bounce a
+ * preview login into production. Every value returned here must also be listed in
+ * Supabase's redirect allowlist, which is what stops an open redirect.
+ */
+export function authRedirectTo(path: string): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  return new URL(path, window.location.origin).toString();
 }
 
 export const authConfigured = Boolean(url && anonKey);

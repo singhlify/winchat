@@ -17,11 +17,14 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
  * block anyone — and makes no claim beyond that.
  *
  * `/status` is excluded because it is an operational page, not content, and indexing it
- * would put dependency health in search results.
+ * would put dependency health in search results. `/auth/*` is excluded because those pages
+ * exist only as landing targets for a link in an email or from an OAuth provider — they
+ * render nothing without one, so an indexed copy is a dead end for a searcher and a
+ * password form sitting in search results for everyone else.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow: ["/status"] }],
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/status", "/auth/"] }],
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,
   };
