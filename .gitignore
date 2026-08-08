@@ -6,7 +6,12 @@
 # Scraped corpus — regenerable via scripts/scrape_ask_uwindsor.py, large, drifts from source
 data/ask_uwindsor/
 data/**/raw/
-*.jsonl
+# NOT `*.jsonl`. That blanket rule was here, was redundant with the two paths above, and
+# silently excluded backend/evals/golden/uwindsor.jsonl — the golden set the entire eval
+# harness reads. The code shipped, the data did not: CI could never have run the evals, a
+# clone could not reproduce a single published number, and the Docker build failed on
+# `COPY evals` with a message about a missing directory rather than a missing file.
+# Ignore data by PATH, never by extension.
 
 # Python (uv)
 .venv/
