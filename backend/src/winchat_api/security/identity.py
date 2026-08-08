@@ -5,6 +5,8 @@ endpoint that derives the caller's identity its own way is an endpoint whose lim
 bypassed by using a different endpoint.
 """
 
+import hmac
+
 from fastapi import Request
 
 from winchat_api.config import get_settings
@@ -29,3 +31,32 @@ def client_ip(request: Request) -> str:
 
 def subject_for(request: Request, user: AuthenticatedUser | None) -> Subject:
     return user_subject(user.id) if user else anonymous_subject(client_ip(request))
+
+
+MAINTENANCE_HEADER = "x-maintenance-token"
+
+
+def is_maintenance_request(request: Request) -> bool:
+    """Does this request carry the maintenance token?
+
+    Grants exactly one thing: exemption from the per-subject rate limits, so a deployed
+    instance can be smoke-tested without burning a real visitor's budget. It is NOT an
+    identity — the caller is still whoever they were, still subject to the global spend
+    ceiling, still bound by Row Level Security, and still recorded in `usage_events`.
+
+    Unset (the default) means the header does nothing at all. That matters: a feature that
+    is off unless deliberately enabled cannot be exploited on an instance nobody configured.
+
+    `compare_digest` rather than `==` because a plain comparison returns early on the first
+    differing byte, and that timing difference is enough to recover a secret one character
+    at a time given enough attempts.
+    """
+    expected = get_settings().maintenance_token
+    if not expected:
+        return False
+
+    supplied = request.headers.get(MAINTENANCE_HEADER, "")
+    if not supplied:
+        return False
+
+    return hmac.compare_digest(supplied, expected)

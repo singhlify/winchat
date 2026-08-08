@@ -27,7 +27,7 @@ from winchat_api.llm.base import ProviderError
 from winchat_api.llm.registry import build_chat_provider, get_chat_provider
 from winchat_api.retrieval.rerank.registry import get_reranker
 from winchat_api.security.auth import AuthenticatedUser, optional_user
-from winchat_api.security.identity import subject_for
+from winchat_api.security.identity import is_maintenance_request, subject_for
 from winchat_api.security.rate_limit import check_limits, record_usage
 
 logger = logging.getLogger(__name__)
@@ -80,7 +80,9 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
 
     # Checked before retrieval and before the model: a rejected request should cost
     # nothing beyond two indexed counts.
-    decision = await check_limits(pool, subject)
+    decision = await check_limits(
+        pool, subject, bypass_subject_limits=is_maintenance_request(request)
+    )
     if not decision.allowed:
         raise HTTPException(
             status_code=429,

@@ -225,3 +225,71 @@ async def test_anonymous_is_refused_when_auth_is_required(monkeypatch):
 
 async def test_a_non_bearer_authorization_header_is_treated_as_anonymous():
     assert await optional_user(_Request({"authorization": "Basic abc"})) is None
+
+
+# --- maintenance token: a narrow bypass, not an admin account ------------------------
+
+
+class _Req:
+    """Minimal stand-in for a Request — only headers are read."""
+
+    def __init__(self, headers=None):
+        self.headers = headers or {}
+
+
+def test_the_maintenance_header_does_nothing_when_unconfigured(monkeypatch):
+    """Off by default. A feature that is off unless deliberately enabled cannot be
+    exploited on an instance nobody configured."""
+    from winchat_api.security.identity import is_maintenance_request
+
+    monkeypatch.setenv("MAINTENANCE_TOKEN", "")
+    get_settings.cache_clear()
+
+    assert is_maintenance_request(_Req({"x-maintenance-token": "anything"})) is False
+
+
+def test_a_wrong_maintenance_token_is_rejected(monkeypatch):
+    from winchat_api.security.identity import is_maintenance_request
+
+    monkeypatch.setenv("MAINTENANCE_TOKEN", "the-real-token")
+    get_settings.cache_clear()
+
+    assert is_maintenance_request(_Req({"x-maintenance-token": "wrong"})) is False
+    assert is_maintenance_request(_Req({})) is False
+    assert is_maintenance_request(_Req({"x-maintenance-token": "the-real-token"})) is True
+
+
+async def test_the_bypass_waives_the_per_subject_cap():
+    from winchat_api.security.rate_limit import Subject, check_limits
+
+    # Far over the hourly cap, well under the global one.
+    pool = _FakePool(subject_hour=9999, subject_day=9999, global_day=1)
+
+    blocked = await check_limits(pool, Subject(key="anon:x", kind="anonymous"))
+    allowed = await check_limits(
+        pool, Subject(key="anon:x", kind="anonymous"), bypass_subject_limits=True
+    )
+
+    assert blocked.allowed is False
+    assert allowed.allowed is True
+    assert allowed.scope == "maintenance_bypass"
+
+
+async def test_the_bypass_CANNOT_exceed_the_global_spend_ceiling():
+    """The property that keeps this from being a backdoor.
+
+    The per-subject caps stop one visitor hogging a free tier — waiving them is merely
+    convenient. The global cap is the spend ceiling on the Groq and Cohere keys, so a token
+    that waived it would turn one leaked header into an unmetered bill. If this test ever
+    fails, the bypass has become the thing it was designed not to be.
+    """
+    from winchat_api.security.rate_limit import Subject, check_limits
+
+    pool = _FakePool(subject_hour=0, subject_day=0, global_day=10_000)
+
+    decision = await check_limits(
+        pool, Subject(key="anon:x", kind="anonymous"), bypass_subject_limits=True
+    )
+
+    assert decision.allowed is False
+    assert decision.scope == "global_day"

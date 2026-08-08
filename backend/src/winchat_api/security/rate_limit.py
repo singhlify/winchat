@@ -58,8 +58,24 @@ def user_subject(user_id: str) -> Subject:
     return Subject(key=f"user:{user_id}", kind="user")
 
 
-async def check_limits(pool: asyncpg.Pool, subject: Subject) -> LimitDecision:
-    """Both limits, evaluated before any expensive work happens."""
+async def check_limits(
+    pool: asyncpg.Pool, subject: Subject, *, bypass_subject_limits: bool = False
+) -> LimitDecision:
+    """Both limits, evaluated before any expensive work happens.
+
+    `bypass_subject_limits` waives the PER-SUBJECT hourly and daily caps for a maintenance
+    caller. It deliberately does NOT waive the global daily breaker below, and that
+    asymmetry is the whole design:
+
+    * the per-subject caps exist to stop one visitor monopolising a shared free tier —
+      annoying during testing, and nothing worse than annoying to waive;
+    * the global cap is the SPEND CEILING on the Groq and Cohere keys. A token that waived
+      it would turn one leaked header into an unmetered bill, which is precisely the failure
+      the limiter exists to prevent.
+
+    So the maintenance path can test freely and still cannot cost more than the service was
+    ever willing to spend in a day.
+    """
     settings = get_settings()
 
     per_hour = settings.rate_limit_per_hour
@@ -92,6 +108,14 @@ async def check_limits(pool: asyncpg.Pool, subject: Subject) -> LimitDecision:
             used=row["global_day"],
             limit=global_per_day,
             scope="global_day",
+        )
+
+    if bypass_subject_limits:
+        # Logged every time, at WARNING. A bypass nobody can see in the logs is a backdoor;
+        # one that announces itself is an operational tool.
+        logger.warning("maintenance bypass used for subject %s", subject.kind)
+        return LimitDecision(
+            allowed=True, used=row["subject_hour"], limit=per_hour, scope="maintenance_bypass"
         )
 
     if row["subject_hour"] >= per_hour:

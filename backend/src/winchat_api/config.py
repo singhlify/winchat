@@ -163,6 +163,17 @@ class Settings(BaseSettings):
     # front lets anyone mint a fresh rate-limit identity per request. Turn it on only where
     # a known proxy (Render, Vercel) actually sets it.
     trust_proxy_headers: bool = False
+    # A maintenance credential for testing a DEPLOYED instance without tripping the
+    # per-visitor rate limit. Blank disables the path entirely, which is the default.
+    #
+    # Scope is deliberately tiny, and the name says so: it waives the per-subject caps and
+    # NOTHING else. It grants no data access, bypasses no Row Level Security, and cannot
+    # exceed the global daily spend ceiling. A leaked value costs a noisy log line and some
+    # of the day's request budget — not the database, and not an unbounded bill.
+    #
+    # This is not an admin account, and resisting the urge to make it one is the point:
+    # "one credential that can do everything" is the shape of every breach post-mortem.
+    maintenance_token: str | None = None
 
     @property
     def supabase_jwks_url(self) -> str | None:

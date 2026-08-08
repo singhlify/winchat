@@ -28,7 +28,7 @@ def client(monkeypatch):
 
 
 def _allow_all(monkeypatch):
-    async def allow(pool, subject):
+    async def allow(pool, subject, **kwargs):
         return LimitDecision(allowed=True, used=0, limit=20, scope="subject_hour")
 
     async def noop(pool, subject, **kwargs):
@@ -164,7 +164,7 @@ def test_a_rate_limited_caller_gets_429_with_retry_after(monkeypatch):
     app = create_app()
     app.state.db_pool = object()
 
-    async def deny(pool, subject):
+    async def deny(pool, subject, **kwargs):
         return LimitDecision(
             allowed=False, reason="Rate limit reached.", retry_after_s=600, scope="subject_hour"
         )

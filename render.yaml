@@ -63,6 +63,12 @@ services:
 
       - key: RATE_LIMIT_SALT
         generateValue: true
+      # Waives the PER-SUBJECT rate limits for smoke-testing a deployed instance, and
+      # nothing else — no data access, no RLS bypass, and it still cannot exceed the global
+      # daily spend ceiling. Generated, so it is never a value anyone typed or reused.
+      - key: MAINTENANCE_TOKEN
+        generateValue: true
+
       - key: RATE_LIMIT_PER_HOUR
         value: "20"
       - key: RATE_LIMIT_GLOBAL_PER_DAY
