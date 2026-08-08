@@ -28,6 +28,7 @@ from winchat_api.llm.registry import build_chat_provider, get_chat_provider
 from winchat_api.retrieval.rerank.registry import get_reranker
 from winchat_api.security.auth import AuthenticatedUser, optional_user
 from winchat_api.security.identity import is_maintenance_request, subject_for
+from winchat_api.security.origin import require_browser_origin
 from winchat_api.security.rate_limit import check_limits, record_usage
 
 logger = logging.getLogger(__name__)
@@ -70,7 +71,7 @@ def _error_event(message: str, exc: Exception) -> str:
 CurrentUser = Annotated[AuthenticatedUser | None, Depends(optional_user)]
 
 
-@router.post("/chat")
+@router.post("/chat", dependencies=[Depends(require_browser_origin)])
 async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> StreamingResponse:
     pool = getattr(request.app.state, "db_pool", None)
     if pool is None:

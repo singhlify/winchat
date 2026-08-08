@@ -182,6 +182,11 @@ class Settings(BaseSettings):
     # This is not an admin account, and resisting the urge to make it one is the point:
     # "one credential that can do everything" is the shape of every breach post-mortem.
     maintenance_token: str | None = None
+    # Reject expensive POSTs that carry no browser `Origin`. CORS is enforced by browsers
+    # only, so without this a script can call /api/chat freely — measured returning 200
+    # against the deployed service. Off for local curl work and in tests; see security/origin.py
+    # for what it is and is not worth.
+    require_browser_origin: bool = True
 
     @property
     def supabase_jwks_url(self) -> str | None:

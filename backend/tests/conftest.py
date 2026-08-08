@@ -39,6 +39,10 @@ def hermetic_settings(monkeypatch):
     for name in AMBIENT_SETTINGS:
         monkeypatch.setenv(name, "")
     monkeypatch.setenv("APP_ENV", "test")
+    # TestClient sends no `Origin`, so leaving the browser-origin guard on would turn every
+    # chat and feedback test into a 403 — they would still pass or fail, but for the wrong
+    # reason. The guard has its own dedicated tests in test_security.py.
+    monkeypatch.setenv("REQUIRE_BROWSER_ORIGIN", "false")
 
     get_settings.cache_clear()
     get_reranker.cache_clear()

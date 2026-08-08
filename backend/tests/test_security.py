@@ -325,3 +325,68 @@ async def test_the_user_tier_is_applied_not_just_configured():
 
     assert anon.allowed is False
     assert user.allowed is True
+
+
+# --- browser-origin guard: keeps casual bots off the paid endpoints ------------------
+
+
+def _origin_req(origin: str | None = None, token: str | None = None):
+    headers = {}
+    if origin is not None:
+        headers["origin"] = origin
+    if token is not None:
+        headers["x-maintenance-token"] = token
+    return _Req(headers)
+
+
+def test_a_request_with_no_origin_is_rejected(monkeypatch):
+    """The exact hole this closes.
+
+    CORS is enforced by browsers; curl and scrapers send no Origin at all and the
+    middleware waves them through. Measured against the deployed service before this
+    existed: POST /api/chat with no headers returned 200 and spent real tokens.
+    """
+    from winchat_api.security.origin import require_browser_origin
+
+    monkeypatch.setenv("REQUIRE_BROWSER_ORIGIN", "true")
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
+    get_settings.cache_clear()
+
+    with pytest.raises(HTTPException) as excinfo:
+        require_browser_origin(_origin_req())
+
+    assert excinfo.value.status_code == 403
+
+
+def test_a_foreign_origin_is_rejected(monkeypatch):
+    from winchat_api.security.origin import require_browser_origin
+
+    monkeypatch.setenv("REQUIRE_BROWSER_ORIGIN", "true")
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
+    get_settings.cache_clear()
+
+    with pytest.raises(HTTPException):
+        require_browser_origin(_origin_req("https://evil.example"))
+
+
+def test_the_real_frontend_origin_passes(monkeypatch):
+    from winchat_api.security.origin import require_browser_origin
+
+    monkeypatch.setenv("REQUIRE_BROWSER_ORIGIN", "true")
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
+    get_settings.cache_clear()
+
+    require_browser_origin(_origin_req("https://winchat.vercel.app"))  # must not raise
+
+
+def test_the_maintenance_token_still_gets_through_without_an_origin(monkeypatch):
+    """The two features have to compose: smoke-testing a deployment uses curl, which by
+    definition has no browser origin."""
+    from winchat_api.security.origin import require_browser_origin
+
+    monkeypatch.setenv("REQUIRE_BROWSER_ORIGIN", "true")
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
+    monkeypatch.setenv("MAINTENANCE_TOKEN", "the-real-token")
+    get_settings.cache_clear()
+
+    require_browser_origin(_origin_req(token="the-real-token"))  # must not raise

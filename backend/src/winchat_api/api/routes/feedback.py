@@ -12,11 +12,12 @@ import json
 import logging
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from winchat_api.api.routes.chat import CurrentUser
 from winchat_api.security.identity import subject_for
+from winchat_api.security.origin import require_browser_origin
 from winchat_api.security.rate_limit import check_limits, record_usage
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,11 @@ class FeedbackResponse(BaseModel):
     recorded: bool
 
 
-@router.post("/feedback", response_model=FeedbackResponse)
+@router.post(
+    "/feedback",
+    response_model=FeedbackResponse,
+    dependencies=[Depends(require_browser_origin)],
+)
 async def submit_feedback(
     request: Request,
     body: FeedbackRequest,
