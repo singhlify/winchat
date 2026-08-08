@@ -83,7 +83,7 @@ export function ChatShell({
       // in its empty state.
       if (!navigatedRef.current) {
         navigatedRef.current = true;
-        router.replace(`/c/${id}`, { scroll: false });
+        router.replace(`/app/c/${id}`, { scroll: false });
       }
     },
     [id, router],

@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
         <p role="status" className="text-sm text-muted-foreground">
           You are signed in with your new password.
         </p>
-        <Link href="/" className="text-sm underline underline-offset-4">
+        <Link href="/app" className="text-sm underline underline-offset-4">
           Back to WinChat
         </Link>
       </main>
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
           Reset links expire and can only be used once. Request a new one from
           the sign-in panel.
         </p>
-        <Link href="/" className="text-sm underline underline-offset-4">
+        <Link href="/app" className="text-sm underline underline-offset-4">
           Back to WinChat
         </Link>
       </main>

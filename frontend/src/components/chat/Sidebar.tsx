@@ -93,7 +93,7 @@ function SidebarContent({ onNavigate }: { onNavigate: () => void }) {
 
       <div className="px-3 pb-2">
         <Button asChild variant="outline" className="w-full justify-start gap-2">
-          <Link href="/" onClick={onNavigate}>
+          <Link href="/app" onClick={onNavigate}>
             <MessageSquarePlus className="size-4" aria-hidden />
             New chat
           </Link>
@@ -230,7 +230,7 @@ function ConversationRow({
   return (
     <li className="group/row relative">
       <Link
-        href={`/c/${conversation.id}`}
+        href={`/app/c/${conversation.id}`}
         onClick={onNavigate}
         aria-current={active ? "page" : undefined}
         className={cn(

@@ -37,7 +37,7 @@ export default function AuthCallbackPage() {
     const finish = () => {
       if (done) return;
       done = true;
-      window.location.replace("/");
+      window.location.replace("/app");
     };
 
     // Either the session is already established, or it lands a moment later via the
@@ -73,7 +73,7 @@ export default function AuthCallbackPage() {
           <p role="alert" className="text-sm text-muted-foreground">
             {error}
           </p>
-          <Link href="/" className="text-sm underline underline-offset-4">
+          <Link href="/app" className="text-sm underline underline-offset-4">
             Back to WinChat
           </Link>
         </>
