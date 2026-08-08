@@ -174,15 +174,28 @@ export function AuthPanel({
       {open && (
         <div
           role="dialog"
+          // Non-modal on purpose: the page behind stays usable, because the whole point is
+          // that signing in is optional. A modal would imply otherwise and would need a
+          // focus trap that fights the "just carry on" path below.
           aria-modal="false"
-          aria-label={VIEW_TITLE[view]}
+          aria-labelledby="auth-panel-title"
+          aria-describedby="auth-panel-description"
           className="absolute right-0 z-30 mt-2 w-80 rounded-xl border border-border bg-popover p-4 shadow-lg"
         >
-          <h2 className="text-sm font-medium">{VIEW_TITLE[view]}</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <h2 id="auth-panel-title" className="text-sm font-medium">
+            {VIEW_TITLE[view]}
+          </h2>
+          <p
+            id="auth-panel-description"
+            className="mt-1 text-xs text-muted-foreground"
+          >
+            {/* Says only what is actually true today. Conversations ARE saved to the
+                account server-side, but there is no endpoint to list them yet, so a second
+                device cannot find them — "syncs across devices" would be a lie until that
+                exists. Copy is a claim like any other. */}
             {view === "forgot"
               ? "We will email you a link to choose a new password."
-              : "Optional — an account saves your history and raises your hourly limit from 20 to 100."}
+              : "Optional. WinChat works without an account — signing in saves your conversations to your account and raises your hourly limit from 20 to 100."}
           </p>
 
           {view !== "forgot" && (
@@ -286,6 +299,29 @@ export function AuthPanel({
               </button>
             )}
           </div>
+
+          {/* The guest path, stated rather than implied.
+              Anonymous use has always worked — history lives in this browser and the FAQ is
+              public — but a panel that only offers "sign in" reads as a wall. Someone
+              evaluating the app in ninety seconds should be able to see, without reading
+              anything carefully, that they can simply carry on. */}
+          {view !== "forgot" && (
+            <div className="mt-3 border-t border-border pt-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="w-full"
+                onClick={() => setOpen(false)}
+              >
+                Continue as guest
+              </Button>
+              <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                No account needed. Your chats stay in this browser, and nothing
+                is stored against you on our side.
+              </p>
+            </div>
+          )}
 
           {/* Live regions, so a screen reader announces the outcome instead of leaving the
               user to discover it. Errors are assertive; confirmations are polite. */}
