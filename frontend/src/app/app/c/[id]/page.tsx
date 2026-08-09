@@ -20,7 +20,7 @@ export default async function ConversationPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // Route params are async in Next 16 — synchronous access was removed.
+  // Route params are async in Next 16. Synchronous access was removed.
   const { id } = await params;
 
   return <ChatShell conversationId={id} />;

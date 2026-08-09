@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Open the connection pool once per process, not once per request.
 
-    A missing DATABASE_URL is not fatal here — the app still starts and `/readyz` reports the
+    A missing DATABASE_URL is not fatal here. The app still starts and `/readyz` reports the
     database as unconfigured. Refusing to boot would make the health endpoint that explains the
     problem unreachable.
     """
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     reranker = get_reranker()
     if reranker.name == "none" and settings.rerank_provider != "none":
         logger.warning(
-            "RERANK_PROVIDER=%s but no reranker is active — check the API key",
+            "RERANK_PROVIDER=%s but no reranker is active. Check the API key",
             settings.rerank_provider,
         )
     else:

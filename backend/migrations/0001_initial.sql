@@ -2,7 +2,7 @@
 --
 -- Two tables, not one: `faq_answers` mirrors the source record (one row per published
 -- FAQ answer) and `faq_chunks` holds the retrievable pieces. Keeping the source row
--- separate is what makes deletion handling and incremental refresh honest — we can diff
+-- separate is what makes deletion handling and incremental refresh honest. We can diff
 -- the live corpus against `faq_answers` by primary key, and `content_hash` tells us
 -- whether an answer actually changed or just got a new lastmod stamp.
 
@@ -27,7 +27,7 @@ create table if not exists faq_chunks (
     content         text        not null,
     -- `context_text` is `content` with its parent question prepended. It is what we embed
     -- AND what full-text search indexes, so a chunk from the middle of a long answer still
-    -- carries what question it answers. (Contextual retrieval — see RESEARCH.md §1.)
+    -- carries what question it answers. (Contextual retrieval, see RESEARCH.md §1.)
     context_text    text        not null,
     token_estimate  int         not null,
     embedding       vector(768) not null,

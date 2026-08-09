@@ -1,4 +1,4 @@
-"""Reranker selection — same shape as the LLM and embedding registries."""
+"""Reranker selection, same shape as the LLM and embedding registries."""
 
 from collections.abc import Callable
 from functools import lru_cache
@@ -46,7 +46,7 @@ def build_reranker(settings: Settings, *, retry_budget_s: float | None = None) -
 
     The override exists for offline harnesses. They issue rerank calls in a tight loop and trip
     a per-minute limit the request path never approaches, and a reranker that gives up falls
-    back to unranked order — so without it a benchmark quietly measures a reranker that was
+    back to unranked order, so without it a benchmark quietly measures a reranker that was
     barely running.
     """
     builder = _BUILDERS.get(settings.rerank_provider)

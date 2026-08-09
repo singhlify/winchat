@@ -19,7 +19,7 @@ import { authConfigured, getSupabase } from "@/lib/supabase";
 
 /**
  * Sign-in control: email/password, social providers, and password recovery. Optional by
- * design — the FAQ is public, so requiring an account to ask a public question would be
+ * design. The FAQ is public, so requiring an account to ask a public question would be
  * friction with no security benefit.
  */
 
@@ -66,7 +66,7 @@ export function AuthPanel({
     return () => subscription.subscription.unsubscribe();
   }, [onSession]);
 
-  // Dismiss on outside click and on Escape — a panel that can only be closed by the button
+  // Dismiss on outside click and on Escape. A panel that can only be closed by the button
   // that opened it is a trap on touch devices.
   useEffect(() => {
     if (!open) return;
@@ -122,7 +122,7 @@ export function AuthPanel({
       setNotice(result.notice);
       return;
     }
-    // Signed in with a live session — close up and clear the password from memory.
+    // Signed in with a live session, close up and clear the password from memory.
     setOpen(false);
     setPassword("");
   }
@@ -182,7 +182,7 @@ export function AuthPanel({
           >
             {/* Says only what is actually true today. Conversations ARE saved to the
                 account server-side, but there is no endpoint to list them yet, so a second
-                device cannot find them — "syncs across devices" would be a lie until that
+                device cannot find them. "Syncs across devices" would be a lie until that
                 exists. Copy is a claim like any other. */}
             {view === "forgot"
               ? "We will email you a link to choose a new password."
@@ -299,8 +299,8 @@ export function AuthPanel({
           </div>
 
           {/* The guest path, stated rather than implied.
-              Anonymous use has always worked — history lives in this browser and the FAQ is
-              public — but a panel that only offers "sign in" reads as a wall. Someone
+              Anonymous use has always worked, history lives in this browser and the FAQ is
+              public, but a panel that only offers "sign in" reads as a wall. Someone
               evaluating the app in ninety seconds should be able to see, without reading
               anything carefully, that they can simply carry on. */}
           {view !== "forgot" && (

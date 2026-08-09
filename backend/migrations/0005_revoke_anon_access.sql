@@ -1,7 +1,7 @@
 -- Take the public API roles off every table that does not need them.
 --
 -- THE BUG THIS FIXES. Supabase grants `anon` and `authenticated` full DML on every table in
--- the `public` schema by default — including tables created by raw SQL, which is easy to
+-- the `public` schema by default, including tables created by raw SQL, which is easy to
 -- assume are private because no dashboard step ever exposed them. Audited on the live
 -- database, both roles held DELETE, INSERT, UPDATE and TRUNCATE on all seven tables, while
 -- Row Level Security protected only `conversations` and `messages`.
@@ -9,17 +9,17 @@
 -- That matters because Supabase publishes those tables over PostgREST, and the anon key is
 -- shipped to every browser by design. So the reachable consequences were:
 --
---   * `usage_events`  — DELETE wipes the rate-limit counters. That table IS the spend
+--   * `usage_events`. DELETE wipes the rate-limit counters. That table IS the spend
 --                       ceiling (OWASP LLM10); emptying it turns metered access into an
 --                       open tab against the Groq and Cohere keys.
---   * `faq_chunks`    — INSERT/UPDATE poisons the retrieval corpus. An attacker-authored
+--   * `faq_chunks`. INSERT/UPDATE poisons the retrieval corpus. An attacker-authored
 --                       chunk comes back as a cited "University of Windsor answer",
 --                       which is content injection wearing the app's credibility.
---   * `faq_answers`   — DELETE destroys the corpus.
---   * `answer_feedback` — readable and destroyable; it holds user-submitted text.
+--   * `faq_answers`. DELETE destroys the corpus.
+--   * `answer_feedback`. SELECT/DELETE exposes and destroys; it holds user-submitted text.
 --
 -- None of this needed the repository to be public. It is a deployment-configuration bug,
--- and it was found by querying the database rather than by reading the migrations — the
+-- and it was found by querying the database rather than by reading the migrations, the
 -- migrations look correct in isolation, which is exactly why the audit was necessary.
 --
 -- THE FIX IS TWO INDEPENDENT LAYERS, because either alone is one mistake from failing:
@@ -28,7 +28,7 @@
 --   2. Enable RLS with no policy, which denies every non-owner role by default.
 --
 -- Note `enable` WITHOUT `force`, deliberately, and opposite to migration 0002. `force`
--- subjects the table OWNER to the policies too — correct for conversations/messages, which
+-- subjects the table OWNER to the policies too, correct for conversations/messages, which
 -- are always reached through `user_scoped` under the `authenticated` role and a matching
 -- policy. These five tables are read by the API as the owner with no policy at all, so
 -- forcing RLS here would return zero rows and silently break retrieval, rate limiting and

@@ -146,7 +146,7 @@ export default async function LandingPage() {
               </div>
 
               {/* A worked example rather than an illustration. It shows the behaviour the whole
-              page is claiming — a cited answer — so the second column carries evidence
+              page is claiming, a cited answer, so the second column carries evidence
               instead of decoration. */}
               <div className="lg:mb-2">
                 <RetrievalMark className="text-foreground mx-auto mb-5 w-full max-w-[280px] lg:mr-0 lg:ml-auto" />

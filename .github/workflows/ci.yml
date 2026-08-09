@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   # Runs first in importance, if not in order. The pre-commit hook catches a leak before it
-  # leaves the machine, but a hook is developer-cooperative — `git commit --no-verify` skips
+  # leaves the machine, but a hook is developer-cooperative. `git commit --no-verify` skips
   # it, and a fresh clone has no hooks at all until someone runs
   # `git config core.hooksPath .githooks`. This job is the layer nobody can forget.
   #
@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0 # a shallow clone would scan one commit and report clean
 
       # Installed explicitly rather than left to the script's fallback: without it the scan
-      # silently drops to the built-in regex layer and still exits 0 — the worst kind of
+      # silently drops to the built-in regex layer and still exits 0, the worst kind of
       # green build, one that reports a check which did not really run.
       - name: Install gitleaks
         run: |

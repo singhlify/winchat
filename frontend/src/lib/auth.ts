@@ -28,13 +28,13 @@ function humanize(message: string): string {
     return "That email and password do not match an account.";
   }
   if (lowered.includes("email not confirmed")) {
-    return "Confirm your email address first — check your inbox for the link.";
+    return "Confirm your email address first. Check your inbox for the link.";
   }
   if (lowered.includes("user already registered")) {
     return "An account with that email already exists. Try signing in.";
   }
   if (lowered.includes("password should be at least")) {
-    return "Password is too short — use at least 8 characters.";
+    return "Password is too short. Use at least 8 characters.";
   }
   if (lowered.includes("rate limit") || lowered.includes("too many")) {
     return "Too many attempts. Wait a minute and try again.";
@@ -98,7 +98,7 @@ export async function sendPasswordReset(email: string): Promise<AuthResult> {
   if (error) return { error: humanize(error.message) };
 
   // Deliberately identical whether or not the address has an account. Saying "no account with
-  // that email" turns the reset form into a membership oracle — an attacker can farm which
+  // that email" turns the reset form into a membership oracle. An attacker can farm which
   // addresses are registered without ever signing in.
   return {
     error: null,

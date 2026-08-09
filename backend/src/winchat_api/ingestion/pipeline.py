@@ -1,6 +1,6 @@
 """The ingestion pipeline: corpus file → chunks → embeddings → pgvector.
 
-Offline by design. Nothing here ever runs during a chat request — embedding documents inside a
+Offline by design. Nothing here ever runs during a chat request, embedding documents inside a
 request is the classic mistake this architecture is built to avoid.
 """
 
@@ -59,7 +59,7 @@ def _needs_work(answer: Answer, state: tuple[str, str | None] | None, model_id: 
     if state is None:
         return True
     content_hash, embedding_model = state
-    # A missing embedding_model means the answer row exists but has no chunks — a previous
+    # A missing embedding_model means the answer row exists but has no chunks, a previous
     # run died between the two writes. Treat it as work to do.
     return content_hash != answer.content_hash or embedding_model != model_id
 
@@ -86,7 +86,7 @@ async def _write_answer(
 
     Takes the pool, not a connection, and holds one only for the duration of the write. An
     earlier version held a single connection across the whole embedding loop and the pooler
-    closed it out from under us — never hold a database connection across slow external I/O.
+    closed it out from under us. Never hold a database connection across slow external I/O.
     """
     async with pool.acquire() as connection, connection.transaction():
         await connection.execute(
@@ -181,7 +181,7 @@ async def ingest(
         report.deleted = len(stale)
         report.deleted_ids = stale
         report.duration_s = time.perf_counter() - started
-        logger.info("dry run — no writes performed")
+        logger.info("dry run, no writes performed")
         return report
 
     for position, answer in enumerate(pending, start=1):

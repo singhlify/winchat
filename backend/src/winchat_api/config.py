@@ -49,19 +49,19 @@ class Settings(BaseSettings):
     embedding_timeout_s: float = 30.0
     ollama_base_url: str = "http://localhost:11434"
     # For EMBEDDING_PROVIDER=openai_compatible (deployment). Must serve the SAME model the
-    # corpus was ingested with — a query embedded by a different model retrieves confident
+    # corpus was ingested with, a query embedded by a different model retrieves confident
     # nonsense rather than raising.
     embedding_base_url: str | None = None
     embedding_api_key: str | None = None
     # For EMBEDDING_PROVIDER=fastembed: same nomic weights, run in-process through ONNX. Its
-    # vectors are NOT interchangeable with Ollama's despite the identical model name —
-    # switching requires a re-ingest, which the pipeline triggers automatically because
+    # vectors are NOT interchangeable with Ollama's despite the identical model name.
+    # Switching requires a re-ingest, which the pipeline triggers automatically because
     # model_id changes.
     fastembed_model: str = "nomic-ai/nomic-embed-text-v1.5"
     # Baked into the image at build time so a cold start does not download the model.
     fastembed_cache_dir: str | None = None
     # For EMBEDDING_PROVIDER=cohere (the deployed configuration). Hosted, so the model is not
-    # resident in the container — which is the entire reason it is the shipped choice.
+    # resident in the container, which is the entire reason it is the shipped choice.
     cohere_embed_model: str = "embed-v4.0"
     cohere_embed_dimension: int = 1024
     # Two budgets because the two callers have opposite tolerances. A user waiting on a chat
@@ -75,7 +75,7 @@ class Settings(BaseSettings):
     # passage retrieval never saw.
     retrieval_dense_k: int = 50
     # HNSW inspects at most `ef_search` candidates, so a value below the dense limit caps the
-    # arm silently — pgvector's default is 40 against a limit of 50. Higher costs latency and
+    # arm silently. Pgvector's default is 40 against a limit of 50. Higher costs latency and
     # buys recall; 100 gives headroom over the limit without being reckless.
     retrieval_hnsw_ef_search: int = 100
     retrieval_lexical_k: int = 50
@@ -106,7 +106,7 @@ class Settings(BaseSettings):
     # quality claim is only coherent if it names one, so the eval always runs against this
     # one.
     eval_model: str = "llama-3.3-70b-versatile"
-    # A different model family from the generator on purpose — models prefer their own
+    # A different model family from the generator on purpose, models prefer their own
     # outputs, and a same-family judge inflates every score it produces.
     eval_judge_model: str = "openai/gpt-oss-120b"
     # Low on purpose: the whole suite against one model exceeds Groq's free-tier
@@ -115,7 +115,7 @@ class Settings(BaseSettings):
     # Offline work can afford to wait out a per-minute budget; a chat request cannot.
     eval_retry_budget_s: float = 900.0
 
-    # CI gates. Set from the first measured baseline, then ratcheted up — never guessed,
+    # CI gates. Set from the first measured baseline, then ratcheted up. Never guessed,
     # because a threshold nobody can meet gets disabled and one nobody can fail is decoration.
     eval_min_retrieval_recall: float = 0.95
     eval_min_deterministic_pass: float = 0.85
@@ -130,7 +130,7 @@ class Settings(BaseSettings):
     require_auth: bool = False
 
     # Anonymous callers. Identified by a salted hash of their address, which is cheap to
-    # change — a different network or a VPN mints a fresh identity — so the budget is small.
+    # change, a different network or a VPN mints a fresh identity, so the budget is small.
     rate_limit_per_hour: int = 20
     rate_limit_per_day: int = 60
     # Signed-in callers. Higher because the identity is stronger, not as a reward: a verified
@@ -149,7 +149,7 @@ class Settings(BaseSettings):
     # per-visitor rate limit. Blank disables the path entirely, which is the default.
     maintenance_token: str | None = None
     # Reject expensive POSTs that carry no browser `Origin`. CORS is enforced by browsers
-    # only, so without this a script can call /api/chat freely — measured returning 200
+    # only, so without this a script can call /api/chat freely, measured returning 200
     # against the deployed service.
     require_browser_origin: bool = True
     # Cloudflare Turnstile. Blank disables it entirely, so an unconfigured deployment behaves

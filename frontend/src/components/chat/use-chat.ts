@@ -145,7 +145,7 @@ export function useChat({
           }
         }
       } catch (exception) {
-        // An abort is the user pressing Stop — whatever streamed so far is kept, because
+        // An abort is the user pressing Stop. Whatever streamed so far is kept, because
         // a partial answer they chose to interrupt is not an error.
         if (!controller.signal.aborted) {
           patchLast({

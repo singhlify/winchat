@@ -47,7 +47,7 @@ function read(): Conversation[] {
     cache = Array.isArray(parsed) ? (parsed as Conversation[]) : EMPTY;
   } catch {
     // Corrupt or unavailable storage (private mode, quota, a hand-edited value) must not
-    // take the app down — an empty history is a working app.
+    // take the app down. An empty history is a working app.
     cache = EMPTY;
   }
   return cache;
@@ -65,7 +65,7 @@ function write(next: Conversation[]): void {
 }
 
 if (typeof window !== "undefined") {
-  // Fires in other tabs only — exactly the cross-tab case we want to react to.
+  // Fires in other tabs only, exactly the cross-tab case we want to react to.
   window.addEventListener("storage", (event) => {
     if (event.key !== STORAGE_KEY) return;
     cache = null;

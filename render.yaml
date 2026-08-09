@@ -1,7 +1,7 @@
 # Render blueprint for the FastAPI backend.
 #
 # The frontend deploys to Vercel and the database is Supabase, so this file covers exactly
-# one service. Secrets are marked sync:false — they are set in the Render dashboard and
+# one service. Secrets are marked sync:false. They are set in the Render dashboard and
 # never live in the repository.
 
 services:
@@ -12,7 +12,7 @@ services:
     dockerContext: ./backend
     plan: free
     region: ohio
-    healthCheckPath: /healthz # liveness, not /readyz — see the Dockerfile note
+    healthCheckPath: /healthz # liveness, not /readyz, see the Dockerfile note
 
     envVars:
       - key: APP_ENV
@@ -37,7 +37,7 @@ services:
         sync: false
 
       # Hosted, because an in-process model makes the image 920 MB against a 512 MB free
-      # tier. MUST match what the corpus was ingested with — the stored vectors are
+      # tier. MUST match what the corpus was ingested with. The stored vectors are
       # cohere/embed-v4.0/1024 and a query embedded by anything else retrieves confident
       # nonsense rather than raising. Changing either value here means a re-ingest.
       - key: EMBEDDING_PROVIDER
@@ -64,7 +64,7 @@ services:
       - key: RATE_LIMIT_SALT
         generateValue: true
       # Waives the PER-SUBJECT rate limits for smoke-testing a deployed instance, and
-      # nothing else — no data access, no RLS bypass, and it still cannot exceed the global
+      # nothing else, no data access, no RLS bypass, and it still cannot exceed the global
       # daily spend ceiling. Generated, so it is never a value anyone typed or reused.
       - key: MAINTENANCE_TOKEN
         generateValue: true

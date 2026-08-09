@@ -95,7 +95,7 @@ export function Composer({
           placeholder="Ask a question…"
           aria-describedby="composer-hint"
           // text-base (16px) on mobile, NOT the 15px this used to be. iOS Safari zooms the
-          // whole page when a focused input is under 16px — so tapping the composer, the
+          // whole page when a focused input is under 16px, so tapping the composer, the
           // single most-used control in the app, threw the layout out on every iPhone.
           className="max-h-[200px] flex-1 resize-none bg-transparent px-2 py-1.5 text-base leading-relaxed outline-none placeholder:text-muted-foreground/70 sm:text-[15px]"
         />
@@ -146,7 +146,7 @@ export function Composer({
           </kbd>{" "}
           to send
         </span>
-        {/* Only shown when it starts to matter — a permanent counter is noise. */}
+        {/* Only shown when it starts to matter. A permanent counter is noise. */}
         {nearLimit && (
           <span
             aria-live="polite"

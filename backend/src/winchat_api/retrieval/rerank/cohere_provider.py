@@ -2,7 +2,7 @@
 
 Chosen over other cross-encoders partly for a Canadian-market reason: Cohere is a Toronto
 company and its Command/Embed/Rerank line maps one-to-one onto a RAG pipeline, so familiarity
-with it is a small local edge. Called over plain HTTP rather than the SDK — one endpoint, one
+with it is a small local edge. Called over plain HTTP rather than the SDK, one endpoint, one
 payload, and it keeps the dependency list honest.
 """
 
@@ -58,7 +58,7 @@ class CohereReranker(Reranker):
         }
 
         # Trial keys are capped at 10 calls/minute, and without a retry a burst of questions
-        # silently degraded to unranked order — which is how a working reranker can look like
+        # silently degraded to unranked order, which is how a working reranker can look like
         # it does nothing. The budget is small on purpose: this sits in the request path, so
         # waiting a few seconds is worth it and waiting a minute is not.
         deadline = asyncio.get_running_loop().time() + self._retry_budget_s

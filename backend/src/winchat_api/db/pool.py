@@ -1,6 +1,6 @@
 """Postgres connection pool.
 
-Plain SQL over asyncpg — no `supabase-js`, no ORM. The database is ordinary Postgres, so this
+Plain SQL over asyncpg. No `supabase-js`, no ORM. The database is ordinary Postgres, so this
 code moves to any Postgres host unchanged; that portability is the reason Supabase was chosen
 without being locked into.
 """
@@ -40,7 +40,7 @@ async def create_pool(
         init=_init_connection if with_vector_type else None,
         # Recycle idle connections before the server does. Supabase's pooler closes
         # connections that sit idle, and asyncpg does not find out until it hands one to a
-        # query — which then dies mid-statement with ConnectionDoesNotExistError.
+        # query, which then dies mid-statement with ConnectionDoesNotExistError.
         max_inactive_connection_lifetime=60.0,
         # A dead connection can still be handed out inside the race window above. One
         # retry on acquire turns a user-visible 500 into an invisible reconnect.

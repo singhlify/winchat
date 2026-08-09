@@ -6,7 +6,7 @@ name: Eval gate
 # Separate from CI on purpose:
 #   * it needs secrets, so it cannot run on fork pull requests;
 #   * it spends model tokens, so it should not run on every push to a branch;
-#   * it is slow — Groq's free tier meters by tokens per minute, and the suite deliberately
+#   * it is slow. Groq's free tier meters by tokens per minute, and the suite deliberately
 #     waits that budget out rather than failing.
 #
 # Embeddings are hosted, so there is no service container and no model to pull. The
@@ -14,7 +14,7 @@ name: Eval gate
 # corpus was embedded with, because embedding a query with a different model than the index
 # returns confident nonsense rather than an error. This job used to run Ollama as a service
 # for exactly that reason; now it just has to name the same provider the corpus was
-# ingested with. Getting it wrong is no longer silent — the index is 1024-dimensional and a
+# ingested with. Getting it wrong is no longer silent. The index is 1024-dimensional and a
 # 768-dimensional query is rejected by Postgres outright.
 
 on:
@@ -34,7 +34,7 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     # The credentials live in the `prod` environment rather than at repository level, so
-    # the job has to name it — environment secrets are injected only into jobs that do.
+    # the job has to name it. Environment secrets are injected only into jobs that do.
     # Without this line every secret below resolves to an empty string and the run fails
     # on a confusing auth error instead of a missing-secret one.
     #
@@ -57,7 +57,7 @@ jobs:
       # The suite issues rerank calls back to back, which a trial key's 10-per-minute limit
       # will throttle. A reranker that gives up falls back to unranked order, so without a
       # budget long enough to wait the window out this job would quietly grade a pipeline
-      # running without its reranker — worth 17 points of retrieval recall.
+      # running without its reranker, worth 17 points of retrieval recall.
       RERANK_RETRY_BUDGET_S: "120"
 
     steps:

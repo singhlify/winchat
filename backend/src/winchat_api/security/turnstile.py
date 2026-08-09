@@ -2,7 +2,7 @@
 
 Cloudflare Turnstile, verified server-side. The client solves an invisible challenge and sends
 the resulting token; this exchanges it with Cloudflare's `siteverify` endpoint, which is the
-only step that actually proves anything — a token the server never checks is decoration.
+only step that actually proves anything. A token the server never checks is decoration.
 """
 
 import logging
@@ -22,7 +22,7 @@ TOKEN_HEADER = "cf-turnstile-response"
 async def verify_turnstile(request: Request, *, client_ip: str | None = None) -> None:
     """Raise 403 unless this request carries a valid, unused Turnstile token.
 
-    A no-op when unconfigured, for a maintenance caller, or for a signed-in user — the
+    A no-op when unconfigured, for a maintenance caller, or for a signed-in user, the
     caller decides which of those apply and simply does not call this.
     """
     settings = get_settings()
@@ -43,7 +43,7 @@ async def verify_turnstile(request: Request, *, client_ip: str | None = None) ->
     payload = {"secret": secret, "response": token}
     # Cloudflare uses the address to bind a token to the client that solved it, which is what
     # stops a solved token being resold. Sent only when we actually trust our view of the
-    # address — behind a proxy with TRUST_PROXY_HEADERS off it would be the proxy's.
+    # address, behind a proxy with TRUST_PROXY_HEADERS off it would be the proxy's.
     if client_ip and settings.trust_proxy_headers:
         payload["remoteip"] = client_ip
 

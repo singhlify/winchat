@@ -1,6 +1,6 @@
 """Smoke check: prove both providers really work, with visible output.
 
-`/readyz` proves the wiring; this proves the behaviour — real generated text, and an embedding
+`/readyz` proves the wiring; this proves the behaviour, real generated text, and an embedding
 space where related sentences actually sit closer together than unrelated ones. uv run python -m
 winchat_api.smoke
 """
@@ -63,7 +63,7 @@ async def main() -> None:
 
     await check_embeddings()
     if settings.llm_provider == "groq" and not settings.groq_api_key:
-        print("\n[llm] skipped — GROQ_API_KEY is not set in backend/.env")
+        print("\n[llm] skipped. GROQ_API_KEY is not set in backend/.env")
     else:
         await check_llm()
 

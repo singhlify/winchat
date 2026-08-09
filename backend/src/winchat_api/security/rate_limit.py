@@ -50,7 +50,7 @@ async def check_limits(
     `bypass_subject_limits` waives the PER-SUBJECT hourly and daily caps for a maintenance
     caller. It deliberately does NOT waive the global daily breaker below, and that asymmetry is
     the whole design: the per-subject caps exist to stop one visitor monopolising a shared free
-    tier — annoying during testing, and nothing worse than annoying to waive; the global cap is
+    tier, annoying during testing, and nothing worse than annoying to waive; the global cap is
     the SPEND CEILING on the Groq and Cohere keys.
     """
     settings = get_settings()
@@ -82,7 +82,7 @@ async def check_limits(
     )
 
     if row["global_day"] >= global_per_day:
-        # Deliberately does not say "come back tomorrow" to the user — the breaker is an
+        # Deliberately does not say "come back tomorrow" to the user. The breaker is an
         # operator concern, and the number is not something a caller should be probing.
         logger.warning("global daily circuit breaker tripped at %d requests", row["global_day"])
         return LimitDecision(
@@ -142,7 +142,7 @@ async def record_usage(pool: asyncpg.Pool, subject: Subject, *, tokens: int = 0)
 
 
 async def purge_old_usage(pool: asyncpg.Pool, *, keep_days: int = 7) -> int:
-    """Housekeeping — nothing older than the widest window is ever read."""
+    """Housekeeping. Nothing older than the widest window is ever read."""
     result = await pool.execute(
         f"delete from usage_events where occurred_at < now() - interval '{int(keep_days)} days'"
     )

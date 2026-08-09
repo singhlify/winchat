@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /**
  * Keep the app exactly as tall as the *visible* area, including when a keyboard is open.
  * Why `dvh` is not enough. Since Chrome 108 the on-screen keyboard resizes only the
- * VISUAL viewport, not the layout viewport — on Android and on iOS alike.
+ * VISUAL viewport, not the layout viewport, on Android and on iOS alike.
  */
 export function useViewportHeight(): void {
   useEffect(() => {

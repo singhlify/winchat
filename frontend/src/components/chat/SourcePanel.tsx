@@ -13,7 +13,7 @@ import { citedIndexes } from "@/lib/api/chat-stream";
 import type { Citation } from "@/lib/api/schemas";
 
 /**
- * The sources behind an answer — every one of them, each a link to the university's own
+ * The sources behind an answer, every one of them, each a link to the university's own
  * published article. Two groups, and the split is the honest part.
  */
 export function SourcePanel({

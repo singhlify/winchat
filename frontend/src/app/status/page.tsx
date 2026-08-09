@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 /**
  * Dependency status. A Client Component on purpose: fetching from the browser exercises the
  * same cross-origin path the chat stream uses, so a green board here means the browser really
- * can reach the API — not merely that the Next.js server can.
+ * can reach the API. Not merely that the Next.js server can.
  */
 /**
  * What each dependency means in words a visitor can act on. The raw keys and provider strings

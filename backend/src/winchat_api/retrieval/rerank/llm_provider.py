@@ -2,7 +2,7 @@
 
 A dedicated cross-encoder (Cohere Rerank) is the better tool, but it needs a vendor key. This
 implements the same `Reranker` interface using the configured LLM, so the pipeline gets its
-precision stage today and swapping in Cohere later is a config change — which is the entire
+precision stage today and swapping in Cohere later is a config change, which is the entire
 point of having the interface.
 """
 
@@ -30,7 +30,7 @@ RERANK_PROMPT = """You rank search results for a University of Windsor FAQ assis
 Given a QUESTION and numbered CANDIDATE passages, return the numbers of the passages that \
 actually help answer the question, best first.
 
-Judge whether a passage contains the specific information asked for — not merely whether \
+Judge whether a passage contains the specific information asked for, not merely whether \
 it is on a related topic. A passage about a different service, office or programme that \
 happens to share vocabulary is NOT relevant. A passage whose main subject is something \
 else but which explicitly states the requested detail IS relevant.
@@ -55,7 +55,7 @@ class LLMReranker(Reranker):
 
         candidates = list(chunks[:MAX_CANDIDATES])
         listing = "\n".join(
-            f"{index}. {chunk.question} — {chunk.content[:SNIPPET_CHARS]}"
+            f"{index}. {chunk.question} - {chunk.content[:SNIPPET_CHARS]}"
             for index, chunk in enumerate(candidates, start=1)
         )
 

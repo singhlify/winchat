@@ -108,7 +108,7 @@ def _cohere_client(captured: list[dict], *, dimension: int = 1024) -> httpx.Asyn
 
 async def test_cohere_sends_the_asymmetric_input_types():
     """Documents and queries must be embedded as different task types or retrieval degrades
-    silently — the same trap the nomic prefixes set, one layer up."""
+    silently, the same trap the nomic prefixes set, one layer up."""
     captured: list[dict] = []
     provider = CohereEmbeddingProvider(api_key="k", client=_cohere_client(captured))
 
@@ -163,7 +163,7 @@ async def test_cohere_provider_refuses_to_start_without_a_key():
 
 
 async def test_cohere_gives_up_on_429_once_the_budget_is_gone():
-    """A bounded wait, not an unbounded one — the request path cannot hang on a rate limit."""
+    """A bounded wait, not an unbounded one, the request path cannot hang on a rate limit."""
 
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(429, json={"message": "rate limited"})

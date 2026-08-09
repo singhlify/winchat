@@ -98,7 +98,7 @@ export function Markdown({
             aria-label={`Source ${citation.index}: ${citation.question} (opens on ask.uwindsor.ca)`}
             title={citation.question}
             // Gold, not blue. A citation is the one thing on this page the reader is meant to
-            // notice and follow, and gold is the brand's emphasis colour — the same mark used
+            // notice and follow, and gold is the brand's emphasis colour, the same mark used
             // on the landing page's worked example, so the gesture is already familiar before
             // anyone reaches the app.
             className="border-gold/50 bg-gold/25 text-gold-foreground focus-visible:outline-ring mx-0.5 inline-flex h-4 min-w-4 translate-y-[-1px] items-center justify-center rounded-[4px] border px-1 align-middle text-[10px] font-semibold tabular-nums no-underline transition-all duration-120 hover:-translate-y-[2px] hover:border-gold/80 hover:bg-gold/40 focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-[-1px]"
@@ -174,7 +174,7 @@ export function Markdown({
         remarkPlugins={[remarkGfm, remarkCitations(validIndexes)]}
         components={components}
         /**
-         * react-markdown strips URLs whose scheme is not on its safe list — which is the
+         * react-markdown strips URLs whose scheme is not on its safe list, which is the
          * behaviour we want for untrusted model output, and which silently ate the internal
          * `citation:` scheme, rendering every citation as plain text. So: pass our own scheme
          * through, and hand everything else to the library's default sanitizer untouched.

@@ -1,7 +1,7 @@
 """Reading a signed-in user's saved conversations.
 
 The endpoint that makes an account worth having. Conversations were already written for signed-
-in users, and there was no way to read them back — so the history existed, belonged to the
+in users, and there was no way to read them back, so the history existed, belonged to the
 account, and could only be reached from the device that happened to hold its id in
 `localStorage`.
 """
@@ -89,7 +89,7 @@ async def get_conversation(
     pool = _pool(request)
     rows = await load_conversation(pool, user.id, conversation_id)
 
-    # An id belonging to someone else returns no rows, because RLS filtered them out — so "not
+    # An id belonging to someone else returns no rows, because RLS filtered them out, so "not
     # yours" and "does not exist" are indistinguishable here, deliberately. Answering 403 for
     # one and 404 for the other would confirm which ids exist.
     if not rows:

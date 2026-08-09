@@ -72,7 +72,7 @@ export function UserMessage({
 
 /**
  * Copy-to-clipboard, shared by both message kinds. The confirmation is the icon swapping to a
- * tick for a moment — no toast.
+ * tick for a moment, no toast.
  */
 function CopyButton({
   text,
@@ -153,7 +153,7 @@ export function AssistantMessage({
 }
 
 /**
- * A refusal is a calm, informative state — not an error. Styling correct behaviour in red
+ * A refusal is a calm, informative state, not an error. Styling correct behaviour in red
  * teaches people to distrust the system precisely when it is being most trustworthy.
  */
 function RefusalState({ turn }: { turn: Turn }) {
@@ -217,7 +217,7 @@ function ErrorState({ turn, onRetry }: { turn: Turn; onRetry: () => void }) {
 
 /**
  * The wait has two distinct stages and says which one it is in. "Searching" then "Writing"
- * tells the user the system is progressing rather than hung — and the two stages are real,
+ * tells the user the system is progressing rather than hung, and the two stages are real,
  * because sources arrive as their own event before the first token.
  */
 function PendingState({ hasSources }: { hasSources: boolean }) {

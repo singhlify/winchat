@@ -4,13 +4,13 @@
 # CVE in a transitive dependency stops being theoretical: the dependency tree is readable by
 # anyone, so "nobody knows what we run" was never a control and is now visibly not one.
 #
-# Weekly, not daily, and capped — a bot that opens more PRs than anyone reads gets muted,
+# Weekly, not daily, and capped, a bot that opens more PRs than anyone reads gets muted,
 # and a muted bot is worse than none because it looks like coverage.
 
 version: 2
 updates:
   # Python. The lockfile is uv.lock; `uv` is the ecosystem that understands it. If GitHub
-  # ever reports this ecosystem as unsupported, `pip` also reads pyproject.toml — it just
+  # ever reports this ecosystem as unsupported, `pip` also reads pyproject.toml, it just
   # will not respect the lock.
   - package-ecosystem: "uv"
     directory: "/backend"
@@ -33,7 +33,7 @@ updates:
         update-types: ["minor", "patch"]
 
   # The workflows themselves. A compromised or abandoned action runs with access to this
-  # repo's secrets — the `prod` environment holds the Groq, Cohere and database credentials.
+  # repo's secrets. The `prod` environment holds the Groq, Cohere and database credentials.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

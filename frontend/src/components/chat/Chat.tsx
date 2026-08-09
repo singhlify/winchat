@@ -95,7 +95,7 @@ export function Chat({
   ]);
 
   // `setAccessToken` is a useState setter behind the context, so it is referentially stable
-  // and listing it costs nothing — but the linter cannot prove that through a context
+  // and listing it costs nothing, but the linter cannot prove that through a context
   // boundary, and silencing the rule is worse than satisfying it.
 
   useShortcuts({
@@ -135,7 +135,7 @@ export function Chat({
   );
 
   // A global Escape stops generation from anywhere, including while the composer is
-  // unfocused — the single most likely thing someone wants when an answer goes wrong.
+  // unfocused, the single most likely thing someone wants when an answer goes wrong.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && busy) stop();
@@ -165,14 +165,14 @@ export function Chat({
       />
 
       {/* Two live regions, both mounted for the lifetime of the page and never hidden.
-          A region that is conditionally rendered — or hidden when idle — is not reliably
+          A region that is conditionally rendered, or hidden when idle, is not reliably
           announced by screen readers, so these exist from first paint and only their text
           changes.
 
           They are deliberately split by politeness, because a progress update and a
           failure are not the same urgency:
-            role="status"  — polite; stage changes ("Searching the FAQ")
-            role="alert"   — assertive; failures the user must notice
+            role="status", polite; stage changes ("Searching the FAQ")
+            role="alert". Assertive; failures the user must notice
 
           Neither carries the token stream. Announcing every token would make the page
           unusable with a screen reader; the finished answer is read by navigating to it. */}
@@ -191,7 +191,7 @@ export function Chat({
           {turns.length === 0 ? (
             <EmptyState onPick={ask} />
           ) : (
-            // role="log" marks a sequential, append-only region — the right semantic
+            // role="log" marks a sequential, append-only region, the right semantic
             // for a transcript, and distinct from the status and alert regions above.
             <ol role="log" className="flex flex-col gap-6 py-6">
               {turns.map((turn, index) =>

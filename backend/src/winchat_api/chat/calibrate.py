@@ -1,6 +1,8 @@
 """Where should REFUSAL_MIN_DENSE_SCORE sit for the current embedding model? uv run python -m
-winchat_api.chat.calibrate Embeds sixteen questions — eight this corpus can answer, eight it
-cannot — and reports the best dense similarity each one achieves.
+winchat_api.chat.calibrate
+
+Embeds sixteen questions, eight this corpus can answer and eight it cannot, then reports the
+best dense similarity each one achieves.
 
 A usable threshold is any number in the gap between the two groups; the script suggests the
 midpoint and reports how much margin that leaves on each side. Why this is a script and not a
@@ -39,12 +41,12 @@ OFF_TOPIC = [
 ]
 
 # Scores like an on-topic question on every model tried. Kept out of the ranges above on
-# purpose — see the module docstring.
+# purpose, see the module docstring.
 ADVERSARIAL = "What are the admission requirements at the University of Toronto?"
 
 
 async def score(pool, embedder, query: str) -> float:
-    """Best dense similarity for one query. The reranker is irrelevant here — it reorders
+    """Best dense similarity for one query. The reranker is irrelevant here: it reorders
     candidates, it does not change how close the closest one was."""
     result = await retrieve(pool=pool, embedder=embedder, reranker=NoOpReranker(), query=query)
     return result.best_dense_score
@@ -84,8 +86,8 @@ async def main() -> int:
         print(
             f"\n  NO USABLE GAP: an off-topic query scored {highest_off:.4f}, at or above the "
             f"weakest on-topic query ({lowest_on:.4f}).\n"
-            "  No single threshold separates these classes on this model. Do not pick one —"
-            " fix retrieval or change the model."
+            "  No single threshold separates these classes on this model. Do not pick"
+            " one: fix retrieval or change the model."
         )
         return 1
 

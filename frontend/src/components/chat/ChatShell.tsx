@@ -31,7 +31,7 @@ export function ChatShell({ conversationId }: { conversationId?: string }) {
   // would fix it has no WebKit support.
   useViewportHeight();
 
-  // Open by default on desktop, closed on mobile — but only until the user decides,
+  // Open by default on desktop, closed on mobile, but only until the user decides,
   // after which their choice wins for the rest of the session.
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [override, setOverride] = useState<boolean | null>(null);
@@ -98,7 +98,7 @@ export function ChatShell({ conversationId }: { conversationId?: string }) {
       />
       <div className="relative flex min-w-0 flex-1 flex-col">
         <Chat
-          // Remounting on id change resets every piece of conversation state at once — far
+          // Remounting on id change resets every piece of conversation state at once, far
           // safer than trying to reconcile a half-streamed answer with a new thread. Also
           // remounts once a hydrated transcript arrives: `initialTurns` is read at mount, so
           // without this the fetched turns would sit in storage unseen until the next

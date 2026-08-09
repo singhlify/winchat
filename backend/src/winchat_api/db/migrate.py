@@ -1,4 +1,4 @@
-"""Migration runner — applies the .sql files in `migrations/` in filename order.
+"""Migration runner, applies the .sql files in `migrations/` in filename order.
 
 Deliberately ~40 lines instead of Alembic. The schema is plain SQL that a reviewer can read top
 to bottom, and Alembic's autogenerate buys nothing without an ORM model layer.

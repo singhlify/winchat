@@ -1,7 +1,7 @@
 """The two retrieval arms: dense (meaning) and lexical (exact terms).
 
-Both are needed. Dense vectors have a *structural* failure on exact strings — course codes, form
-numbers, "UWinsite" — that no better embedding model fixes, because a fixed-length vector cannot
+Both are needed. Dense vectors have a *structural* failure on exact strings, course codes, form
+numbers, "UWinsite", that no better embedding model fixes, because a fixed-length vector cannot
 encode exact string identity.
 """
 
@@ -19,7 +19,7 @@ _DENSE_SQL = """
     limit $2
 """
 
-# `plainto_tsquery` ANDs every term, which requires one chunk to contain all of them —
+# `plainto_tsquery` ANDs every term, which requires one chunk to contain all of them,
 # "deadline to drop a course without penalty" then matches nothing at all. Rewriting the
 # operators to OR restores recall, and `ts_rank_cd` still ranks chunks matching more terms
 # higher.

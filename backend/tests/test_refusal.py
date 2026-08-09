@@ -49,7 +49,7 @@ def test_the_threshold_boundary_is_inclusive():
     """Exactly at the threshold answers; the gate is "below", not "at or below".
 
     Reads the configured threshold rather than hardcoding it. The number is
-    model-specific — 0.70 on Ollama, 0.66 on fastembed, 0.38 on Cohere embed-v4.0 — and a
+    model-specific, 0.70 on Ollama, 0.66 on fastembed, 0.38 on Cohere embed-v4.0, and a
     test pinned to one value fails on a legitimate recalibration while testing nothing
     about the rule it claims to cover.
     """
@@ -83,7 +83,7 @@ def test_the_dense_threshold_is_configurable(monkeypatch):
 
 
 async def test_a_refused_plan_never_calls_the_model():
-    """Refusing must cost zero tokens — that is half the point of the cheap gate."""
+    """Refusing must cost zero tokens. That is half the point of the cheap gate."""
 
     class ExplodingLLM:
         name = "boom"

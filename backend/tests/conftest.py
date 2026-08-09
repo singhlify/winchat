@@ -1,6 +1,6 @@
 """Shared test setup.
 
-Every test runs against a known, empty configuration — never the developer's `.env`.
+Every test runs against a known, empty configuration. Never the developer's `.env`.
 
 This exists because the suite passed locally and failed the moment it ran anywhere else.
 `pydantic-settings` reads `backend/.env`, so a machine with real keys and a machine
@@ -40,7 +40,7 @@ def hermetic_settings(monkeypatch):
         monkeypatch.setenv(name, "")
     monkeypatch.setenv("APP_ENV", "test")
     # TestClient sends no `Origin`, so leaving the browser-origin guard on would turn every
-    # chat and feedback test into a 403 — they would still pass or fail, but for the wrong
+    # chat and feedback test into a 403. They would still pass or fail, but for the wrong
     # reason. The guard has its own dedicated tests in test_security.py.
     monkeypatch.setenv("REQUIRE_BROWSER_ORIGIN", "false")
 

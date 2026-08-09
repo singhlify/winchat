@@ -8,7 +8,7 @@
 #   gitleaks git .             # every reachable commit
 #   gitleaks dir .             # the working tree, including untracked files
 #
-# Run through ./scripts/scan_secrets.sh rather than directly — that wrapper also runs the
+# Run through ./scripts/scan_secrets.sh rather than directly. That wrapper also runs the
 # dependency-free scanner, so the check still does something on a machine without gitleaks.
 
 [extend]
@@ -17,11 +17,11 @@ useDefault = true
 # gitleaks' `generic-api-key` rule is KEYWORD-anchored, not pure entropy: it wants a word
 # like key / secret / token / password near the value. Probed against this exact config,
 # a 45-character random string was detected next to `api_key`, `DB_PASSWORD`, `JWT_SECRET`
-# and `SESSION_SIGNING_KEY` — and MISSED next to `SUPABASE_SERVICE_ROLE` and `salt`.
+# and `SESSION_SIGNING_KEY`, and MISSED next to `SUPABASE_SERVICE_ROLE` and `salt`.
 #
 # Both misses are real variable names in this project. `RATE_LIMIT_SALT` is in `.env.example`
 # and a Supabase service-role credential is the single most damaging thing that could leak
-# here, because it bypasses Row Level Security entirely — the control the whole security
+# here, because it bypasses Row Level Security entirely, the control the whole security
 # story rests on. So the names this codebase actually uses get their own rule.
 #
 # Entropy gates it: `RATE_LIMIT_SALT=change-me` is documentation and scores far below 3.5,
@@ -50,7 +50,7 @@ keywords = [
 # scanner to a real key pasted into that file tomorrow. Exempting the specific known-fake
 # string keeps the rest of the file under scrutiny.
 [[allowlists]]
-description = "HS256 test fixture — a self-describing fake, long only to stop PyJWT warning about key length in test output"
+description = "HS256 test fixture, a self-describing fake, long only to stop PyJWT warning about key length in test output"
 regexTarget = "match"
 regexes = [
     '''test-secret-long-enough-for-hs256-[a-z]+''',

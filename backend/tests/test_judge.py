@@ -53,7 +53,7 @@ async def test_unparseable_output_is_recorded_not_counted_as_a_pass():
 
 def test_the_prompts_state_that_declining_is_correct_behaviour():
     """Regression guard: the first version graded the system as a general assistant and
-    marked every correct refusal — and a resisted prompt injection — as a failure."""
+    marked every correct refusal, and a resisted prompt injection, as a failure."""
     assert "FAITHFUL" in FAITHFULNESS_PROMPT
     assert "declines" in CORRECTNESS_PROMPT
     assert "override" in CORRECTNESS_PROMPT

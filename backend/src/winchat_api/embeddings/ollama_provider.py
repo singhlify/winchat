@@ -1,4 +1,4 @@
-"""Ollama embedding provider — the local default (open weights, no vendor call).
+"""Ollama embedding provider, the local default (open weights, no vendor call).
 
 Gotcha this class exists to absorb: Ollama's `nomic-embed-text` Modelfile template is a bare `{{
 .Prompt }}` passthrough, so it does NOT apply nomic's task prefixes for you. The model was

@@ -4,7 +4,7 @@
  *   node scripts/check-contrast.mjs
  *
  * Reads the OKLCH tokens straight out of `src/app/globals.css`, converts them to sRGB, and
- * checks the pairs that actually appear together in the UI — in BOTH themes. Colour work
+ * checks the pairs that actually appear together in the UI, in BOTH themes. Colour work
  * done by eye passes on the designer's monitor and fails on someone else's; this is the
  * cheap way to know rather than hope.
  *
@@ -43,7 +43,7 @@ function oklchToRgb(l, c, h) {
 }
 
 function luminance([r, g, b]) {
-  // Already linear-light from the OKLab transform, so no de-gamma step — just clamp,
+  // Already linear-light from the OKLab transform, so no de-gamma step, just clamp,
   // because out-of-gamut values would otherwise produce a nonsense ratio.
   const clamp = (v) => Math.min(1, Math.max(0, v));
   return 0.2126 * clamp(r) + 0.7152 * clamp(g) + 0.0722 * clamp(b);
@@ -77,7 +77,7 @@ const PAIRS = [
   ["primary-foreground", "primary", 4.5, "text on the primary button"],
   ["accent-foreground", "accent", 4.5, "text on hover/active surfaces"],
   ["destructive", "background", 4.5, "error text"],
-  // SC 1.4.11 covers boundaries REQUIRED to identify a control — a form field's edge —
+  // SC 1.4.11 covers boundaries REQUIRED to identify a control, a form field's edge,
   // not decorative rules. Holding every divider to 3:1 produces a harsh, boxed-in page and
   // is not what the criterion asks for, so the two are checked separately and honestly.
   ["input", "background", 3, "form field boundary (SC 1.4.11)"],
@@ -85,7 +85,7 @@ const PAIRS = [
   ["ring", "background", 3, "focus indicator"],
   // Gold is NOT checked as text on the page background, and that is deliberate rather
   // than an omission: a gold dark enough to reach 3:1 on white has stopped being gold and
-  // become olive. In light mode it is a fill or a rule — decorative, carrying no
+  // become olive. In light mode it is a fill or a rule, decorative, carrying no
   // information, so no contrast minimum applies. What must pass is text sitting ON it,
   // and the darkened `gold-foreground` for anywhere gold has to be text.
   ["gold-ink", "gold", 4.5, "text on a gold fill"],
@@ -120,6 +120,6 @@ for (const [themeName, selector] of [
 console.log(
   failures === 0
     ? "\n  All checked pairs meet WCAG AA.\n"
-    : `\n  ${failures} pair(s) below AA — fix before shipping.\n`,
+    : `\n  ${failures} pair(s) below AA, fix before shipping.\n`,
 );
 process.exit(failures === 0 ? 0 : 1);

@@ -1,7 +1,7 @@
 """Chat provider selection.
 
 The only place that maps a config string to a concrete vendor. Adding Anthropic or OpenAI
-means one entry in `_BUILDERS` — every call site keeps talking to `ChatProvider`.
+means one entry in `_BUILDERS`, and every call site keeps talking to `ChatProvider`.
 """
 
 from collections.abc import Callable
