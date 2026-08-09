@@ -1,6 +1,6 @@
 /**
- * Runtime contracts for everything the API returns. TypeScript types vanish at build time —
- * they describe what we *believe* the server sends.
+ * Runtime contracts for everything the API returns. TypeScript types vanish at build time.
+ * They describe what we *believe* the server sends.
  */
 
 import { z } from "zod";

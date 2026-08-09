@@ -1,4 +1,4 @@
-"""Fusion and context-building tests. Pure logic — no database, no network."""
+"""Fusion and context-building tests. Pure logic, no database, no network."""
 
 from winchat_api.chat.context import build_context
 from winchat_api.retrieval.fusion import reciprocal_rank_fusion
@@ -144,7 +144,7 @@ async def test_llm_rerank_ignores_out_of_range_and_duplicate_indexes():
 
 
 async def test_llm_rerank_keeping_nothing_is_a_verdict_not_a_fallback():
-    """Empty means "none of these are relevant" — the refusal gate must see that."""
+    """Empty means "none of these are relevant". The refusal gate must see that."""
     from winchat_api.retrieval.rerank.llm_provider import LLMReranker
 
     reranker = LLMReranker(llm=_StubJudgeLLM('{"ranked": []}'))

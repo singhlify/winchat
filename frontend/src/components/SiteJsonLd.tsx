@@ -43,7 +43,7 @@ export function SiteJsonLd({
         // rather than implying we authored it.
         isBasedOn: {
           "@type": "WebSite",
-          name: "ask.uwindsor.ca — University of Windsor answer service",
+          name: "ask.uwindsor.ca. University of Windsor answer service",
           url: "https://ask.uwindsor.ca",
         },
         about: {

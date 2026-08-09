@@ -1,6 +1,6 @@
 """Health endpoints.
 
-Two endpoints, deliberately separate: ``/healthz`` — liveness. Answers "is this process up?"
+Two endpoints, deliberately separate: ``/healthz`` is liveness. Answers "is this process up?"
 with zero external calls, so a platform health check never fails because a third party is slow.
 """
 
@@ -24,7 +24,7 @@ router = APIRouter(tags=["health"])
 CheckStatus = Literal["ok", "error", "not_configured"]
 
 # Environments where the deployment-hardening checks below do not apply. Everything NOT in
-# this set is treated as a real deployment — the safe direction to be wrong in, since a new
+# this set is treated as a real deployment. The safe direction to be wrong in, since a new
 # env name like "staging" then gets checked rather than silently exempted.
 NON_DEPLOYED_ENVS = frozenset({"local", "test", "ci", "dev", "development"})
 
@@ -123,7 +123,7 @@ async def _check_reranker() -> DependencyCheck:
 
     This exists because of a real incident: the API was started before a Cohere key was added to
     .env, settings are cached per process, and it ran for a whole session with reranking
-    silently off — answering "the sources do not mention it" for questions the corpus does
+    silently off. Answering "the sources do not mention it" for questions the corpus does
     answer. Retrieval recall differs by 17 points between those two states, and nothing surfaced
     the difference.
     """
@@ -135,12 +135,12 @@ async def _check_reranker() -> DependencyCheck:
         return DependencyCheck(status="not_configured", detail="reranking disabled by config")
 
     if reranker.name == "none":
-        # Asked for a reranker and did not get one — almost always a missing key, or a
+        # Asked for a reranker and did not get one, almost always a missing key, or a
         # process started before the key was added.
         return DependencyCheck(
             status="error",
             provider=configured,
-            detail=f"{configured} requested but inactive — check the API key, then restart",
+            detail=f"{configured} requested but inactive. Check the API key, then restart",
         )
 
     return DependencyCheck(status="ok", provider=reranker.name, model=reranker.model)
@@ -150,7 +150,7 @@ async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
     """Query the corpus itself.
 
     `select 1` would only prove the socket is open. Counting indexed chunks proves the schema
-    exists and the corpus was actually ingested — an empty index is a working database and a
+    exists and the corpus was actually ingested. An empty index is a working database and a
     broken assistant, and readiness should not call that healthy.
     """
     settings = get_settings()
@@ -171,7 +171,7 @@ async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
         return DependencyCheck(
             status="error",
             latency_ms=latency_ms,
-            detail="no chunks indexed — run winchat_api.ingestion.run",
+            detail="no chunks indexed. Run winchat_api.ingestion.run",
         )
     return DependencyCheck(
         status="ok",
@@ -185,28 +185,26 @@ def _check_config() -> DependencyCheck:
     """Settings that are safe locally and dangerous in production.
 
     A dependency check answers "can I reach it". This one answers "am I configured the way a
-    deployed service must be" — a different question, and one nothing else asks.
+    deployed service must be", a different question, and one nothing else asks.
     """
     settings = get_settings()
     if settings.app_env in NON_DEPLOYED_ENVS:
-        return DependencyCheck(
-            status="ok", detail=f"{settings.app_env} — deployment checks skipped"
-        )
+        return DependencyCheck(status="ok", detail=f"{settings.app_env}, deployment checks skipped")
 
     problems: list[str] = []
 
     # The salt is what makes an anonymous subject unguessable. With the shipped default it is
-    # public knowledge, so anyone can compute the hash for a given IP — enough to confirm
+    # public knowledge, so anyone can compute the hash for a given IP, enough to confirm
     # whether someone used the service, and to reason about the counter keyspace.
     if settings.rate_limit_salt == Settings.model_fields["rate_limit_salt"].default:
-        problems.append("RATE_LIMIT_SALT is still the built-in default — set a random value")
+        problems.append("RATE_LIMIT_SALT is still the built-in default. Set a random value")
 
     # Behind a proxy, `request.client.host` is the PROXY's address, identical for everyone.
     # With this off in production, every anonymous visitor hashes to the same subject and
-    # shares one 20-per-hour budget — the first user of the hour locks out the rest.
+    # shares one 20-per-hour budget. The first user of the hour locks out the rest.
     if not settings.trust_proxy_headers:
         problems.append(
-            "TRUST_PROXY_HEADERS is off — behind a proxy every visitor shares one "
+            "TRUST_PROXY_HEADERS is off, behind a proxy every visitor shares one "
             "rate-limit identity"
         )
 

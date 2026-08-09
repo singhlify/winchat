@@ -1,7 +1,7 @@
 """The provider-agnostic embedding interface.
 
 Two methods, not one, because they are not interchangeable: several open models (including
-nomic-embed) are trained with asymmetric prefixes — documents and queries must be encoded
+nomic-embed) are trained with asymmetric prefixes. Documents and queries must be encoded
 differently or retrieval quality silently degrades. Baking that into the interface means a call
 site cannot get it wrong.
 """

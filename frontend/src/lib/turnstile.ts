@@ -51,8 +51,8 @@ function loadScript(): Promise<void> {
 }
 
 /**
- * A fresh token for one request. Turnstile tokens are single-use — Cloudflare rejects a
- * replay with `timeout-or-duplicate` — so this executes the widget per message rather than
+ * A fresh token for one request. Turnstile tokens are single-use. Cloudflare rejects a
+ * replay with `timeout-or-duplicate`, so this executes the widget per message rather than
  * caching.
  */
 export async function getTurnstileToken(): Promise<string | null> {

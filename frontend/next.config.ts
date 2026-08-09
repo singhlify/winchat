@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       // The chat used to live at the root, with conversations at /c/{id}. Those URLs are in
       // browser history and possibly in someone's bookmarks, and a conversation id is the
-      // only handle a visitor has on their own transcript — letting it 404 would look like
+      // only handle a visitor has on their own transcript. Letting it 404 would look like
       // their history had been deleted.
       //
       // Permanent (308), because the move is not coming back and a permanent redirect is

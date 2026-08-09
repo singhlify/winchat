@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 
 /**
  * The hero graphic: a diagram of what the app actually does. Drawn as SVG rather than
- * illustrated, and specific rather than abstract — it shows a question resolving to two of
+ * illustrated, and specific rather than abstract. It shows a question resolving to two of
  * 556 indexed articles, which is the product's whole claim.
  */
 export function RetrievalMark({ className }: { className?: string }) {
@@ -15,7 +15,9 @@ export function RetrievalMark({ className }: { className?: string }) {
   // opacity 0: `useReducedMotion` resolves after first paint, so `initial` has already been
   // applied by the time it flips, and nothing is left to animate it back.
   const draw = {
-    initial: reduced ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 },
+    initial: reduced
+      ? { pathLength: 1, opacity: 1 }
+      : { pathLength: 0, opacity: 0 },
     animate: { pathLength: 1, opacity: 1 },
   };
 
@@ -97,7 +99,7 @@ export function RetrievalMark({ className }: { className?: string }) {
         </motion.g>
       ))}
 
-      {/* The corpus the two were chosen from — context for the two boxes above. */}
+      {/* The corpus the two were chosen from, context for the two boxes above. */}
       <text
         x="184"
         y="132"

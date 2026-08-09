@@ -233,7 +233,7 @@ async def test_a_non_bearer_authorization_header_is_treated_as_anonymous():
 
 
 class _Req:
-    """Minimal stand-in for a Request — only headers are read."""
+    """Minimal stand-in for a Request. Only headers are read."""
 
     def __init__(self, headers=None):
         self.headers = headers or {}
@@ -280,7 +280,7 @@ async def test_the_bypass_waives_the_per_subject_cap():
 async def test_the_bypass_CANNOT_exceed_the_global_spend_ceiling():
     """The property that keeps this from being a backdoor.
 
-    The per-subject caps stop one visitor hogging a free tier — waiving them is merely
+    The per-subject caps stop one visitor hogging a free tier. Waiving them is merely
     convenient. The global cap is the spend ceiling on the Groq and Cohere keys, so a token
     that waived it would turn one leaked header into an unmetered bill. If this test ever
     fails, the bypass has become the thing it was designed not to be.
@@ -300,7 +300,7 @@ async def test_the_bypass_CANNOT_exceed_the_global_spend_ceiling():
 def test_a_signed_in_caller_gets_a_larger_budget_than_an_anonymous_one():
     """The docstrings promised this before the code did.
 
-    An anonymous subject is a salted hash of an IP — a VPN or a different network mints a
+    An anonymous subject is a salted hash of an IP, a VPN or a different network mints a
     fresh one, so its budget must stay small. An account costs an email round-trip, so it is
     harder to farm and can carry more. `kind` comes from a JWT this service verified itself,
     never from anything the caller can set.
@@ -408,7 +408,7 @@ async def test_conversations_require_authentication():
 
 async def test_a_conversation_belonging_to_someone_else_is_a_404_not_a_403(monkeypatch):
     """Answering 403 for "not yours" and 404 for "does not exist" would confirm which
-    conversation ids exist — an enumeration oracle. RLS returns no rows in both cases, so
+    conversation ids exist. An enumeration oracle. RLS returns no rows in both cases, so
     the handler cannot tell them apart, and 404 is the honest answer for both.
 
     Driven through the handler rather than by reading its source: an earlier version of

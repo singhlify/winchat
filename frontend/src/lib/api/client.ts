@@ -40,7 +40,7 @@ interface RequestOptions {
 }
 
 /**
- * A hung request is worse than a failed one — it shows a spinner forever. Every call
+ * A hung request is worse than a failed one. It shows a spinner forever. Every call
  * gets a deadline, combined with any caller-supplied abort signal.
  */
 async function request<T>(
@@ -150,12 +150,12 @@ export async function submitFeedback(
       keepalive: true,
     });
   } catch {
-    // Intentionally swallowed — see the note above.
+    // Intentionally swallowed, see the note above.
   }
 }
 
 /**
- * The signed-in user's saved conversations. Requires a token — this is the only part of the
+ * The signed-in user's saved conversations. Requires a token. This is the only part of the
  * API that does.
  */
 export async function fetchConversations(

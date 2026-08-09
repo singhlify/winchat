@@ -148,7 +148,7 @@ export function SidebarToggle({
       size="icon"
       onClick={onToggle}
       // `aria-expanded` conveys the state; the label says what it does. No `aria-controls` on
-      // purpose — the element it would reference differs between the desktop column and the
+      // purpose. The element it would reference differs between the desktop column and the
       // mobile drawer, and a reference that resolves to a hidden node is worse than none.
       aria-expanded={open}
       aria-label={open ? "Hide chat history" : "Show chat history"}
@@ -253,7 +253,7 @@ function ConversationRow({
             variant="ghost"
             size="icon"
             aria-label={`Options for ${conversation.title}`}
-            // 36px and always visible on touch — WCAG 2.5.8 asks for at least 24x24, and
+            // 36px and always visible on touch. WCAG 2.5.8 asks for at least 24x24, and
             // a control revealed only on hover is unreachable on a phone.
             className="absolute top-1/2 right-1 size-9 -translate-y-1/2 md:opacity-0 md:group-focus-within/row:opacity-100 md:group-hover/row:opacity-100"
           >

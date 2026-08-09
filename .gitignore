@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 
-# Scraped corpus — regenerable via scripts/scrape_ask_uwindsor.py, large, drifts from source
+# Scraped corpus, regenerable via scripts/scrape_ask_uwindsor.py, large, drifts from source
 data/ask_uwindsor/
 data/**/raw/
 # Ignore data by path, never by extension. A blanket `*.jsonl` here silently excluded the
@@ -33,8 +33,7 @@ chroma/
 .idea/
 .vscode/
 
-
-# Local development context — not part of the shipped project.
+# Local development context, not part of the shipped project.
 # No trailing slash on `docs`: it is a symlink to the private notes repo, and `docs/` matches
 # only real directories, so the slash would leave the link itself tracked.
 docs

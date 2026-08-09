@@ -42,7 +42,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     // `defaultTheme="system"` respects the OS setting until the user overrides it, and
-    // next-themes writes the class in a blocking inline script before paint — which is what
+    // next-themes writes the class in a blocking inline script before paint, which is what
     // prevents the white flash a dark-mode user gets from a client-side toggle.
     // `disableTransitionOnChange` stops every coloured surface animating at once when the
     // theme flips, which reads as a glitch rather than a transition.

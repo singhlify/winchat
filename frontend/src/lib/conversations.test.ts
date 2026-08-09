@@ -74,7 +74,7 @@ describe("account sync merge", () => {
     expect(listConversations().map((c) => c.id)).toContain("server-from-phone");
   });
 
-  it("is idempotent — syncing twice does not duplicate", async () => {
+  it("is idempotent. Syncing twice does not duplicate", async () => {
     const { mergeServerConversations, listConversations } =
       await import("@/lib/conversations");
 

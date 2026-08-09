@@ -2,7 +2,7 @@
 
 A reranker is a cross-encoder: instead of comparing two independent vectors, it reads the query
 and the passage *together* and scores the pair. That is far more accurate and far too slow to
-run over the whole corpus — which is exactly why it sits after retrieval, over a few dozen
+run over the whole corpus, which is exactly why it sits after retrieval, over a few dozen
 candidates.
 """
 
@@ -31,7 +31,7 @@ class RerankError(RuntimeError):
 class NoOpReranker(Reranker):
     """Used when no reranker is configured: truncate, do not reorder.
 
-    Deliberately not silent — the retrieval result records that reranking was skipped, so
+    Deliberately not silent. The retrieval result records that reranking was skipped, so
     a quality comparison can never accidentally credit a reranker that never ran.
     """
 

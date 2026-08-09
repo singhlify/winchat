@@ -71,7 +71,7 @@ async def list_conversations(pool: asyncpg.Pool, user_id: str, *, limit: int = 1
     """Every conversation belonging to this user, newest first.
 
     Exists so a second device can find conversations it never created. Before this, history was
-    written for signed-in users and never readable back — the account stored your chats and
+    written for signed-in users and never readable back, the account stored your chats and
     could not show them to you, which made "sign in to keep your history" a claim the product
     did not deliver.
     """
@@ -95,7 +95,7 @@ async def load_conversation(pool: asyncpg.Pool, user_id: str, conversation_id: s
     """Full transcript for one conversation, oldest first.
 
     Separate from `load_history`, which exists for a different job: that one loads the last few
-    turns as model context and returns bare role/content. This returns what a UI needs — every
+    turns as model context and returns bare role/content. This returns what a UI needs, every
     turn, in order, with the retrieval trace so citations survive the round trip.
     """
     async with user_scoped(pool, user_id) as connection:

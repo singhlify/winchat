@@ -8,7 +8,7 @@
 # changes nothing.
 #
 # Why this exists. Auth setup is a dozen toggles across several dashboard pages, and the
-# only honest way to know the state is to read it back — a checklist someone ticked off is
+# only honest way to know the state is to read it back. A checklist someone ticked off is
 # a record of intent, not of configuration. The public `/auth/v1/settings` endpoint shows
 # providers and little else; site URL, the redirect allowlist and password rules are only
 # visible here.
@@ -52,7 +52,7 @@ RESPONSE=$(curl -sS -m 30 -H "Authorization: Bearer $TOKEN" \
   "https://api.supabase.com/v1/projects/${REF}/config/auth")
 
 if echo "$RESPONSE" | grep -q '"message"'; then
-  # Never echo the response wholesale — an error body can contain request context.
+  # Never echo the response wholesale. An error body can contain request context.
   echo "Management API rejected the request. Check the token is valid and has access to ${REF}."
   exit 1
 fi

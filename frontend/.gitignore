@@ -30,7 +30,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — the example documents the config and must be committed
+# env files. The example documents the config and must be committed
 .env*
 !.env.example
 

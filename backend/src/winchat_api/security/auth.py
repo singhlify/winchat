@@ -1,7 +1,7 @@
 """Verifying Supabase access tokens.
 
 The frontend signs users in with Supabase and sends the resulting JWT as a bearer token. This
-module verifies it — signature, expiry, issuer and audience — and hands back a user id.
+module verifies it, signature, expiry, issuer and audience, and hands back a user id.
 """
 
 import logging
@@ -98,7 +98,7 @@ async def verify_token(token: str) -> AuthenticatedUser:
     except jwt.ExpiredSignatureError as exc:
         raise HTTPException(status_code=401, detail="token expired") from exc
     except jwt.PyJWTError as exc:
-        # Never echo the library's message back — it can describe why verification failed.
+        # Never echo the library's message back. It can describe why verification failed.
         logger.info("token rejected: %s", exc)
         raise HTTPException(status_code=401, detail="invalid token") from exc
 
@@ -108,10 +108,10 @@ async def verify_token(token: str) -> AuthenticatedUser:
 async def require_user(request: Request) -> AuthenticatedUser:
     """FastAPI dependency: the signed-in user, or 401.
 
-    The counterpart to `optional_user`, for the one thing in this API that is genuinely private
-    — a person's own saved conversations. Everything else stays anonymous-friendly on purpose,
-    so this is deliberately a separate dependency rather than a flag: a route either requires an
-    account or it does not, and that should be visible in its signature.
+    The counterpart to `optional_user`, for the one thing in this API that is genuinely
+    private: a person's own saved conversations. Everything else stays anonymous-friendly on
+    purpose, so this is deliberately a separate dependency rather than a flag. A route either
+    requires an account or it does not, and that should be visible in its signature.
     """
     token = _bearer_token(request)
     if token is None:

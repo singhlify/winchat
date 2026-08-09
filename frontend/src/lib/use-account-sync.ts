@@ -25,7 +25,7 @@ export function useAccountSync(accessToken: string | null): void {
       .then((conversations) => mergeServerConversations(conversations))
       .catch(() => {
         // Signed out mid-flight, offline, or the backend cold-starting. All of these are
-        // fine — try again on the next sign-in rather than nagging.
+        // fine, try again on the next sign-in rather than nagging.
       });
 
     return () => controller.abort();

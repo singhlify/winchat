@@ -48,7 +48,7 @@ async def list_sources(
     if pool is None:
         raise HTTPException(status_code=503, detail="database is not available")
 
-    # `q` is bound as a parameter and only ever used inside ilike — never concatenated into
+    # `q` is bound as a parameter and only ever used inside ilike. Never concatenated into
     # SQL. The % wildcards are added in the query, not taken from the user.
     rows = await pool.fetch(_SQL, q, limit, offset)
     total = await pool.fetchval(

@@ -54,7 +54,7 @@ class AnswerPlan:
 async def rewrite_query(llm: ChatProvider, question: str, history: Sequence[ChatTurn]) -> str:
     """Make a follow-up self-contained: "how much is it?" means nothing to a search index.
 
-    Skipped entirely on the first turn — an extra model call that cannot improve anything is
+    Skipped entirely on the first turn, an extra model call that cannot improve anything is
     pure latency. A failed rewrite falls back to the raw question rather than erroring; a
     slightly worse search beats no answer.
     """

@@ -5,7 +5,7 @@
 -- embed-v4.0 serves 1024 dimensions where nomic-embed-text served 768.
 --
 -- Why this is a migration and not a config value: a pgvector column declares its width in
--- the type, and vectors of different widths cannot be compared at all — Postgres refuses
+-- the type, and vectors of different widths cannot be compared at all. Postgres refuses
 -- the operator rather than returning bad results. Changing embedding model *families* is
 -- therefore a schema change, which is the correct amount of friction for an operation that
 -- invalidates every stored vector.
@@ -13,7 +13,7 @@
 -- The delete is not data loss. Chunks are derived data, regenerated in about five minutes
 -- by `python -m winchat_api.ingestion.run`. `faq_answers` (the source records) is
 -- untouched, and because `_existing_state` reads `embedding_model` through a LEFT JOIN,
--- every answer comes back as needing work automatically — no --force flag required.
+-- every answer comes back as needing work automatically, no --force flag required.
 --
 -- Run the ingestion immediately after this migration. Between the two, retrieval returns
 -- nothing: the table is empty, which is a visible failure rather than a silent one.

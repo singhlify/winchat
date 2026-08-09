@@ -1,7 +1,7 @@
 """Thumbs up / thumbs down on an answer.
 
 The third evaluation signal, alongside deterministic assertions and the model judge. It is the
-only one that catches an answer both of the others consider fine — which is exactly the class of
+only one that catches an answer both of the others consider fine, which is exactly the class of
 failure worth knowing about.
 """
 
@@ -74,7 +74,7 @@ async def submit_feedback(
             body.model,
         )
     except Exception:
-        # Losing a vote is not worth showing the user an error over — they already got
+        # Losing a vote is not worth showing the user an error over, they already got
         # their answer, and the feedback UI has no recovery to offer.
         logger.exception("could not record feedback")
         return FeedbackResponse(recorded=False)

@@ -1,7 +1,7 @@
 """Embeddings from Cohere's hosted `/v2/embed` endpoint.
 
 Why this exists: hosting, not quality. The fastembed provider runs the same nomic weights in-
-process, which is architecturally nicer — no vendor, no key, no network hop on the request path.
+process, which is architecturally nicer, no vendor, no key, no network hop on the request path.
 """
 
 import asyncio

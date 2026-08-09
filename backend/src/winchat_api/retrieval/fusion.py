@@ -1,4 +1,4 @@
-"""Reciprocal Rank Fusion — merging the dense and lexical result lists.
+"""Reciprocal Rank Fusion, merging the dense and lexical result lists.
 
 RRF scores a document by `sum(1 / (k + rank))` over the lists it appears in. It uses *ranks*,
 never raw scores, which is precisely why it works here: cosine similarity (0-1, tightly
@@ -27,7 +27,7 @@ def reciprocal_rank_fusion(
             if existing is None:
                 merged[chunk.chunk_id] = chunk
             else:
-                # Same chunk found by the other arm — keep both stages' opinions.
+                # Same chunk found by the other arm. Keep both stages' opinions.
                 existing.scores.update(chunk.scores)
             fused_scores[chunk.chunk_id] = fused_scores.get(chunk.chunk_id, 0.0) + 1.0 / (k + rank)
 
@@ -42,7 +42,7 @@ def best_per_answer(chunks: Sequence[RetrievedChunk]) -> list[RetrievedChunk]:
 
     Measured need, not tidiness. Several golden cases failed with the correct answer at dense
     rank 1 but fused rank 8, because the six final slots were being spent on two or three
-    distinct answers — the same FAQ article occupying three of them.
+    distinct answers, the same FAQ article occupying three of them.
     """
     seen: set[str] = set()
     unique: list[RetrievedChunk] = []

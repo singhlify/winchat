@@ -1,7 +1,7 @@
 """Does the reranker actually help?
 
 Measure, do not assume. uv run python -m winchat_api.retrieval.rerank.check Runs the golden
-set's retrieval-scored cases twice — once with no reranker, once with the configured one — and
+set's retrieval-scored cases twice, once with no reranker, once with the configured one, and
 prints recall@top_n and MRR side by side. No generation, so it costs nothing on the LLM budget
 and is fast enough to run after any retrieval change.
 """
@@ -81,7 +81,7 @@ async def main() -> int:
 
     if settings.rerank_provider == "cohere":
         if not settings.cohere_api_key:
-            print("COHERE_API_KEY is not set — nothing to compare against.")
+            print("COHERE_API_KEY is not set, nothing to compare against.")
             return 2
         available = await cohere_rerank_models(settings.cohere_api_key)
         if available:
@@ -92,7 +92,7 @@ async def main() -> int:
     # Long enough to sit out a whole per-minute window rather than degrade to RRF order.
     reranker = build_reranker(settings, retry_budget_s=MEASUREMENT_RETRY_BUDGET_S)
     if reranker.name == "none":
-        print("No reranker is active — check RERANK_PROVIDER and the API key.")
+        print("No reranker is active. Check RERANK_PROVIDER and the API key.")
         return 2
 
     pool = await create_pool(max_size=3)

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RetrievalResult:
-    """What retrieval found, and how — the input to both generation and evaluation."""
+    """What retrieval found, and how, the input to both generation and evaluation."""
 
     query: str
     chunks: list[RetrievedChunk] = field(default_factory=list)
@@ -39,7 +39,7 @@ class RetrievalResult:
 
     @property
     def top_score(self) -> float:
-        """Relevance of the best passage — what the Phase 4 refusal threshold reads."""
+        """Relevance of the best passage. What the Phase 4 refusal threshold reads."""
         return self.chunks[0].rank_score if self.chunks else 0.0
 
 
@@ -85,7 +85,7 @@ async def retrieve(
         result.reranker = reranker.name
     except RerankError as exc:
         # A reranker outage must degrade quality, not break the answer. RRF order is a
-        # perfectly serviceable fallback — and the reason is recorded, never swallowed.
+        # perfectly serviceable fallback, and the reason is recorded, never swallowed.
         logger.warning("rerank failed, falling back to RRF order: %s", exc)
         result.chunks = fused[:top_n]
         result.reranker = "none"

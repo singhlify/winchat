@@ -1,4 +1,4 @@
-"""Groq chat provider — the default generation backend.
+"""Groq chat provider, the default generation backend.
 
 Groq serves open-weight models (Llama / Qwen class) fast and cheaply. We talk to the
 vendor SDK here and nowhere else; the rest of the app only knows `ChatProvider`.
@@ -76,7 +76,7 @@ class GroqChatProvider(ChatProvider):
         max_tokens: int | None = None,
     ) -> AsyncIterator[str]:
         try:
-            # Retried only up to the first token — once bytes are flowing, a retry would
+            # Retried only up to the first token. Once bytes are flowing, a retry would
             # replay text the user has already seen.
             stream = await with_rate_limit_retry(
                 lambda: self._client.chat.completions.create(

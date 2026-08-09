@@ -18,7 +18,7 @@ REQUIRED_FIELDS = ("a_id", "question", "answer_text", "url")
 
 # Every citation the app renders is a link the user is invited to trust, shown next to a
 # University of Windsor answer. The URL comes from a file on disk, so nothing downstream
-# distinguishes "scraped from ask.uwindsor.ca" from "someone edited answers.jsonl" — the UI
+# distinguishes "scraped from ask.uwindsor.ca" from "someone edited answers.jsonl", the UI
 # lends its credibility to whatever host ends up in this field.
 ALLOWED_SOURCE_HOSTS = frozenset({"ask.uwindsor.ca"})
 
@@ -62,7 +62,7 @@ def _parse_timestamp(value: str | None) -> datetime | None:
 
 
 def load_answers(path: Path) -> list[Answer]:
-    """Read every answer, skipping nothing silently — a bad record raises."""
+    """Read every answer, skipping nothing silently, a bad record raises."""
     if not path.exists():
         raise CorpusError(f"corpus not found at {path}; run scripts/scrape_ask_uwindsor.py first")
 
@@ -81,7 +81,7 @@ def _check_source(url: str, path: Path, line_number: int) -> None:
     """Refuse an answer whose URL is not from an allowed source.
 
     Fails the whole ingest rather than skipping the row. A corpus with unexpected hosts in it is
-    not a corpus with one bad line — it is a file that is not what it claims to be, and quietly
+    not a corpus with one bad line. It is a file that is not what it claims to be, and quietly
     dropping rows would hide that.
     """
     parsed = urlparse(url)
@@ -96,7 +96,7 @@ def _check_source(url: str, path: Path, line_number: int) -> None:
             f"{path}:{line_number} url host {host!r} is not an allowed source "
             f"({', '.join(sorted(ALLOWED_SOURCE_HOSTS))}). "
             "If the corpus legitimately gained a new source, add it to ALLOWED_SOURCE_HOSTS "
-            "deliberately — do not widen this to make an ingest pass."
+            "deliberately. Do not widen this to make an ingest pass."
         )
 
 

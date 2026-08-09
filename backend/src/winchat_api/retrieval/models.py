@@ -22,7 +22,7 @@ class RetrievedChunk:
 
     @property
     def rank_score(self) -> float:
-        """The score that decides final order — the latest stage to express an opinion."""
+        """The score that decides final order, the latest stage to express an opinion."""
         for stage in ("rerank", "rrf", "dense", "lexical"):
             if stage in self.scores:
                 return self.scores[stage]

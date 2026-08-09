@@ -1,7 +1,7 @@
 """The provider-agnostic chat interface.
 
 Every generation call in the request path goes through `ChatProvider`. Swapping Groq for
-Anthropic or OpenAI means adding one class here and changing one environment variable — no call
+Anthropic or OpenAI means adding one class here and changing one environment variable, no call
 site changes.
 """
 

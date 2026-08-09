@@ -35,7 +35,7 @@ def _stub_checks(
     database: health.DependencyCheck | None = None,
     reranker: health.DependencyCheck | None = _RERANKER_OK,
 ):
-    """Readiness must be testable without a network — stub the dependency probes.
+    """Readiness must be testable without a network, stub the dependency probes.
 
     `reranker=None` leaves the real check in place, for the tests that are about the
     reranker itself.
@@ -110,7 +110,7 @@ def test_unconfigured_dependency_fails_readiness_outside_local(monkeypatch):
     monkeypatch.setenv("APP_ENV", "production")
     # A valid deployment configuration, so this test fails for the reason it claims to.
     # Without these the config check also errors and readiness reports "error" instead of
-    # "degraded" — a passing assertion about the wrong thing.
+    # "degraded", a passing assertion about the wrong thing.
     monkeypatch.setenv("RATE_LIMIT_SALT", "a-real-random-value-not-the-default")
     monkeypatch.setenv("CORS_ALLOW_ORIGINS", "https://winchat.vercel.app")
     monkeypatch.setenv("TRUST_PROXY_HEADERS", "true")
@@ -179,7 +179,7 @@ def test_reranking_switched_off_on_purpose_is_not_an_error(monkeypatch):
 def test_non_deployed_envs_skip_the_deployment_checks():
     """The dev defaults are correct off a server; flagging them there is just noise.
 
-    The suite runs with APP_ENV=test, which must be exempt — an earlier version exempted
+    The suite runs with APP_ENV=test, which must be exempt, an earlier version exempted
     only "local" and turned every readiness test red.
     """
     get_settings.cache_clear()
@@ -191,7 +191,7 @@ def test_the_default_rate_limit_salt_is_an_error_in_production(monkeypatch):
     """A public salt makes anonymous subject hashes computable, and nothing else notices.
 
     This is the failure mode the check exists for: the app works perfectly with the default
-    salt. Nothing breaks, no request fails, no log line appears — the limiter is simply
+    salt. Nothing breaks, no request fails, no log line appears. The limiter is simply
     weaker than it looks, until someone works out that the salt is in the repository.
     """
     monkeypatch.setenv("APP_ENV", "production")

@@ -1,7 +1,7 @@
 [project]
 name = "winchat-api"
 version = "0.1.0"
-description = "WinChat v2 — production RAG API for the UWindsor FAQ assistant"
+description = "WinChat v2, production RAG API for the UWindsor FAQ assistant"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 # Optional because it is large, not because it is unsupported. fastembed pulls onnxruntime
-# and the nomic weights — together most of a 920 MB image, against a 512 MB free tier.
+# and the nomic weights, together most of a 920 MB image, against a 512 MB free tier.
 # Embeddings are hosted in the deployed configuration, so the container does not need it.
 #
 #   uv sync --extra local     # to run embeddings on your own machine instead

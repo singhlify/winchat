@@ -1,5 +1,5 @@
 /**
- * Supabase client — for AUTHENTICATION ONLY. This is the one place `supabase-js` is allowed.
+ * Supabase client, for AUTHENTICATION ONLY. This is the one place `supabase-js` is allowed.
  */
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -17,8 +17,8 @@ export function getSupabase(): SupabaseClient | null {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      // PKCE rather than the implicit flow. A browser app is a *public* client — it cannot
-      // keep a secret — so the implicit flow returns tokens directly in the URL fragment,
+      // PKCE rather than the implicit flow. A browser app is a *public* client, it cannot
+      // keep a secret, so the implicit flow returns tokens directly in the URL fragment,
       // where they land in history and in anything that logs URLs.
       flowType: "pkce",
       // Lets the client finish an OAuth or recovery redirect on load, which is what makes

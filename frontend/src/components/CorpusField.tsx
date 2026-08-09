@@ -5,7 +5,7 @@ import { useMemo } from "react";
 
 /**
  * The hero's background: the corpus itself. 556 marks in a loose grid, one per indexed
- * article, with a handful lit in gold — the ones a question would reach.
+ * article, with a handful lit in gold. The ones a question would reach.
  */
 
 const TOTAL = 556;
@@ -38,8 +38,8 @@ export function CorpusField({
       Array.from({ length: TOTAL }, (_, i) => {
         const column = i % COLUMNS;
         const row = Math.floor(i / COLUMNS);
-        // A small deterministic offset per mark keeps the field from looking like graph paper
-        // — a perfect lattice reads as a texture swatch, a slightly irregular one reads as a
+        // A small deterministic offset per mark keeps the field from looking like graph paper.
+        // A perfect lattice reads as a texture swatch, a slightly irregular one reads as a
         // collection of things.
         const jitter = ((i * 2654435761) % 100) / 100;
         return {

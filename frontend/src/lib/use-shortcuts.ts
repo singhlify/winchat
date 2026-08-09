@@ -30,7 +30,7 @@ export function useShortcuts({
     function onKeyDown(event: KeyboardEvent) {
       const meta = event.metaKey || event.ctrlKey;
 
-      // Escape while streaming stops the answer — allowed even from the composer, because
+      // Escape while streaming stops the answer, allowed even from the composer, because
       // that is exactly where your hands are when you want to stop, and Escape means "cancel"
       // everywhere else in an interface too.
       if (event.key === "Escape" && busy) {

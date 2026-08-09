@@ -19,7 +19,7 @@ def client_ip(request: Request) -> str:
 
     Render and Vercel sit in front of this service, so the socket address is the proxy's.
     `X-Forwarded-For` is client-supplied and trivially spoofed, which would let anyone mint a
-    fresh rate-limit identity per request — so the leftmost entry is used only where a proxy is
+    fresh rate-limit identity per request, so the leftmost entry is used only where a proxy is
     expected, and the direct address otherwise.
     """
     if get_settings().trust_proxy_headers:
@@ -40,7 +40,7 @@ def is_maintenance_request(request: Request) -> bool:
     """Does this request carry the maintenance token?
 
     Grants exactly one thing: exemption from the per-subject rate limits, so a deployed instance
-    can be smoke-tested without burning a real visitor's budget. It is NOT an identity — the
+    can be smoke-tested without burning a real visitor's budget. It is NOT an identity, the
     caller is still whoever they were, still subject to the global spend ceiling, still bound by
     Row Level Security, and still recorded in `usage_events`.
     """

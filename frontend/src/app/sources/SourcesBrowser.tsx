@@ -6,7 +6,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { Source } from "@/lib/api/schemas";
 
 /**
- * Client-side filtering over a server-rendered list. The full list ships in the HTML — that
+ * Client-side filtering over a server-rendered list. The full list ships in the HTML, that
  * is what makes it crawlable and what makes it work with JavaScript disabled.
  */
 export function SourcesBrowser({ sources }: { sources: Source[] }) {
@@ -79,7 +79,7 @@ export function SourcesBrowser({ sources }: { sources: Source[] }) {
         <p className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
           No article titles match &ldquo;{query}&rdquo;. WinChat searches the
           full text of every article, not just titles, so it may still find an
-          answer — try asking it directly.
+          answer, try asking it directly.
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-border/60">

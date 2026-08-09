@@ -33,7 +33,7 @@ create table if not exists messages (
 create index if not exists messages_conversation_idx on messages (conversation_id, created_at);
 
 -- ENABLE alone is not enough here. Postgres exempts a table's OWNER from its own row
--- policies, and our connection owns these tables — so `enable row level security` would
+-- policies, and our connection owns these tables, so `enable row level security` would
 -- look correct in the schema and enforce nothing at runtime. FORCE removes the exemption.
 -- This is the difference between a security control and a security-shaped comment.
 alter table conversations enable row level security;
@@ -42,7 +42,7 @@ alter table messages enable row level security;
 alter table messages force row level security;
 
 -- `auth.uid()` reads the user id out of the request's JWT. With these policies a query for
--- someone else's rows returns zero rows rather than an error — unauthorized data is never
+-- someone else's rows returns zero rows rather than an error. Unauthorized data is never
 -- in the result set to begin with.
 drop policy if exists conversations_owner on conversations;
 create policy conversations_owner on conversations

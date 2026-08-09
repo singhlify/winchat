@@ -1,4 +1,4 @@
-"""Chat endpoint tests — request validation and SSE framing, with the pipeline stubbed."""
+"""Chat endpoint tests, request validation and SSE framing, with the pipeline stubbed."""
 
 import json
 
@@ -260,7 +260,7 @@ def test_the_rewrite_prompt_demands_a_pass_through_for_standalone_messages():
 
     The instruction was once an unconditional "rewrite the message", so the model rewrote
     questions that did not need it. After a turn about UWin accounts, "where do i get my
-    student id?" became "UWin student ID retrieval" — plausible-looking, and wrong: it
+    student id?" became "UWin student ID retrieval", plausible-looking, and wrong: it
     reinterprets "student id" as a credential rather than the physical card, so retrieval
     returned account-activation articles and the user was told to activate an account they
     had already activated. The same question with no history retrieves the UwinCARD article.

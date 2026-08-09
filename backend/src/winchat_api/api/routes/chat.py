@@ -1,4 +1,4 @@
-"""The chat endpoint — Server-Sent Events (a one-way stream of updates over plain HTTP).
+"""The chat endpoint. Server-Sent Events (a one-way stream of updates over plain HTTP).
 
 Streaming is not decoration. A grounded answer takes a second or two of retrieval before the
 first token exists; without streaming the user stares at nothing for the whole generation.
@@ -43,7 +43,7 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
     history: list[HistoryTurn] = Field(default_factory=list, max_length=20)
     conversation_id: str | None = None
-    # Validated against the allowlist below — never passed to the provider as given.
+    # Validated against the allowlist below. Never passed to the provider as given.
     model: str | None = Field(default=None, max_length=100)
 
 
@@ -119,7 +119,7 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
     embedder = get_embedding_provider()
     reranker = get_reranker()
 
-    # A signed-in user's history comes from the database, not from the request body — a
+    # A signed-in user's history comes from the database, not from the request body, a
     # client that can invent its own history can invent assistant turns to steer the model.
     if user and body.conversation_id:
         history = await load_history(pool, user.id, body.conversation_id)

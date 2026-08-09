@@ -36,7 +36,7 @@ export function CountUp({
         setDisplay(latest.toFixed(decimals) + suffix);
       },
       // Snap to the exact source string at the end rather than trusting the tween to land
-      // on it — floating point does not reliably arrive at a round number.
+      // on it. Floating point does not reliably arrive at a round number.
       onComplete: () => setDisplay(value),
     });
 

@@ -3,7 +3,7 @@ winchat_api.evals.run --tier1 # deterministic only, no model cost uv run python 
 winchat_api.evals.run --json out.json Exits non-zero when any gate fails, which is what makes it
 a CI gate rather than a report.
 
-It runs the real pipeline — the same `answer_question` the HTTP endpoint calls. An eval that
+It runs the real pipeline. The same `answer_question` the HTTP endpoint calls. An eval that
 exercises a parallel implementation eventually measures something the users never touch.
 """
 

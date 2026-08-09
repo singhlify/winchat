@@ -6,11 +6,11 @@
 #
 # Two layers, and the second is not redundant:
 #
-#   1. gitleaks, when installed — ~170 provider rules plus Shannon-entropy detection, which
+#   1. gitleaks, when installed, ~170 provider rules plus Shannon-entropy detection, which
 #      catches high-randomness strings no fixed pattern anticipates (a Supabase service-role
 #      JWT, a random signing secret). Measured here: it caught a 45-character vendor-less
 #      secret that layer 2 missed completely. Config in `.gitleaks.toml`.
-#   2. The built-in rules below, always — because a scanner that has to be installed first
+#   2. The built-in rules below, always, because a scanner that has to be installed first
 #      is a scanner that is absent on the machine where it matters. This keeps the check
 #      meaningful on a fresh clone or a teammate's laptop.
 #
@@ -26,7 +26,7 @@
 #
 # Neither replaces GitHub's server-side push protection, and it does not replace these: push
 # protection does not cover Postgres connection strings, Supabase secret keys or self-signed
-# JWT secrets — most of this project's real risk surface — and a pusher can bypass it. Local
+# JWT secrets, most of this project's real risk surface, and a pusher can bypass it. Local
 # hooks are bypassable too (`--no-verify`), which is why CI runs this as well. Layers, not a gate.
 #
 # Exit codes: 0 clean, 1 findings, 2 usage error.
@@ -49,7 +49,7 @@ RULES=(
 )
 
 # Files that legitimately contain credential-shaped strings. Keep this list short and
-# justified — every entry is a place a real leak could hide.
+# justified. Every entry is a place a real leak could hide.
 EXCLUDE='^(.*\.lock|.*lock\.json|.*lock\.yaml|scripts/scan_secrets\.sh|\.gitleaks\.toml|\.githooks/pre-commit)$'
 
 mode="${1:-all}"
@@ -61,7 +61,7 @@ command -v gitleaks >/dev/null 2>&1 || PATH="$HOME/.local/bin:$PATH"
 run_gitleaks() {
   local scope="$1" # staged | history
   if ! command -v gitleaks >/dev/null 2>&1; then
-    echo "  gitleaks not installed — running built-in rules only (see the header to install)."
+    echo "  gitleaks not installed, running built-in rules only (see the header to install)."
     return 0
   fi
 
@@ -85,7 +85,7 @@ run_gitleaks() {
     echo "  [gitleaks] leaks found:"
     # Strip ANSI colour FIRST, then drop progress lines. The other order fails: gitleaks
     # wraps the level in escape codes, so `INF` sits inside `\e[32mINF\e[0m` and a
-    # word-boundary match never fires — which is why the first version printed the noise.
+    # word-boundary match never fires, which is why the first version printed the noise.
     echo "$output" \
       | sed -E 's/\x1b\[[0-9;]*[mGKH]//g' \
       | grep -vE "(INF|WRN) " \
@@ -103,7 +103,7 @@ scan() {
     if [ -n "$hits" ]; then
       findings=$((findings + 1))
       echo "  [$label] $name"
-      # Print the location but never the matched value — a scanner that echoes the secret
+      # Print the location but never the matched value, a scanner that echoes the secret
       # into a terminal, a CI log or a screenshot has just leaked it a second time.
       #
       # Two output shapes to redact, which is how the first version of this leaked a key:
@@ -157,7 +157,7 @@ esac
 
 echo
 if [ "$findings" -eq 0 ]; then
-  echo "clean — no credential-shaped strings found."
+  echo "clean, no credential-shaped strings found."
   exit 0
 fi
 
@@ -165,12 +165,12 @@ cat <<'EOF'
 FINDINGS ABOVE.
 
 If any is real, ROTATE THE KEY FIRST. Rewriting history second, and only if you want the
-repo tidy — it is not remediation. GitHub's own guidance calls history scrubbing
+repo tidy. It is not remediation. GitHub's own guidance calls history scrubbing
 "time-intensive and often unnecessary if you've already revoked the credential", and it is
 unreliable anyway: commits survive in forks, in other people's clones, via SHA in cached
 views, and through pull requests. Only GitHub Support can purge cached copies.
 
 Assume anything pushed to a public repo was harvested within minutes. GitGuardian found 70%
-of secrets leaked in 2022 were still valid three years later — because nobody rotated them.
+of secrets leaked in 2022 were still valid three years later, because nobody rotated them.
 EOF
 exit 1

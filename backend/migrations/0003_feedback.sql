@@ -5,7 +5,7 @@
 -- only one that can catch a failure both other tiers agree is fine.
 --
 -- Stored with the retrieval trace of the turn it refers to, so a thumbs-down is
--- actionable — "which sources did it have, and what did it do with them" — rather than an
+-- actionable, "which sources did it have, and what did it do with them", rather than an
 -- anonymous complaint.
 
 create table if not exists answer_feedback (
@@ -28,4 +28,4 @@ create index if not exists answer_feedback_vote_idx on answer_feedback (vote, cr
 
 -- No RLS: nothing here is readable through the API at all. Feedback is written by users
 -- and read only by us, offline, when deciding what to fix next. A table with no read path
--- needs no row policy — and adding one would imply a read path exists.
+-- needs no row policy, and adding one would imply a read path exists.
