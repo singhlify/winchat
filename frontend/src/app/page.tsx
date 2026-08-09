@@ -122,7 +122,7 @@ export default async function LandingPage() {
                 </p>
                 <h1 className="font-display mt-6 text-[2.75rem] leading-[1.04] text-balance sm:text-6xl">
                   University of Windsor questions,{" "}
-                  <span className="text-gold-foreground italic">
+                  <span className="text-primary italic">
                     answered with the source attached
                   </span>
                 </h1>
@@ -170,12 +170,12 @@ export default async function LandingPage() {
                   <p className="mt-3 text-sm leading-relaxed">
                     There is a $25 charge for the production of replacement
                     cards{" "}
-                    <span className="bg-gold/25 text-gold-ink text-2xs rounded px-1 py-0.5 font-medium">
+                    <span className="bg-gold/70 text-gold-ink text-2xs rounded px-1 py-0.5 font-medium">
                       1
                     </span>
                   </p>
                   <p className="text-muted-foreground border-border text-2xs mt-3 border-t pt-3">
-                    <span className="bg-gold/25 text-gold-ink mr-1.5 rounded px-1 py-0.5 font-medium">
+                    <span className="bg-gold/70 text-gold-ink mr-1.5 rounded px-1 py-0.5 font-medium">
                       1
                     </span>
                     Is there a fee for the UwinCARD? · ask.uwindsor.ca
@@ -240,7 +240,7 @@ export default async function LandingPage() {
                 <dd>
                   <CountUp
                     value={stat.value}
-                    className="text-gold-foreground font-display block text-5xl leading-none"
+                    className="text-foreground font-display block text-5xl leading-none"
                   />
                   <span className="mt-3 block text-sm font-medium">
                     {stat.label}

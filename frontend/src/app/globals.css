@@ -101,24 +101,24 @@
      * exact tokens. The stock theme failed AA three times in light mode: dividers at
      * 1.26:1, the focus ring at 2.59:1, and muted text at 4.34:1.
      * ------------------------------------------------------------------------------- */
-  --background: oklch(0.995 0.002 250);
+  --background: oklch(0.972 0.005 248);
   --foreground: oklch(0.21 0.021 258);
-  --card: oklch(1 0.001 250);
+  --card: oklch(0.995 0.002 250);
   --card-foreground: oklch(0.21 0.021 258);
-  --popover: oklch(1 0.001 250);
+  --popover: oklch(0.995 0.002 250);
   --popover-foreground: oklch(0.21 0.021 258);
   --primary: oklch(0.48 0.104 224);
   --primary-foreground: oklch(0.99 0.004 224);
-  --secondary: oklch(0.963 0.006 250);
+  --secondary: oklch(0.945 0.008 248);
   --secondary-foreground: oklch(0.27 0.024 258);
-  --muted: oklch(0.966 0.006 250);
+  --muted: oklch(0.945 0.008 248);
   --muted-foreground: oklch(0.44 0.019 256);
   --accent: oklch(0.948 0.017 224);
   --accent-foreground: oklch(0.31 0.062 224);
   --destructive: oklch(0.505 0.192 27.3);
   /* Dividers are decorative; form-field edges are not (SC 1.4.11), so `input` is
      * markedly stronger than `border` rather than the same value twice. */
-  --border: oklch(0.876 0.009 250);
+  --border: oklch(0.858 0.011 248);
   --input: oklch(0.635 0.021 252);
   --ring: oklch(0.53 0.115 224);
   /* --- Gold ----------------------------------------------------------------------
@@ -137,9 +137,9 @@
      * which clears AA for large text but not for body copy. `gold-foreground` is the
      * darkened version to use whenever gold has to carry small text.
      * ------------------------------------------------------------------------------- */
-  --gold: oklch(0.76 0.148 79);
+  --gold: oklch(0.79 0.155 80);
   --gold-foreground: oklch(0.42 0.098 74);
-  --gold-muted: oklch(0.96 0.036 88);
+  --gold-muted: oklch(0.955 0.045 88);
   /* Text sitting ON a gold fill. Dark in BOTH themes, unlike every other foreground
      * token here — gold is a light surface whichever theme is active, so flipping this to
      * light in dark mode would put pale text on a pale fill. */
@@ -155,13 +155,13 @@
   --chart-4: oklch(0.44 0.019 256);
   --chart-5: oklch(0.27 0.024 258);
   --radius: 0.5rem;
-  --sidebar: oklch(0.978 0.004 250);
+  --sidebar: oklch(0.955 0.007 248);
   --sidebar-foreground: oklch(0.21 0.021 258);
   --sidebar-primary: oklch(0.48 0.104 224);
   --sidebar-primary-foreground: oklch(0.99 0.004 224);
   --sidebar-accent: oklch(0.948 0.017 224);
   --sidebar-accent-foreground: oklch(0.31 0.062 224);
-  --sidebar-border: oklch(0.876 0.009 250);
+  --sidebar-border: oklch(0.858 0.011 248);
   --sidebar-ring: oklch(0.53 0.115 224);
 }
 
@@ -172,9 +172,9 @@
      * nowhere near enough luminance against a dark surface. */
   --background: oklch(0.175 0.014 258);
   --foreground: oklch(0.965 0.004 250);
-  --card: oklch(0.216 0.017 258);
+  --card: oklch(0.232 0.018 258);
   --card-foreground: oklch(0.965 0.004 250);
-  --popover: oklch(0.216 0.017 258);
+  --popover: oklch(0.232 0.018 258);
   --popover-foreground: oklch(0.965 0.004 250);
   --primary: oklch(0.72 0.108 222);
   --primary-foreground: oklch(0.19 0.026 224);
@@ -190,9 +190,9 @@
   --ring: oklch(0.66 0.106 222);
   /* Lifted and slightly desaturated against a dark ground: the light-mode gold turns
      * muddy on a dark surface, and full chroma on near-black reads as a warning. */
-  --gold: oklch(0.82 0.135 82);
-  --gold-foreground: oklch(0.88 0.11 84);
-  --gold-muted: oklch(0.3 0.05 80);
+  --gold: oklch(0.86 0.145 86);
+  --gold-foreground: oklch(0.9 0.13 88);
+  --gold-muted: oklch(0.33 0.06 82);
   --gold-ink: oklch(0.24 0.05 74);
   --band: oklch(0.27 0.055 230);
   --band-foreground: oklch(0.95 0.008 228);

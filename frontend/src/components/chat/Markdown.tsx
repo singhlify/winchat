@@ -115,7 +115,7 @@ export function Markdown({
             // to the cursor; small enough that a paragraph containing six of them does not
             // ripple when the mouse crosses it. Disabled under reduced motion, where a
             // moving target is exactly the problem.
-            className="border-gold/40 bg-gold/15 text-gold-foreground focus-visible:outline-ring mx-0.5 inline-flex h-4 min-w-4 translate-y-[-1px] items-center justify-center rounded-[4px] border px-1 align-middle text-[10px] font-semibold tabular-nums no-underline transition-all duration-120 hover:-translate-y-[2px] hover:border-gold/70 hover:bg-gold/30 focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-[-1px]"
+            className="border-gold/50 bg-gold/25 text-gold-foreground focus-visible:outline-ring mx-0.5 inline-flex h-4 min-w-4 translate-y-[-1px] items-center justify-center rounded-[4px] border px-1 align-middle text-[10px] font-semibold tabular-nums no-underline transition-all duration-120 hover:-translate-y-[2px] hover:border-gold/80 hover:bg-gold/40 focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-[-1px]"
           >
             {linkChildren}
           </a>
