@@ -56,6 +56,7 @@
   --color-gold-foreground: var(--gold-foreground);
   --color-gold-muted: var(--gold-muted);
   --color-gold-ink: var(--gold-ink);
+  --color-gold-strong: var(--gold-strong);
   --color-band: var(--band);
   --color-band-foreground: var(--band-foreground);
   --color-ring: var(--ring);
@@ -101,26 +102,26 @@
      * exact tokens. The stock theme failed AA three times in light mode: dividers at
      * 1.26:1, the focus ring at 2.59:1, and muted text at 4.34:1.
      * ------------------------------------------------------------------------------- */
-  --background: oklch(0.972 0.005 248);
-  --foreground: oklch(0.21 0.021 258);
-  --card: oklch(0.995 0.002 250);
-  --card-foreground: oklch(0.21 0.021 258);
-  --popover: oklch(0.995 0.002 250);
-  --popover-foreground: oklch(0.21 0.021 258);
-  --primary: oklch(0.48 0.104 224);
-  --primary-foreground: oklch(0.99 0.004 224);
-  --secondary: oklch(0.945 0.008 248);
-  --secondary-foreground: oklch(0.27 0.024 258);
-  --muted: oklch(0.945 0.008 248);
-  --muted-foreground: oklch(0.44 0.019 256);
-  --accent: oklch(0.948 0.017 224);
-  --accent-foreground: oklch(0.31 0.062 224);
-  --destructive: oklch(0.505 0.192 27.3);
+  --background: oklch(0.9761 0.0088 253);
+  --foreground: oklch(0.4155 0.0453 258);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.4155 0.0453 258);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.4155 0.0453 258);
+  --primary: oklch(0.5680 0.2050 257);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9328 0.0157 254);
+  --secondary-foreground: oklch(0.4155 0.0453 258);
+  --muted: oklch(0.9328 0.0157 254);
+  --muted-foreground: oklch(0.5155 0.0453 258);
+  --accent: oklch(0.9328 0.0157 254);
+  --accent-foreground: oklch(0.4155 0.0453 258);
+  --destructive: oklch(0.5568 0.2078 25);
   /* Dividers are decorative; form-field edges are not (SC 1.4.11), so `input` is
      * markedly stronger than `border` rather than the same value twice. */
-  --border: oklch(0.858 0.011 248);
-  --input: oklch(0.635 0.021 252);
-  --ring: oklch(0.53 0.115 224);
+  --border: oklch(0.8620 0.0200 254);
+  --input: oklch(0.6420 0.0360 254);
+  --ring: oklch(0.5680 0.2050 257);
   /* --- Gold ----------------------------------------------------------------------
      * Blue and gold, which is Windsor's own pairing — a deliberate choice, and the reason
      * the independence disclaimer stays prominent in three places rather than becoming a
@@ -144,25 +145,27 @@
      * token here — gold is a light surface whichever theme is active, so flipping this to
      * light in dark mode would put pale text on a pale fill. */
   --gold-ink: oklch(0.27 0.055 74);
+  /* Display-size gold only: 3:1 against the page, which SC 1.4.3 allows above 24px. */
+  --gold-strong: oklch(0.63 0.145 71);
   /* The closing CTA band. Deep in BOTH themes rather than following `primary`, which
    * lightens in dark mode — a full-bleed slab of the light-mode primary against a dark
    * page is a glare, not an accent. */
-  --band: oklch(0.33 0.075 228);
-  --band-foreground: oklch(0.97 0.008 228);
-  --chart-1: oklch(0.48 0.104 224);
-  --chart-2: oklch(0.58 0.09 200);
-  --chart-3: oklch(0.65 0.075 180);
+  --band: oklch(0.3211 0.0369 261);
+  --band-foreground: oklch(0.9761 0.0088 253);
+  --chart-1: oklch(0.5680 0.2050 257);
+  --chart-2: oklch(0.4700 0.1900 275);
+  --chart-3: oklch(0.6300 0.1700 340);
   --chart-4: oklch(0.44 0.019 256);
   --chart-5: oklch(0.27 0.024 258);
   --radius: 0.5rem;
-  --sidebar: oklch(0.955 0.007 248);
-  --sidebar-foreground: oklch(0.21 0.021 258);
-  --sidebar-primary: oklch(0.48 0.104 224);
-  --sidebar-primary-foreground: oklch(0.99 0.004 224);
-  --sidebar-accent: oklch(0.948 0.017 224);
-  --sidebar-accent-foreground: oklch(0.31 0.062 224);
-  --sidebar-border: oklch(0.858 0.011 248);
-  --sidebar-ring: oklch(0.53 0.115 224);
+  --sidebar: oklch(0.9561 0.0118 253);
+  --sidebar-foreground: oklch(0.4155 0.0453 258);
+  --sidebar-primary: oklch(0.5680 0.2050 257);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9328 0.0157 254);
+  --sidebar-accent-foreground: oklch(0.4155 0.0453 258);
+  --sidebar-border: oklch(0.8620 0.0200 254);
+  --sidebar-ring: oklch(0.5680 0.2050 257);
 }
 
 .dark {
@@ -170,45 +173,46 @@
      * more chroma, because a tint that reads as neutral on white reads as flat grey on
      * black; and the accent lightens, since a mid-tone blue that sits well on white has
      * nowhere near enough luminance against a dark surface. */
-  --background: oklch(0.175 0.014 258);
-  --foreground: oklch(0.965 0.004 250);
-  --card: oklch(0.232 0.018 258);
-  --card-foreground: oklch(0.965 0.004 250);
-  --popover: oklch(0.232 0.018 258);
-  --popover-foreground: oklch(0.965 0.004 250);
-  --primary: oklch(0.72 0.108 222);
-  --primary-foreground: oklch(0.19 0.026 224);
-  --secondary: oklch(0.272 0.019 258);
-  --secondary-foreground: oklch(0.965 0.004 250);
-  --muted: oklch(0.262 0.018 258);
-  --muted-foreground: oklch(0.735 0.021 252);
-  --accent: oklch(0.3 0.036 224);
-  --accent-foreground: oklch(0.93 0.03 224);
-  --destructive: oklch(0.68 0.176 24);
-  --border: oklch(0.32 0.019 256);
-  --input: oklch(0.505 0.027 254);
-  --ring: oklch(0.66 0.106 222);
+  --background: oklch(0.2033 0.0311 265);
+  --foreground: oklch(0.8322 0.0330 213);
+  --card: oklch(0.2333 0.0311 265);
+  --card-foreground: oklch(0.8322 0.0330 213);
+  --popover: oklch(0.2333 0.0311 265);
+  --popover-foreground: oklch(0.8322 0.0330 213);
+  --primary: oklch(0.7686 0.1287 226);
+  --primary-foreground: oklch(0.2033 0.0311 265);
+  --secondary: oklch(0.2733 0.0311 265);
+  --secondary-foreground: oklch(0.8322 0.0330 213);
+  --muted: oklch(0.2733 0.0311 265);
+  --muted-foreground: oklch(0.7122 0.0330 213);
+  --accent: oklch(0.3033 0.0411 265);
+  --accent-foreground: oklch(0.8822 0.0330 213);
+  --destructive: oklch(0.7016 0.1700 22);
+  --border: oklch(0.3233 0.0311 265);
+  --input: oklch(0.5100 0.0330 265);
+  --ring: oklch(0.7686 0.1287 226);
   /* Lifted and slightly desaturated against a dark ground: the light-mode gold turns
      * muddy on a dark surface, and full chroma on near-black reads as a warning. */
   --gold: oklch(0.86 0.145 86);
   --gold-foreground: oklch(0.9 0.13 88);
   --gold-muted: oklch(0.33 0.06 82);
   --gold-ink: oklch(0.24 0.05 74);
-  --band: oklch(0.27 0.055 230);
-  --band-foreground: oklch(0.95 0.008 228);
-  --chart-1: oklch(0.72 0.108 222);
-  --chart-2: oklch(0.68 0.09 200);
-  --chart-3: oklch(0.72 0.075 180);
+  --gold-strong: oklch(0.83 0.155 84);
+  --band: oklch(0.2533 0.0350 265);
+  --band-foreground: oklch(0.8822 0.0330 213);
+  --chart-1: oklch(0.7686 0.1287 226);
+  --chart-2: oklch(0.7100 0.1200 280);
+  --chart-3: oklch(0.7400 0.1500 350);
   --chart-4: oklch(0.735 0.021 252);
   --chart-5: oklch(0.965 0.004 250);
-  --sidebar: oklch(0.2 0.016 258);
-  --sidebar-foreground: oklch(0.965 0.004 250);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar: oklch(0.2233 0.0311 265);
+  --sidebar-foreground: oklch(0.8322 0.0330 213);
+  --sidebar-primary: oklch(0.7686 0.1287 226);
+  --sidebar-primary-foreground: oklch(0.2033 0.0311 265);
+  --sidebar-accent: oklch(0.3033 0.0411 265);
+  --sidebar-accent-foreground: oklch(0.8822 0.0330 213);
+  --sidebar-border: oklch(0.3233 0.0311 265);
+  --sidebar-ring: oklch(0.7686 0.1287 226);
 }
 
 @layer base {

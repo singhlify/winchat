@@ -89,6 +89,8 @@ const PAIRS = [
   // information, so no contrast minimum applies. What must pass is text sitting ON it,
   // and the darkened `gold-foreground` for anywhere gold has to be text.
   ["gold-ink", "gold", 4.5, "text on a gold fill"],
+  // Display size only, so the large-text bar applies rather than the body-text one.
+  ["gold-strong", "background", 3, "gold at display size (SC 1.4.3)"],
   ["band-foreground", "band", 4.5, "text on the closing CTA band"],
   ["gold-foreground", "background", 4.5, "gold used as small text"],
   ["gold-foreground", "gold-muted", 4.5, "gold text on a gold-tinted panel"],

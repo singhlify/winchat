@@ -122,7 +122,7 @@ export default async function LandingPage() {
                 </p>
                 <h1 className="font-display mt-6 text-[2.75rem] leading-[1.04] text-balance sm:text-6xl">
                   University of Windsor questions,{" "}
-                  <span className="text-primary italic">
+                  <span className="text-gold-strong italic">
                     answered with the source attached
                   </span>
                 </h1>
@@ -240,7 +240,7 @@ export default async function LandingPage() {
                 <dd>
                   <CountUp
                     value={stat.value}
-                    className="text-foreground font-display block text-5xl leading-none"
+                    className="text-gold-strong font-display block text-5xl leading-none"
                   />
                   <span className="mt-3 block text-sm font-medium">
                     {stat.label}
