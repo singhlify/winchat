@@ -10,14 +10,14 @@ import { motion, useReducedMotion } from "motion/react";
 export function RetrievalMark({ className }: { className?: string }) {
   const reduced = useReducedMotion();
 
-  // With reduced motion the finished state is rendered directly — the diagram is
-  // informative, so it must be complete, not merely still.
-  const draw = reduced
-    ? undefined
-    : {
-        initial: { pathLength: 0, opacity: 0 },
-        animate: { pathLength: 1, opacity: 1 },
-      };
+  // The finished state is always the `animate` target, including under reduced motion, where
+  // only the starting point changes. Dropping the props instead would strand the element at
+  // opacity 0: `useReducedMotion` resolves after first paint, so `initial` has already been
+  // applied by the time it flips, and nothing is left to animate it back.
+  const draw = {
+    initial: reduced ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 },
+    animate: { pathLength: 1, opacity: 1 },
+  };
 
   return (
     <svg
@@ -69,11 +69,11 @@ export function RetrievalMark({ className }: { className?: string }) {
       {[34, 106].map((y, index) => (
         <motion.g
           key={y}
-          initial={reduced ? undefined : { opacity: 0, x: -6 }}
-          animate={reduced ? undefined : { opacity: 1, x: 0 }}
+          initial={reduced ? { opacity: 1, x: 0 } : { opacity: 0, x: -6 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{
-            duration: 0.45,
-            delay: 0.75 + index * 0.12,
+            duration: reduced ? 0 : 0.45,
+            delay: reduced ? 0 : 0.75 + index * 0.12,
             ease: [0.22, 1, 0.36, 1],
           }}
         >

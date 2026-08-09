@@ -69,17 +69,16 @@ export function CorpusField({
           height={MARK_H}
           rx={0.75}
           className={mark.lit ? "fill-gold" : "fill-current"}
-          initial={reduced ? undefined : { opacity: 0 }}
-          animate={reduced ? undefined : { opacity: mark.lit ? 0.95 : 0.22 }}
+          // Reduced motion changes where the fade starts, never whether it ends visible.
+          initial={{ opacity: reduced ? (mark.lit ? 0.95 : 0.22) : 0 }}
+          animate={{ opacity: mark.lit ? 0.95 : 0.22 }}
           // Staggered by position rather than index, so the field fills from the top-left
           // the way a page of text is read, and finishes inside a second.
           transition={{
-            duration: 0.5,
+            duration: reduced ? 0 : 0.5,
             delay: reduced ? 0 : Math.min(0.9, (mark.y / 220) * 0.9),
             ease: "easeOut",
           }}
-          // With reduced motion the field is simply present at its final opacity.
-          opacity={reduced ? (mark.lit ? 0.95 : 0.22) : undefined}
         />
       ))}
     </svg>
