@@ -99,7 +99,7 @@ export function SiteNav({
           {cta && (
             <Link
               href="/app"
-              className="bg-primary text-primary-foreground rounded-full px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90"
+              className="bg-primary text-primary-foreground hidden rounded-full px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 sm:inline-block"
             >
               Open WinChat
             </Link>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CorpusField } from "@/components/CorpusField";
+import { ArrowRight, Library } from "lucide-react";
+
 import { Credit } from "@/components/Credit";
 import { SiteNav } from "@/components/SiteNav";
 import { CountUp } from "@/components/CountUp";
@@ -135,14 +137,16 @@ export default async function LandingPage() {
                 <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <Link
                     href="/app"
-                    className="bg-primary text-primary-foreground rounded-full px-7 py-3 text-center text-base font-medium transition-opacity hover:opacity-90"
+                    className="bg-primary text-primary-foreground inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-base font-medium transition-opacity hover:opacity-90"
                   >
+                    <ArrowRight className="size-4" aria-hidden />
                     Ask a question
                   </Link>
                   <Link
                     href="/sources"
-                    className="border-input hover:bg-muted rounded-full border px-7 py-3 text-center text-base font-medium transition-colors"
+                    className="border-input hover:bg-muted inline-flex items-center justify-center gap-2 rounded-full border px-7 py-3 text-base font-medium transition-colors"
                   >
+                    <Library className="size-4" aria-hidden />
                     Browse the sources
                   </Link>
                 </div>

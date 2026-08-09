@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 
 /**
@@ -33,8 +34,9 @@ export default function OfflinePage() {
       <div>
         <Link
           href="/app"
-          className="bg-primary text-primary-foreground inline-block rounded-full px-6 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
+          className="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
         >
+          <RotateCcw className="size-4" aria-hidden />
           Try again
         </Link>
       </div>

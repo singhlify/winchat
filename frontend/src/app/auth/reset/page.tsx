@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updatePassword } from "@/lib/auth";
+import { KeyRound } from "lucide-react";
 import Link from "next/link";
 
 import { authConfigured, getSupabase } from "@/lib/supabase";
@@ -142,6 +143,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <Button type="submit" disabled={pending || !ready}>
+          <KeyRound className="size-4" aria-hidden />
           {pending
             ? "Updating…"
             : ready

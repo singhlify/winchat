@@ -33,30 +33,38 @@ export function UserMessage({
     "opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/message:opacity-100 sm:group-hover/message:opacity-100";
 
   return (
-    // `group/message` + the button's opacity rules mean the controls appear on hover for
-    // pointer users and are always present on touch, where there is no hover to reveal it.
-    <li className="group/message flex items-center justify-end gap-1">
-      {onEdit && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onEdit}
-              aria-label="Edit this question"
-              className={cn("size-8 text-muted-foreground", reveal)}
-            >
-              <Pencil className="size-3.5" aria-hidden />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Edit</TooltipContent>
-        </Tooltip>
-      )}
-      <CopyButton text={content} label="Copy your message" className={reveal} />
+    // Controls sit BELOW the bubble, not beside it. Beside, they pushed the bubble off its
+    // right edge and had nowhere to go on a narrow screen; below, the message keeps its
+    // alignment and the actions read as belonging to it rather than floating next to it.
+    <li className="group/message flex flex-col items-end gap-1">
       <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground sm:max-w-[75%]">
         <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
           {content}
         </p>
+      </div>
+
+      <div className="flex items-center gap-0.5">
+        <CopyButton
+          text={content}
+          label="Copy your message"
+          className={reveal}
+        />
+        {onEdit && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onEdit}
+                aria-label="Edit this question"
+                className={cn("size-8 text-muted-foreground", reveal)}
+              >
+                <Pencil className="size-3.5" aria-hidden />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Edit</TooltipContent>
+          </Tooltip>
+        )}
       </div>
     </li>
   );

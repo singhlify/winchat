@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn } from "lucide-react";
+import { LogIn, Mail, UserPlus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -167,8 +167,8 @@ export function AuthPanel({
         aria-expanded={open}
         aria-haspopup="dialog"
       >
-        <LogIn className="size-4 sm:hidden" aria-hidden />
-        <span className="hidden sm:inline">Sign in</span>
+        <LogIn className="size-4" aria-hidden />
+        Sign in
       </Button>
 
       {open && (
@@ -195,7 +195,7 @@ export function AuthPanel({
                 exists. Copy is a claim like any other. */}
             {view === "forgot"
               ? "We will email you a link to choose a new password."
-              : "Optional. WinChat works without an account. Signing in saves your conversations and raises your hourly limit from 20 to 100."}
+              : "Optional. Saves your conversations and raises your limit to 100 questions an hour."}
           </p>
 
           {view !== "forgot" && (
@@ -261,6 +261,13 @@ export function AuthPanel({
             )}
 
             <Button type="submit" size="sm" disabled={pending}>
+              {view === "in" ? (
+                <LogIn className="size-4" aria-hidden />
+              ) : view === "up" ? (
+                <UserPlus className="size-4" aria-hidden />
+              ) : (
+                <Mail className="size-4" aria-hidden />
+              )}
               {pending
                 ? "Working…"
                 : view === "in"
