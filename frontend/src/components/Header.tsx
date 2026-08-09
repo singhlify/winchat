@@ -50,6 +50,10 @@ export function Header({
       leading={
         <>
           <SidebarToggle open={sidebarOpen} onToggle={onToggleSidebar} />
+          {/* Desktop docks the sidebar permanently, so its "New chat" is always visible and
+              a second one here is pure duplication. On mobile the sidebar is a drawer, so
+              removing this would put the most frequent action in the app behind an extra
+              tap. Hidden from md: up rather than deleted. */}
           {onNewChat && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -58,7 +62,7 @@ export function Header({
                   size="icon"
                   onClick={onNewChat}
                   aria-label="New chat"
-                  className="size-9"
+                  className="size-9 md:hidden"
                 >
                   <PenSquare className="size-4" aria-hidden />
                 </Button>
