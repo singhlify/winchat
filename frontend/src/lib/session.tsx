@@ -3,20 +3,8 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
 /**
- * The signed-in access token, held once for the whole app.
- *
- * It used to live in `Chat`, because that is where the header — and therefore the sign-in
- * panel — happened to be rendered. That was fine while only the chat request needed a
- * token, and stopped being fine the moment `ChatShell` needed one too: the shell decides
- * which conversation to open, and it sat *above* the component holding the token.
- *
- * The fix is not to drill the prop upward through a callback, which would leave two
- * components owning the same fact. A session is an application-wide concern, so it lives in
- * one context that any component can read.
- *
- * Deliberately holds the token in memory only. `supabase-js` owns persistence and refresh;
- * a second copy in localStorage would be one more place for a stale token to survive a
- * sign-out.
+ * The signed-in access token, held once for the whole app. It used to live in `Chat`, because
+ * that is where the header — and therefore the sign-in panel — happened to be rendered.
  */
 
 interface SessionValue {

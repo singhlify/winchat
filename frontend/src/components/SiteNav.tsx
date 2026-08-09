@@ -10,21 +10,9 @@ import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 /**
- * The site's one navigation bar.
- *
- * Everything outside the chat used to have its own header, or none at all: the landing
- * page had a bespoke one with no theme control, the sources page had a bare "back" link,
- * and the app had a wordmark-less toolbar with no way home. Three headers meant three
- * places for a control to go missing, and each one had.
- *
- * The layout is the one people already know: identity on the left, a short set of links
- * next to it, preferences and account folded into a single control on the right. The chat
- * gets a variant of this rather than a different bar, because a visitor moving between
- * /app and / should not feel they changed sites.
- *
- * `leading` is where the app injects its sidebar toggle. Passing it in keeps the toggle's
- * position identical to every other page's first control instead of the chat re-inventing
- * the left edge.
+ * The site's one navigation bar. Everything outside the chat used to have its own header, or
+ * none at all: the landing page had a bespoke one with no theme control, the sources page had
+ * a bare "back" link, and the app had a wordmark-less toolbar with no way home.
  */
 export function SiteNav({
   leading,
@@ -36,11 +24,10 @@ export function SiteNav({
   /** The "Open WinChat" button. Hidden inside the app, where it would point at itself. */
   cta?: boolean;
   /**
-   * Page-specific controls, placed before the account menu.
-   *
-   * The chat puts its model picker here rather than inside the account menu, because the
-   * model changes the answer you are about to get: that is a property of the conversation,
-   * not a preference, and burying it would hide the one setting worth seeing.
+   * Page-specific controls, placed before the account menu. The chat puts its model picker
+   * here rather than inside the account menu, because the model changes the answer you are
+   * about to get: that is a property of the conversation, not a preference, and burying it
+   * would hide the one setting worth seeing.
    */
   trailing?: React.ReactNode;
   className?: string;

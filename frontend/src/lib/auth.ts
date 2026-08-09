@@ -1,14 +1,6 @@
 /**
- * Every authentication action the app can take, in one place.
- *
- * The panel owns presentation; this owns what actually happens. Keeping them apart matters
- * more here than in most UI: the redirect targets and error handling are security-relevant,
- * and a second component that hand-rolls its own `signInWithOAuth` call is a second place
- * for those to drift.
- *
- * Every function returns `{ error }` rather than throwing. Auth failures are a normal
- * outcome — a typo'd password is not exceptional — and a caller that must remember to wrap
- * each call in try/catch will eventually forget one.
+ * Every authentication action the app can take, in one place. The panel owns presentation;
+ * this owns what actually happens.
  */
 
 import { authRedirectTo, getSupabase } from "@/lib/supabase";
@@ -105,9 +97,9 @@ export async function sendPasswordReset(email: string): Promise<AuthResult> {
   });
   if (error) return { error: humanize(error.message) };
 
-  // Deliberately identical whether or not the address has an account. Saying "no account
-  // with that email" turns the reset form into a membership oracle — an attacker can farm
-  // which addresses are registered without ever signing in.
+  // Deliberately identical whether or not the address has an account. Saying "no account with
+  // that email" turns the reset form into a membership oracle — an attacker can farm which
+  // addresses are registered without ever signing in.
   return {
     error: null,
     notice: "If that email has an account, a reset link is on its way.",

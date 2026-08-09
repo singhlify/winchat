@@ -4,25 +4,8 @@ import { useEffect } from "react";
 
 /**
  * Keep the app exactly as tall as the *visible* area, including when a keyboard is open.
- *
- * **Why `dvh` is not enough.** Since Chrome 108 the on-screen keyboard resizes only the
- * VISUAL viewport, not the layout viewport — on Android and on iOS alike. Viewport units
- * are computed from the layout viewport, so `100dvh` does not shrink when the keyboard
- * appears and a bottom-pinned composer ends up underneath it.
- *
- * `interactive-widget=resizes-content` in the viewport meta fixes this by shrinking the
- * layout viewport instead — but it has **no WebKit support at any version**, so it does
- * nothing on iPhone, which is most of this app's traffic. This hook is the cross-browser
- * half: `window.visualViewport` is supported everywhere that matters and reports the real
- * visible height.
- *
- * The two combine safely rather than fighting. Where `resizes-content` is honoured the
- * layout viewport has already shrunk, so `visualViewport.height` matches it and this writes
- * the same number it would have used anyway.
- *
- * Sets a custom property rather than inline styles so any component can opt in with
- * `h-[var(--app-height,100dvh)]`, and the fallback is a plain CSS value for browsers
- * without `visualViewport` — no JavaScript required for the app to be usable.
+ * Why `dvh` is not enough. Since Chrome 108 the on-screen keyboard resizes only the
+ * VISUAL viewport, not the layout viewport — on Android and on iOS alike.
  */
 export function useViewportHeight(): void {
   useEffect(() => {

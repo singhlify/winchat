@@ -1,21 +1,7 @@
 """Verifying Supabase access tokens.
 
-The frontend signs users in with Supabase and sends the resulting JWT as a bearer token.
-This module verifies it — signature, expiry, issuer and audience — and hands back a user id.
-
-Verification is local. Calling Supabase to validate every request would put a network hop
-on the hot path and make the API's availability depend on the auth service's. The project
-issues ES256 tokens signed by a rotating key published at a JWKS endpoint, so the public
-key is fetched once, cached, and refetched only when a token arrives with an unknown key
-id — which is exactly what a key rotation looks like.
-
-Legacy Supabase projects use a shared HS256 secret instead. Both are supported, because
-"which signing scheme does this project use" is not something application code should
-assume.
-
-Auth is optional by default: the FAQ is public and forcing a login to ask a public question
-is security theatre. What signing in buys is history, higher rate limits, and per-user
-isolation. `REQUIRE_AUTH=true` flips it for a deployment that wants it.
+The frontend signs users in with Supabase and sends the resulting JWT as a bearer token. This
+module verifies it — signature, expiry, issuer and audience — and hands back a user id.
 """
 
 import logging
@@ -122,10 +108,10 @@ async def verify_token(token: str) -> AuthenticatedUser:
 async def require_user(request: Request) -> AuthenticatedUser:
     """FastAPI dependency: the signed-in user, or 401.
 
-    The counterpart to `optional_user`, for the one thing in this API that is genuinely
-    private — a person's own saved conversations. Everything else stays anonymous-friendly
-    on purpose, so this is deliberately a separate dependency rather than a flag: a route
-    either requires an account or it does not, and that should be visible in its signature.
+    The counterpart to `optional_user`, for the one thing in this API that is genuinely private
+    — a person's own saved conversations. Everything else stays anonymous-friendly on purpose,
+    so this is deliberately a separate dependency rather than a flag: a route either requires an
+    account or it does not, and that should be visible in its signature.
     """
     token = _bearer_token(request)
     if token is None:

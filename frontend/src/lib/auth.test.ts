@@ -27,9 +27,9 @@ beforeEach(() => {
 
 describe("password reset", () => {
   it("says the same thing whether or not the account exists", async () => {
-    // A reset form that distinguishes the two cases is a membership oracle: an attacker
-    // can farm which addresses are registered without ever signing in. The wording must
-    // stay conditional ("if that email has an account") for that reason, not for politeness.
+    // A reset form that distinguishes the two cases is a membership oracle: an attacker can
+    // farm which addresses are registered without ever signing in. The wording must stay
+    // conditional ("if that email has an account") for that reason, not for politeness.
     const { sendPasswordReset } = await import("@/lib/auth");
 
     const known = await sendPasswordReset("real@uwindsor.ca");

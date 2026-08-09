@@ -21,14 +21,8 @@ export interface ComposerHandle {
 }
 
 /**
- * The input.
- *
- * A textarea, not an input: real questions wrap, and a single-line field that scrolls
- * sideways hides what you typed. Enter sends and Shift+Enter adds a newline — the
- * convention every chat app shares, so breaking it would be its own bug.
- *
- * Height grows with content up to a cap, then scrolls. Without the cap a pasted essay
- * pushes the send button off-screen on a phone.
+ * The input. A textarea, not an input: real questions wrap, and a single-line field that
+ * scrolls sideways hides what you typed.
  */
 export function Composer({
   value,
@@ -96,16 +90,13 @@ export function Composer({
             }
             // Backspace deliberately does NOTHING special here. An earlier version used
             // empty-box Backspace to pull the last exchange back for editing, borrowing a
-            // terminal reflex. In a chat it is destructive and unprompted: the most-pressed
-            // key on the keyboard silently deleted a question and its answer. Undo stays
-            // available as an explicit control.
+            // terminal reflex.
           }}
           placeholder="Ask a question…"
           aria-describedby="composer-hint"
           // text-base (16px) on mobile, NOT the 15px this used to be. iOS Safari zooms the
           // whole page when a focused input is under 16px — so tapping the composer, the
-          // single most-used control in the app, threw the layout out on every iPhone. The
-          // shadcn Input and Textarea already do this; the chat composer did not.
+          // single most-used control in the app, threw the layout out on every iPhone.
           className="max-h-[200px] flex-1 resize-none bg-transparent px-2 py-1.5 text-base leading-relaxed outline-none placeholder:text-muted-foreground/70 sm:text-[15px]"
         />
 

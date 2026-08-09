@@ -1,19 +1,9 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Web app manifest.
- *
- * `start_url` is `/app` rather than `/`: someone who installs this has already decided
- * what it is for, and landing them on a marketing page every launch is the most common
- * way an installed app feels like a bookmark.
- *
- * `display: "standalone"` rather than `fullscreen`. Standalone keeps the system status bar
- * and the platform back gesture, both of which people rely on; fullscreen buys a few pixels
- * and takes away their way out.
- *
- * `id` is set explicitly. Without it the identity is derived from `start_url`, so changing
- * that URL later would make browsers treat the result as a different app and orphan
- * everyone's existing install.
+ * Web app manifest. `start_url` is `/app` rather than `/`: someone who installs this has
+ * already decided what it is for, and landing them on a marketing page every launch is the
+ * most common way an installed app feels like a bookmark.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -48,8 +38,8 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
       // Maskable is a separate ENTRY, not an extra purpose on the icons above: a maskable
-      // icon is drawn with a safe zone and then cropped to the platform's shape, so reusing
-      // a plain icon here is how installed apps end up with their edges shaved off.
+      // icon is drawn with a safe zone and then cropped to the platform's shape, so reusing a
+      // plain icon here is how installed apps end up with their edges shaved off.
       {
         src: "/icon-maskable-512.png",
         sizes: "512x512",

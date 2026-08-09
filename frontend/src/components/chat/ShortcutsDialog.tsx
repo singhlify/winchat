@@ -11,16 +11,9 @@ const SHORTCUTS = [
 ];
 
 /**
- * The shortcut list, shown on ⌘/ or ?.
- *
- * A real `<dialog>` rather than a hand-rolled overlay: the browser gives focus trapping,
- * Escape-to-close, inertness of the page behind, and the top-layer stacking that otherwise
- * needs a z-index nobody can reason about. Reimplementing those in React is how modals
- * end up subtly inaccessible.
- *
- * `⌘` is displayed for everyone. Detecting the platform to swap in `Ctrl` reads the user
- * agent, which is unreliable, and the handler accepts either key regardless — so the label
- * is a hint, not a contract.
+ * The shortcut list, shown on ⌘/ or ?. A real `<dialog>` rather than a hand-rolled overlay:
+ * the browser gives focus trapping, Escape-to-close, inertness of the page behind, and the
+ * top-layer stacking that otherwise needs a z-index nobody can reason about.
  */
 export function ShortcutsDialog({
   open,

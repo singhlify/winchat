@@ -1,12 +1,7 @@
 """The chat endpoint — Server-Sent Events (a one-way stream of updates over plain HTTP).
 
-Streaming is not decoration. A grounded answer takes a second or two of retrieval before
-the first token exists; without streaming the user stares at nothing for the whole
-generation. Sources are sent as their own event *before* any token, so the UI can render
-citations while the text is still arriving.
-
-SSE rather than WebSockets: the traffic is one-directional, and SSE survives proxies,
-reconnects on its own, and needs no protocol upgrade.
+Streaming is not decoration. A grounded answer takes a second or two of retrieval before the
+first token exists; without streaming the user stares at nothing for the whole generation.
 """
 
 import json
@@ -59,17 +54,16 @@ def _sse(event: str, payload: dict) -> str:
 def _error_event(message: str, exc: Exception) -> str:
     """A user-facing error, with the provider's own text kept server-side.
 
-    Upstream errors are not safe to forward verbatim: a Groq rate-limit body, for one,
-    contains the organisation id and the account's quota. The full exception is logged;
-    the client gets a sentence it can act on.
+    Upstream errors are not safe to forward verbatim: a Groq rate-limit body, for one, contains
+    the organisation id and the account's quota. The full exception is logged; the client gets a
+    sentence it can act on.
     """
     text = str(exc).lower()
 
     if isinstance(exc, ProviderError) and "rate limit" in text:
-        # A per-minute limit clears in seconds; a daily quota does not clear until the
-        # window rolls. Telling someone to "try again shortly" when the answer is
-        # "tomorrow" wastes their time and makes the app look broken rather than capped.
-        # Groq says which in the 429 body, and this used to discard that distinction.
+        # A per-minute limit clears in seconds; a daily quota does not clear until the window
+        # rolls. Telling someone to "try again shortly" when the answer is "tomorrow" wastes
+        # their time and makes the app look broken rather than capped.
         daily = any(k in text for k in ("per day", "tokens per day", "tpd", "daily"))
         detail = (
             "Today's free usage limit has been reached. It resets within 24 hours; "
@@ -95,8 +89,8 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
         raise HTTPException(status_code=503, detail="database is not available")
 
     # Anonymous callers must prove they are a browser; signed-in ones already did that when
-    # they authenticated. Checked before retrieval and before the model, like the rate
-    # limit, so a rejected request costs nothing.
+    # they authenticated. Checked before retrieval and before the model, like the rate limit,
+    # so a rejected request costs nothing.
     if user is None:
         await verify_turnstile(request, client_ip=client_ip(request))
 
@@ -116,8 +110,8 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
     await record_usage(pool, subject)
 
     # An unrecognised model is rejected outright rather than quietly falling back to the
-    # default: silently answering with a different model than the caller asked for would
-    # make any comparison between models meaningless.
+    # default: silently answering with a different model than the caller asked for would make
+    # any comparison between models meaningless.
     if body.model and body.model not in get_settings().allowed_models:
         raise HTTPException(status_code=400, detail=f"unsupported model: {body.model}")
 

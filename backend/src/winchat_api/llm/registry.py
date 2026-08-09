@@ -38,9 +38,9 @@ def build_chat_provider(
 ) -> ChatProvider:
     """Build a provider, overriding the configured defaults.
 
-    The eval harness needs both overrides: the judge is pinned to a different model from
-    the one under test, and an offline suite can wait out a rate limit far longer than a
-    user can. Cached per (provider, model, budget) so repeated calls reuse the client.
+    The eval harness needs both overrides: the judge is pinned to a different model from the one
+    under test, and an offline suite can wait out a rate limit far longer than a user can.
+    Cached per (provider, model, budget) so repeated calls reuse the client.
     """
     settings = get_settings()
     provider = provider or settings.llm_provider

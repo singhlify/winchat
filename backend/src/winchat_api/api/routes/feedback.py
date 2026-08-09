@@ -1,11 +1,8 @@
 """Thumbs up / thumbs down on an answer.
 
-The third evaluation signal, alongside deterministic assertions and the model judge. It is
-the only one that catches an answer both of the others consider fine — which is exactly the
-class of failure worth knowing about.
-
-Rate-limited on the same counters as chat. A write endpoint that anyone can call in a loop
-is a free way to fill someone else's database.
+The third evaluation signal, alongside deterministic assertions and the model judge. It is the
+only one that catches an answer both of the others consider fine — which is exactly the class of
+failure worth knowing about.
 """
 
 import json

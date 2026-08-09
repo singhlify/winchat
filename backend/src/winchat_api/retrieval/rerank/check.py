@@ -1,26 +1,9 @@
-"""Does the reranker actually help? Measure, do not assume.
+"""Does the reranker actually help?
 
-    uv run python -m winchat_api.retrieval.rerank.check
-
-Runs the golden set's retrieval-scored cases twice — once with no reranker, once with the
-configured one — and prints recall@top_n and MRR side by side. No generation, so it costs
-nothing on the LLM budget and is fast enough to run after any retrieval change.
-
-It exists because "add a reranker" is exactly the kind of change that feels like an
-improvement and has to be checked. An LLM-based reranker measured 88.9% recall in one
-configuration and 66.7% in another; without this script that difference is invisible.
-
-Also verifies the configured Cohere model name against the account, because a wrong model
-id returns a 404 that is easy to misread as "reranking does not work".
-
-**The harness raises its own rate-limit budget, on purpose.** It fires one rerank call per
-case as fast as the database answers, which no real user does — against a trial key's
-10 calls/minute that self-inflicts 429s, and the reranker's designed response to a 429 it
-cannot wait out is to fall back to unranked order. The result is a measurement of a
-half-disabled reranker reported as if it were the real one: this run first scored MRR 0.713
-that way, against 0.847 once the budget could ride out the window. A benchmark that
-silently measures the wrong system is worse than no benchmark, so the budget here is set
-for measurement rather than copied from the request path.
+Measure, do not assume. uv run python -m winchat_api.retrieval.rerank.check Runs the golden
+set's retrieval-scored cases twice — once with no reranker, once with the configured one — and
+prints recall@top_n and MRR side by side. No generation, so it costs nothing on the LLM budget
+and is fast enough to run after any retrieval change.
 """
 
 import asyncio

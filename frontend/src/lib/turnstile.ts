@@ -1,17 +1,6 @@
 /**
- * Cloudflare Turnstile, invisible mode.
- *
- * Produces a short-lived token proving this browser solved a challenge, which the API
- * exchanges with Cloudflare. Nothing here proves anything on its own — a token the server
- * does not verify is decoration — so this module's only job is to obtain one and hand it
- * over.
- *
- * Invisible rather than a checkbox, and only for guests: a signed-in visitor already proved
- * themselves to an identity provider. The median real visitor sees nothing at all.
- *
- * Everything degrades to `null` when unconfigured or unavailable. The backend treats a
- * missing token as "feature off" when it has no secret, so an app without Turnstile keys
- * behaves exactly as it did before — and a Cloudflare outage does not take the app down.
+ * Cloudflare Turnstile, invisible mode. Produces a short-lived token proving this browser
+ * solved a challenge, which the API exchanges with Cloudflare.
  */
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -62,15 +51,9 @@ function loadScript(): Promise<void> {
 }
 
 /**
- * A fresh token for one request.
- *
- * Turnstile tokens are single-use — Cloudflare rejects a replay with
- * `timeout-or-duplicate` — so this executes the widget per message rather than caching.
- * In invisible mode that is typically imperceptible after the first load.
- *
- * Returns null rather than throwing on any failure. A guest who cannot reach Cloudflare
- * should still be able to ask a question; the server decides what to do about a missing
- * token, and the rate limiter is still there either way.
+ * A fresh token for one request. Turnstile tokens are single-use — Cloudflare rejects a
+ * replay with `timeout-or-duplicate` — so this executes the widget per message rather than
+ * caching.
  */
 export async function getTurnstileToken(): Promise<string | null> {
   if (!SITE_KEY || typeof window === "undefined") return null;
@@ -92,14 +75,8 @@ export async function getTurnstileToken(): Promise<string | null> {
       document.body.appendChild(container);
       widgetId = api.render(container, {
         sitekey: SITE_KEY,
-        // `appearance: "execute"` is what makes the widget render nothing until
-        // `execute()` is called — there is no `size: "invisible"`, which an earlier
-        // version passed and Turnstile would simply have ignored.
-        //
-        // This pairs with the dashboard widget mode set to **Invisible**. It must not be
-        // used with "Managed": that mode escalates suspicious traffic to an interactive
-        // challenge, and a challenge rendered into the 0x0 offscreen container below is
-        // one nobody can solve — the request would hang until the timeout and fail.
+        // Renders nothing until execute() is called. There is no `size: "invisible"`;
+        // Turnstile ignores it. Pairs with the dashboard widget mode set to Invisible.
         appearance: "execute",
       });
     }

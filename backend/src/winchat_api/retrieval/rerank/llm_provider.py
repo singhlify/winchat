@@ -1,24 +1,9 @@
 """Reranking with the language model we already have.
 
-A dedicated cross-encoder (Cohere Rerank) is the better tool, but it needs a vendor key.
-This implements the same `Reranker` interface using the configured LLM, so the pipeline
-gets its precision stage today and swapping in Cohere later is a config change — which is
-the entire point of having the interface.
-
-It is a *listwise* reranker: every candidate is shown at once and the model returns an
-ordering, rather than scoring each passage independently. One call instead of N, and the
-model can compare candidates against each other, which is exactly the judgement that
-separates "the article about UwinCARD fees, which mentions office hours" from "the article
-about academic advising hours".
-
-Why this stage is needed at all, measured on this corpus: recall inside the 40-candidate
-pool is 100% while recall at the top 6 is 83%. The right passage is always retrieved and
-sometimes ranked too low — the textbook case for a reranker, and the opposite of the case
-where one cannot help.
-
-Deliberately uses a small fast model. Ordering candidates is a much easier task than
-answering from them, and putting the slow model here would double the latency of every
-question.
+A dedicated cross-encoder (Cohere Rerank) is the better tool, but it needs a vendor key. This
+implements the same `Reranker` interface using the configured LLM, so the pipeline gets its
+precision stage today and swapping in Cohere later is a config change — which is the entire
+point of having the interface.
 """
 
 import json
@@ -32,22 +17,11 @@ from winchat_api.retrieval.rerank.base import Reranker, RerankError
 logger = logging.getLogger(__name__)
 
 # These two trade against each other and the trade is NOT settled. Measured over the 18
-# retrieval-scored golden cases (baseline, no reranker: recall 83.3%, MRR 0.409):
-#
-#   20 candidates / 240 chars -> recall 88.9%, MRR 0.833   <- current
-#   12 candidates / 400 chars -> recall 66.7%, MRR 0.528
-#
-# Fewer candidates with longer snippets was much worse: the small model over-filters, and
-# dropping to 12 also cuts off correct passages sitting at fused rank 13-20. Longer
-# snippets are not free either — 20x480 chars is ~2.4k tokens per question against a 6k
-# tokens-per-MINUTE free-tier ceiling, at which point nearly every rerank is rate-limited
-# into the RRF fallback and any measurement is really measuring RRF.
-#
-# Known limitation of the current setting: the answer to "UwinCARD Office hours" lives in
-# an article titled "Is there a fee for the UwinCARD?" with the times at character 243, so
-# a 240-char snippet stops three characters before the evidence and the reranker cannot
-# see it. It ranks better on average and worse on that case. Resolving this properly needs
-# a real cross-encoder, which reads whole passages and does not pay per token.
+# retrieval-scored golden cases (baseline, no reranker: recall 83.3%, MRR 0.409): 20
+# candidates / 240 chars -> recall 88.9%, MRR 0.833 <- current 12 candidates / 400 chars ->
+# recall 66.7%, MRR 0.528 Fewer candidates with longer snippets was much worse: the small
+# model over-filters, and dropping to 12 also cuts off correct passages sitting at fused rank
+# 13-20.
 MAX_CANDIDATES = 20
 SNIPPET_CHARS = 240
 

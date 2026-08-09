@@ -9,11 +9,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "@/lib/session";
 
 /**
- * Client-side providers.
- *
- * The QueryClient is created inside `useState` rather than at module scope: a module-level
- * client would be shared across every request on the server and leak one visitor's cached
- * data into another's render.
+ * Client-side providers. The QueryClient is created inside `useState` rather than at module
+ * scope: a module-level client would be shared across every request on the server and leak
+ * one visitor's cached data into another's render.
  */
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -44,8 +42,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     // `defaultTheme="system"` respects the OS setting until the user overrides it, and
-    // next-themes writes the class in a blocking inline script before paint — which is
-    // what prevents the white flash a dark-mode user gets from a client-side toggle.
+    // next-themes writes the class in a blocking inline script before paint — which is what
+    // prevents the white flash a dark-mode user gets from a client-side toggle.
     // `disableTransitionOnChange` stops every coloured surface animating at once when the
     // theme flips, which reads as a glitch rather than a transition.
     <ThemeProvider

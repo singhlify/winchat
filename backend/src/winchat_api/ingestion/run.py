@@ -1,8 +1,6 @@
-"""Ingestion CLI.
-
-uv run python -m winchat_api.ingestion.run --dry-run
-uv run python -m winchat_api.ingestion.run
-uv run python -m winchat_api.ingestion.run --force      # after changing chunking
+"""Ingestion CLI. uv run python -m winchat_api.ingestion.run --dry-run uv run python -m
+winchat_api.ingestion.run uv run python -m winchat_api.ingestion.run --force # after changing
+chunking.
 """
 
 import argparse

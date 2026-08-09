@@ -71,10 +71,8 @@ export function UserMessage({
 }
 
 /**
- * Copy-to-clipboard, shared by both message kinds.
- *
- * The confirmation is the icon swapping to a tick for a moment — no toast. A toast for
- * something the user just did, whose result is obvious, is noise.
+ * Copy-to-clipboard, shared by both message kinds. The confirmation is the icon swapping to a
+ * tick for a moment — no toast.
  */
 function CopyButton({
   text,
@@ -155,12 +153,8 @@ export function AssistantMessage({
 }
 
 /**
- * A refusal is a calm, informative state — not an error.
- *
- * Styling correct behaviour in red teaches people to distrust the system precisely when it
- * is being most trustworthy. The closest articles are shown because a bare "no results" is
- * indistinguishable from a broken search, and the actual score is shown because this is a
- * portfolio piece where the mechanism is part of the point.
+ * A refusal is a calm, informative state — not an error. Styling correct behaviour in red
+ * teaches people to distrust the system precisely when it is being most trustworthy.
  */
 function RefusalState({ turn }: { turn: Turn }) {
   return (
@@ -194,9 +188,8 @@ function RefusalState({ turn }: { turn: Turn }) {
 
 function ErrorState({ turn, onRetry }: { turn: Turn; onRetry: () => void }) {
   return (
-    // No role="alert" here on purpose. This node mounts only when an error occurs, and a
-    // live region that appears at the same moment as its content is not reliably announced.
-    // The persistent alert region in Chat.tsx does the announcing; this is the visual half.
+    // No role="alert" here on purpose. This node mounts only when an error occurs, and a live
+    // region that appears at the same moment as its content is not reliably announced.
     <div className="flex flex-col gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
       <p className="flex items-start gap-2 text-sm text-foreground">
         <AlertTriangle

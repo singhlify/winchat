@@ -35,12 +35,8 @@ def build_user_message(question: str, context: str, search_query: str | None = N
 
     When a follow-up was resolved into a standalone query, the model is told what it was
     resolved to. Without this it sees only the raw follow-up: asked "what timings?" over
-    passages about academic-advising hours, it answered with those, because a vague
-    question makes almost any hours look responsive. Shown "resolved to: UwinCARD Office
-    hours", the same passages are visibly about something else and rule 3 applies.
-
-    The resolution is labelled as a search interpretation rather than presented as the
-    user's words, so a bad rewrite does not silently replace the question that was asked.
+    passages about academic-advising hours, it answered with those, because a vague question
+    makes almost any hours look responsive.
     """
     resolved = ""
     if search_query and search_query.strip().lower() != question.strip().lower():
@@ -61,10 +57,8 @@ NO_CONTEXT_MESSAGE = (
 )
 
 
-# Rule 5 above is the prompt-injection defence (OWASP LLM01). For RAG the dangerous form
-# is indirect: instructions smuggled inside a retrieved document, not typed by the user.
-# Our corpus is a curated university FAQ, so the practical risk is low — but the corpus is
-# scraped from a site we do not control, so the instruction is not free to omit.
+# Rule 5 above is the prompt-injection defence (OWASP LLM01). For RAG the dangerous form is
+# indirect: instructions smuggled inside a retrieved document, not typed by the user.
 
 REWRITE_PROMPT = """Turn the user's latest message into a SHORT standalone search query.
 
@@ -98,21 +92,6 @@ Example — a standalone question that must be returned UNCHANGED:
   user: where do i get my student id?
   -> where do i get my student id?"""
 
-# Neither example is decoration; each encodes a failure measured in production.
-#
-# The FIRST: without it the model produced "UwinCARD Office timings in the Joyce
-# Entrepreneurship Centre, 1st Floor, West Entrance." for exactly this exchange — a faithful
-# rewrite that dragged the whole address into the embedding and dropped the top similarity
-# from 0.7465 to 0.6408, far enough to trip the refusal gate. Every extra word not in the
-# question pulls the query vector away from the passage that answers it.
-#
-# The SECOND: the instruction used to be an unconditional "rewrite the message", so the
-# model rewrote questions that did not need it. After a turn about UWin accounts, "where do
-# i get my student id?" became "UWin student ID retrieval" — which reads reasonable and is
-# wrong, because it silently reinterprets "student id" as a credential instead of the
-# physical card. Retrieval then returned account-activation articles and the user was told
-# how to activate an account they had already activated. The identical question with no
-# history retrieves "How do I get my UwinCARD?" and answers correctly.
-#
-# The general lesson: a query rewriter can only lose information. It earns its place on the
-# minority of messages that genuinely cannot stand alone, and must be a no-op on the rest.
+# Both examples come from real failures. Without the first, the rewriter dragged a whole
+# address into the query and the top similarity fell from 0.75 to 0.64, tripping the refusal
+# gate. Without the second, it paraphrased standalone questions into the wrong articles.

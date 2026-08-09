@@ -1,24 +1,8 @@
 """Per-subject rate limiting and a global circuit breaker.
 
-This is OWASP LLM10 (Unbounded Consumption), and it is a product feature as much as a
-safeguard: an LLM endpoint without a spend ceiling is one scripted loop away from a
-surprise invoice.
-
-Two independent limits, because they stop different things:
-
-* **Per-subject rolling window** — stops one user, signed in or not, from monopolising the
-  service. A rolling window rather than a calendar hour: a fixed bucket lets someone spend
-  the whole allowance at 10:59 and the whole next one at 11:00.
-* **Global daily circuit breaker** — the actual spend ceiling. Per-user limits alone do not
-  bound total cost, because the number of users is not bounded.
-
-Postgres, not Redis. At this scale a counter table is two indexed queries, and adding a
-second datastore before it is needed is the kind of complexity that reads as
-over-engineering rather than sophistication. If the write volume ever justifies Redis, the
-interface here does not change.
-
-Anonymous callers are identified by a *salted hash* of their address. Rate limiting needs
-to tell clients apart, which does not require storing anything that identifies a person.
+OWASP LLM10 (Unbounded Consumption): an LLM endpoint without a spend ceiling is one scripted
+loop away from a surprise invoice. Two limits, because they stop different things. The
+per-subject window stops one user monopolising the service; the daily breaker caps total spend.
 """
 
 import hashlib
@@ -64,17 +48,10 @@ async def check_limits(
     """Both limits, evaluated before any expensive work happens.
 
     `bypass_subject_limits` waives the PER-SUBJECT hourly and daily caps for a maintenance
-    caller. It deliberately does NOT waive the global daily breaker below, and that
-    asymmetry is the whole design:
-
-    * the per-subject caps exist to stop one visitor monopolising a shared free tier —
-      annoying during testing, and nothing worse than annoying to waive;
-    * the global cap is the SPEND CEILING on the Groq and Cohere keys. A token that waived
-      it would turn one leaked header into an unmetered bill, which is precisely the failure
-      the limiter exists to prevent.
-
-    So the maintenance path can test freely and still cannot cost more than the service was
-    ever willing to spend in a day.
+    caller. It deliberately does NOT waive the global daily breaker below, and that asymmetry is
+    the whole design: the per-subject caps exist to stop one visitor monopolising a shared free
+    tier — annoying during testing, and nothing worse than annoying to waive; the global cap is
+    the SPEND CEILING on the Groq and Cohere keys.
     """
     settings = get_settings()
 

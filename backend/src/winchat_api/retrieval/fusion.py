@@ -1,14 +1,10 @@
 """Reciprocal Rank Fusion — merging the dense and lexical result lists.
 
-RRF scores a document by `sum(1 / (k + rank))` over the lists it appears in. It uses
-*ranks*, never raw scores, which is precisely why it works here: cosine similarity
-(0-1, tightly clustered near the top) and `ts_rank_cd` (unbounded, corpus-dependent) are
-not on comparable scales, and any attempt to normalize them into a weighted sum invents a
-calibration that does not exist.
-
-`k=60` is the value from the original RRF paper and the common default. The research pass
-explicitly refuted a 0.6/0.4 dense-to-lexical weighting as unsupported, so no weights are
-applied — a document found by both arms wins on the strength of appearing in both.
+RRF scores a document by `sum(1 / (k + rank))` over the lists it appears in. It uses *ranks*,
+never raw scores, which is precisely why it works here: cosine similarity (0-1, tightly
+clustered near the top) and `ts_rank_cd` (unbounded, corpus-dependent) are not on comparable
+scales, and any attempt to normalize them into a weighted sum invents a calibration that does
+not exist.
 """
 
 from collections.abc import Sequence
@@ -44,11 +40,9 @@ def reciprocal_rank_fusion(
 def best_per_answer(chunks: Sequence[RetrievedChunk]) -> list[RetrievedChunk]:
     """Keep only the highest-ranked chunk of each source answer, preserving order.
 
-    Measured need, not tidiness. Several golden cases failed with the correct answer at
-    dense rank 1 but fused rank 8, because the six final slots were being spent on two or
-    three distinct answers — the same FAQ article occupying three of them. Since citations
-    are grouped by answer anyway, a second chunk of an answer already represented adds
-    almost no new information while displacing an answer that would.
+    Measured need, not tidiness. Several golden cases failed with the correct answer at dense
+    rank 1 but fused rank 8, because the six final slots were being spent on two or three
+    distinct answers — the same FAQ article occupying three of them.
     """
     seen: set[str] = set()
     unique: list[RetrievedChunk] = []

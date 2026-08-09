@@ -1,18 +1,9 @@
 """Reading a signed-in user's saved conversations.
 
-The endpoint that makes an account worth having. Conversations were already written for
-signed-in users, and there was no way to read them back — so the history existed, belonged
-to the account, and could only be reached from the device that happened to hold its id in
-`localStorage`. From any second device it was invisible.
-
-**Authentication is required, not optional, and that is the only place in this API where
-that is true.** Everything else works anonymously on purpose, because the FAQ is public.
-These rows are not public: they are one person's questions.
-
-Isolation is enforced by Row Level Security through `user_scoped`, not by a `where user_id
-= ...` in these handlers. That distinction is the whole design — application-level
-filtering is one forgotten clause away from a cross-tenant leak, and it is the exact risk
-OWASP names in LLM08 for shared stores.
+The endpoint that makes an account worth having. Conversations were already written for signed-
+in users, and there was no way to read them back — so the history existed, belonged to the
+account, and could only be reached from the device that happened to hold its id in
+`localStorage`.
 """
 
 import logging
@@ -98,9 +89,9 @@ async def get_conversation(
     pool = _pool(request)
     rows = await load_conversation(pool, user.id, conversation_id)
 
-    # An id belonging to someone else returns no rows, because RLS filtered them out — so
-    # "not yours" and "does not exist" are indistinguishable here, deliberately. Answering
-    # 403 for one and 404 for the other would confirm which ids exist.
+    # An id belonging to someone else returns no rows, because RLS filtered them out — so "not
+    # yours" and "does not exist" are indistinguishable here, deliberately. Answering 403 for
+    # one and 404 for the other would confirm which ids exist.
     if not rows:
         raise HTTPException(status_code=404, detail="Conversation not found.")
 

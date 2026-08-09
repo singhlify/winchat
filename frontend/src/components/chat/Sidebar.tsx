@@ -31,18 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 
 /**
- * Conversation history.
- *
- * Two presentations of one list. On desktop it is a static column; on mobile it is a modal
- * drawer built on Sheet (Radix Dialog), which brings focus trapping, Escape-to-close,
- * background scroll lock and `aria-modal` — everything a hand-rolled overlay has to
- * reimplement and usually gets wrong.
- *
- * An earlier version used one translating `<aside>` for both and put the re-open control
- * in a floating button. That button shared a stacking context with the sticky header and
- * lost, so on mobile there was no way to open the sidebar at all. The control now lives in
- * the header at every breakpoint, where it cannot be occluded and is in a predictable
- * place — see `Header`.
+ * Conversation history. Two presentations of one list.
  */
 export function Sidebar({
   open,
@@ -53,10 +42,10 @@ export function Sidebar({
   onClose: () => void;
   isDesktop: boolean;
 }) {
-  // Exactly one presentation is mounted at a time. Rendering both and hiding the drawer
-  // with `md:hidden` looked right but was not: Sheet portals its overlay as a separate
-  // node that the class never reaches, so on desktop an invisible full-screen overlay sat
-  // above the page and ate every click.
+  // Exactly one presentation is mounted at a time. Rendering both and hiding the drawer with
+  // `md:hidden` looked right but was not: Sheet portals its overlay as a separate node that
+  // the class never reaches, so on desktop an invisible full-screen overlay sat above the
+  // page and ate every click.
   if (isDesktop) {
     return (
       <aside
@@ -158,9 +147,9 @@ export function SidebarToggle({
       variant="ghost"
       size="icon"
       onClick={onToggle}
-      // `aria-expanded` conveys the state; the label says what it does. No `aria-controls`
-      // on purpose — the element it would reference differs between the desktop column and
-      // the mobile drawer, and a reference that resolves to a hidden node is worse than none.
+      // `aria-expanded` conveys the state; the label says what it does. No `aria-controls` on
+      // purpose — the element it would reference differs between the desktop column and the
+      // mobile drawer, and a reference that resolves to a hidden node is worse than none.
       aria-expanded={open}
       aria-label={open ? "Hide chat history" : "Show chat history"}
       className="size-9 shrink-0"

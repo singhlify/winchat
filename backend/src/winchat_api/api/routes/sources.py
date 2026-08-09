@@ -1,17 +1,7 @@
 """The source catalogue.
 
-Every answer this assistant can give traces back to a published `ask.uwindsor.ca` article,
-and this endpoint exposes that whole list. Two reasons it exists:
-
-* **Trust.** A user who can see the complete source list — and click through to the
-  university's own page — can check the assistant rather than take its word. An assistant
-  that cites sources you cannot enumerate is asking for more faith than it has earned.
-* **Scope, honestly stated.** The list is also the assistant's boundary. Being able to see
-  that a topic simply is not in the corpus explains a refusal far better than any error
-  message.
-
-Cheap to serve: 556 rows of metadata, no vectors, and it changes only when the corpus is
-re-ingested.
+Every answer traces back to a published `ask.uwindsor.ca` article, and this endpoint exposes the
+whole list. It earns trust, and it states the assistant's boundary honestly.
 """
 
 from fastapi import APIRouter, HTTPException, Query, Request

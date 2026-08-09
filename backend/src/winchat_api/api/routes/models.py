@@ -1,12 +1,9 @@
 """The model catalogue.
 
-A curated list, not a passthrough of everything the provider serves. Two reasons: weak
-models make the product look broken for a reason that is not the pipeline's, and accepting
-an arbitrary model name from a client turns the API into an open proxy to whatever the
-provider will bill for.
-
-The picker is also the demonstration of the provider-agnostic layer — switching model
-mid-conversation exercises the same `ChatProvider` interface a vendor switch would.
+A curated list, not a passthrough of everything the provider serves. Two reasons: weak models
+make the product look broken for a reason that is not the pipeline's, and accepting an arbitrary
+model name from a client turns the API into an open proxy to whatever the provider will bill
+for.
 """
 
 from fastapi import APIRouter

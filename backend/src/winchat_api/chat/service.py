@@ -54,9 +54,9 @@ class AnswerPlan:
 async def rewrite_query(llm: ChatProvider, question: str, history: Sequence[ChatTurn]) -> str:
     """Make a follow-up self-contained: "how much is it?" means nothing to a search index.
 
-    Skipped entirely on the first turn — an extra model call that cannot improve anything
-    is pure latency. A failed rewrite falls back to the raw question rather than erroring;
-    a slightly worse search beats no answer.
+    Skipped entirely on the first turn — an extra model call that cannot improve anything is
+    pure latency. A failed rewrite falls back to the raw question rather than erroring; a
+    slightly worse search beats no answer.
     """
     if not history:
         return question
@@ -163,9 +163,9 @@ async def answer_question(
 ) -> Answer:
     """Non-streaming answer.
 
-    The same pipeline the streaming endpoint uses, collected into one value. The eval
-    harness needs this: it scores complete answers, and it must score the code path the
-    user actually gets, not a parallel implementation that can drift from it.
+    The same pipeline the streaming endpoint uses, collected into one value. The eval harness
+    needs this: it scores complete answers, and it must score the code path the user actually
+    gets, not a parallel implementation that can drift from it.
     """
     plan = await plan_answer(
         pool=pool,

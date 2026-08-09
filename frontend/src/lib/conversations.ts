@@ -5,20 +5,7 @@ import { useSyncExternalStore } from "react";
 import type { Turn } from "@/components/chat/use-chat";
 
 /**
- * Conversation history, stored in the browser.
- *
- * Local-first on purpose. The backend already persists conversations for signed-in users
- * under Row Level Security, but signing in is optional here — the FAQ is public and
- * requiring an account to ask a public question is friction with no security benefit. So
- * history has to work for anonymous visitors too, and the only place to keep it without
- * inventing an identity for them is their own browser.
- *
- * That is also the honest privacy position: an anonymous person's chat log stays on their
- * machine rather than becoming a row we hold against a hashed IP.
- *
- * Reactivity is `useSyncExternalStore` over a single module-level store, which gets
- * cross-tab sync for free: the `storage` event fires in every OTHER tab, so renaming a
- * chat in one updates the sidebar in the rest.
+ * Conversation history, stored in the browser. Local-first on purpose.
  */
 
 const STORAGE_KEY = "winchat:conversations:v1";
@@ -32,14 +19,7 @@ export interface Conversation {
   turns: Turn[];
   /**
    * The id the SERVER filed this conversation under, when the user was signed in.
-   *
-   * Deliberately separate from `id`. The browser mints its own id before the first request
-   * — it needs one for the URL and for storage — while Postgres mints a different one on
-   * insert. Both are correct; they are simply two names for the same conversation.
-   *
-   * Recording the link is what stops sync from treating the server's copy as a new
-   * conversation. Without it, asking one question while signed in produced TWO sidebar
-   * entries: the local one holding the transcript, and the server's arriving empty.
+   * Deliberately separate from `id`.
    */
   serverId?: string;
 }
@@ -159,22 +139,9 @@ export function useConversations(): Conversation[] {
 }
 
 /**
- * Fold the account's saved conversations into this browser's list.
- *
- * The merge rule is deliberately one-directional and conservative: a server conversation
- * this browser has never seen is ADDED, and one it already has is LEFT ALONE. Nothing local
- * is overwritten and nothing is deleted.
- *
- * Why so timid. The two sides are not comparable histories — local holds full transcripts
- * this device produced, while the server holds what was saved while signed in. A
- * last-write-wins merge on `updatedAt` would let a stale row from another device replace a
- * conversation the user is looking at, and the failure would be silent and unrecoverable
- * because the local copy is the only copy. Adding is safe; overwriting is not, and there is
- * no version vector here to make it safe.
- *
- * The consequence, stated so nobody is surprised: edits do not sync back, and a title
- * renamed on one device stays renamed only there. That is a real limitation, and it is the
- * right trade until conversations carry a revision the two sides can compare.
+ * Fold the account's saved conversations into this browser's list. The merge rule is
+ * deliberately one-directional and conservative: a server conversation this browser has never
+ * seen is ADDED, and one it already has is LEFT ALONE.
  */
 export function mergeServerConversations(
   remote: {
@@ -200,9 +167,9 @@ export function mergeServerConversations(
       title: conversation.title ?? "Saved conversation",
       createdAt: Date.parse(conversation.created_at) || Date.now(),
       updatedAt: Date.parse(conversation.updated_at) || Date.now(),
-      // Turns are fetched on demand when the conversation is opened. Pulling every
-      // transcript up front would mean N requests to render a sidebar the user may never
-      // click, and localStorage is a small budget to spend on chats nobody opened.
+      // Turns are fetched on demand when the conversation is opened. Pulling every transcript
+      // up front would mean N requests to render a sidebar the user may never click, and
+      // localStorage is a small budget to spend on chats nobody opened.
       turns: [],
     }));
 

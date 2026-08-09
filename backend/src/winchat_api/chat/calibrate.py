@@ -1,22 +1,10 @@
-"""Where should REFUSAL_MIN_DENSE_SCORE sit for the current embedding model?
+"""Where should REFUSAL_MIN_DENSE_SCORE sit for the current embedding model? uv run python -m
+winchat_api.chat.calibrate Embeds sixteen questions — eight this corpus can answer, eight it
+cannot — and reports the best dense similarity each one achieves.
 
-    uv run python -m winchat_api.chat.calibrate
-
-Embeds sixteen questions — eight this corpus can answer, eight it cannot — and reports the
-best dense similarity each one achieves. A usable threshold is any number in the gap
-between the two groups; the script suggests the midpoint and reports how much margin that
-leaves on each side.
-
-**Why this is a script and not a paragraph in a runbook.** Cosine scores are not comparable
-across embedding models, so this has to be redone every time the model changes — three
-times so far, each time by hand. Manual procedures drift, and a threshold nobody can
-reproduce is folklore. Running this costs sixteen embedding calls and no LLM tokens.
-
-The last row is deliberately an adversarial case, not a clean off-topic one: "admission
-requirements at the University of Toronto" is near-identical *in meaning* to a question
-this corpus answers, so it scores like an on-topic query on every model tried. It is
-reported separately because averaging it into the off-topic range would hide the real
-finding — no threshold catches it, and the prompt's grounding rule is what does.
+A usable threshold is any number in the gap between the two groups; the script suggests the
+midpoint and reports how much margin that leaves on each side. Why this is a script and not a
+paragraph in a runbook.
 """
 
 import asyncio

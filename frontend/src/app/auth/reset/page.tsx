@@ -12,17 +12,9 @@ import Link from "next/link";
 import { authConfigured, getSupabase } from "@/lib/supabase";
 
 /**
- * Choose a new password, after following the link from a reset email.
- *
- * How this works, because it is not obvious: the recovery link signs the visitor in to a
- * short-lived session and `supabase-js` raises a `PASSWORD_RECOVERY` event on load. From
- * there `updateUser({ password })` applies to the session the link established — so there
- * is no token to handle here, and no "old password" field, because possession of a
- * mailbox is what authorised the change.
- *
- * The consequence worth stating: this page must confirm a real session exists before
- * showing the form. Without that check it would render a password field to anyone who
- * typed the URL, and they would get a confusing failure instead of an honest one.
+ * Choose a new password, after following the link from a reset email. How this works, because
+ * it is not obvious: the recovery link signs the visitor in to a short-lived session and
+ * `supabase-js` raises a `PASSWORD_RECOVERY` event on load.
  */
 export default function ResetPasswordPage() {
   const [ready, setReady] = useState(false);

@@ -1,16 +1,7 @@
 """Rate-limit retry.
 
-Providers meter by tokens per minute. When the budget is exhausted the correct response is
-to wait exactly as long as the server says and try again — not to fail, and not to guess a
-backoff. Groq returns both a `retry-after` header and a delay in the message body; we
-prefer the server's number over any schedule of our own.
-
-This lives outside the SDK's own retry because that one caps its total wait at a few
-seconds. Draining a 60k-token workload through a 12k-per-minute budget needs waits
-measured in minutes, so the schedule has to be ours.
-
-Only rate limits are retried here. A 401 is not going to fix itself, and retrying a bad
-request just multiplies it.
+Providers meter by tokens per minute. When the budget is exhausted the correct response is to
+wait exactly as long as the server says and try again — not to fail, and not to guess a backoff.
 """
 
 import asyncio
@@ -51,10 +42,8 @@ async def with_rate_limit_retry[T](
     """Retry rate limits until `budget_s` is spent.
 
     A time budget, not an attempt count: how long a caller is willing to wait is the real
-    constraint, and it differs by caller. A user watching a chat box should wait seconds;
-    an offline eval draining a whole suite through a per-minute budget can afford minutes.
-    An attempt count cannot express either, because the wait per attempt is set by the
-    server, not by us.
+    constraint, and it differs by caller. A user watching a chat box should wait seconds; an
+    offline eval draining a whole suite through a per-minute budget can afford minutes.
     """
     deadline = time.monotonic() + budget_s
     attempt = 0

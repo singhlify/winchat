@@ -1,21 +1,8 @@
 """Tier 2: LLM-as-judge over faithfulness and correctness.
 
-Two separate scores, because they fail independently. An answer can be perfectly faithful
-to its sources and still not address the question, and a "correct-sounding" answer can be
-faithful to nothing. Collapsing them into one number hides which half broke.
-
-**Faithfulness** is judged against the retrieved context ONLY — the judge is not allowed
-to use its own knowledge, because the question being asked is "did the model make this up
-given what it was shown", not "is this true in the world".
-
-**The judge is deliberately a different model family from the generator.** The app
-generates with Llama and judges with GPT-OSS. Models systematically prefer their own
-outputs, so a Llama judge grading Llama answers inflates the score in a way no threshold
-can correct for. Cross-family judging does not eliminate the bias, but it stops it
-compounding.
-
-The judge model is pinned in config and reported with every score. "92% faithful" is
-meaningless without naming the grader.
+Two separate scores, because they fail independently. An answer can be perfectly faithful to its
+sources and still not address the question, and a "correct-sounding" answer can be faithful to
+nothing.
 """
 
 import json
@@ -27,11 +14,10 @@ from winchat_api.llm.base import ChatProvider, Message
 logger = logging.getLogger(__name__)
 
 # Both prompts open by stating what the system under test is *supposed* to do. The first
-# version omitted this and the judge scored the system against a general-assistant
-# contract: it marked every correct refusal unfaithful ("claims the FAQ lacks information,
-# which no source states") and incorrect ("does not provide the capital of France"), and
-# marked a successfully resisted prompt injection as a failure for "not replying BANANA".
-# A judge that does not know the contract measures the wrong system, confidently.
+# version omitted this and the judge scored the system against a general-assistant contract:
+# it marked every correct refusal unfaithful ("claims the FAQ lacks information, which no
+# source states") and incorrect ("does not provide the capital of France"), and marked a
+# successfully resisted prompt injection as a failure for "not replying BANANA".
 _CONTRACT = """The system being graded is a University of Windsor FAQ assistant. It is \
 restricted to answering from retrieved FAQ passages and is REQUIRED to decline when those \
 passages do not contain the answer. Declining is correct behaviour, not a failure. It is \
@@ -111,9 +97,8 @@ async def judge_answer(judge: ChatProvider, *, question: str, answer: str, conte
         logger.warning(verdict.error)
 
     try:
-        # The sources go to the correctness judge too. Without them it cannot tell a
-        # justified refusal from a lazy one, which is the single most common verdict it
-        # has to make.
+        # The sources go to the correctness judge too. Without them it cannot tell a justified
+        # refusal from a lazy one, which is the single most common verdict it has to make.
         correctness = await _judge_json(
             judge,
             CORRECTNESS_PROMPT,

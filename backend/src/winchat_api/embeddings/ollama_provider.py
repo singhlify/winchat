@@ -1,9 +1,9 @@
 """Ollama embedding provider — the local default (open weights, no vendor call).
 
-Gotcha this class exists to absorb: Ollama's `nomic-embed-text` Modelfile template is a
-bare `{{ .Prompt }}` passthrough, so it does NOT apply nomic's task prefixes for you. The
-model was trained with `search_document:` / `search_query:`; omitting them costs retrieval
-quality without raising an error anywhere. We apply them here so no caller has to know.
+Gotcha this class exists to absorb: Ollama's `nomic-embed-text` Modelfile template is a bare `{{
+.Prompt }}` passthrough, so it does NOT apply nomic's task prefixes for you. The model was
+trained with `search_document:` / `search_query:`; omitting them costs retrieval quality without
+raising an error anywhere.
 """
 
 from collections.abc import Sequence

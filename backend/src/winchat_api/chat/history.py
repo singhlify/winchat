@@ -1,12 +1,8 @@
 """Persisting conversations for signed-in users.
 
 Every write goes through `user_scoped`, so Row Level Security is what actually enforces
-ownership. The `user_id = $n` in these statements is belt-and-braces, not the control:
-if someone later writes a query and forgets it, the policy still refuses the row.
-
-Anonymous users get no history. Storing conversations for people we cannot authenticate
-would mean holding chat logs against an IP hash — data we would then have to protect, for
-a feature nobody asked for.
+ownership. The `user_id = $n` in these statements is belt-and-braces, not the control: if
+someone later writes a query and forgets it, the policy still refuses the row.
 """
 
 import json
@@ -74,14 +70,10 @@ async def load_history(
 async def list_conversations(pool: asyncpg.Pool, user_id: str, *, limit: int = 100) -> list[dict]:
     """Every conversation belonging to this user, newest first.
 
-    Exists so a second device can find conversations it never created. Before this, history
-    was written for signed-in users and never readable back — the account stored your chats
-    and could not show them to you, which made "sign in to keep your history" a claim the
-    product did not deliver.
-
-    Runs through `user_scoped`, so Row Level Security is what scopes the result, not the
-    `where` clause. A query that filtered by user_id in application code would look correct
-    and would leak the day someone forgot the clause.
+    Exists so a second device can find conversations it never created. Before this, history was
+    written for signed-in users and never readable back — the account stored your chats and
+    could not show them to you, which made "sign in to keep your history" a claim the product
+    did not deliver.
     """
     async with user_scoped(pool, user_id) as connection:
         rows = await connection.fetch(
@@ -102,9 +94,9 @@ async def list_conversations(pool: asyncpg.Pool, user_id: str, *, limit: int = 1
 async def load_conversation(pool: asyncpg.Pool, user_id: str, conversation_id: str) -> list[dict]:
     """Full transcript for one conversation, oldest first.
 
-    Separate from `load_history`, which exists for a different job: that one loads the last
-    few turns as model context and returns bare role/content. This returns what a UI needs —
-    every turn, in order, with the retrieval trace so citations survive the round trip.
+    Separate from `load_history`, which exists for a different job: that one loads the last few
+    turns as model context and returns bare role/content. This returns what a UI needs — every
+    turn, in order, with the retrieval trace so citations survive the round trip.
     """
     async with user_scoped(pool, user_id) as connection:
         rows = await connection.fetch(

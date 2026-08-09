@@ -68,7 +68,9 @@ describe("streamChat", () => {
 
   it("rejects a payload that does not match the schema", async () => {
     // A renamed or missing field must fail loudly here, not render as undefined later.
-    mockFetchStreaming([`event: sources\ndata: {"citations":"not-an-array"}\n\n`]);
+    mockFetchStreaming([
+      `event: sources\ndata: {"citations":"not-an-array"}\n\n`,
+    ]);
 
     await expect(collect()).rejects.toThrow();
   });
@@ -105,7 +107,9 @@ describe("streamChat", () => {
 
 describe("citedIndexes", () => {
   it("finds the markers the model actually wrote", () => {
-    expect(citedIndexes("Apply by March 1 [2]. Fees are due later [5].")).toEqual([2, 5]);
+    expect(
+      citedIndexes("Apply by March 1 [2]. Fees are due later [5]."),
+    ).toEqual([2, 5]);
   });
 
   it("deduplicates and sorts", () => {

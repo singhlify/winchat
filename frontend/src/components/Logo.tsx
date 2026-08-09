@@ -1,13 +1,6 @@
 /**
- * The WinChat mark: a speech bubble with a W knocked out of it.
- *
- * Inlined as JSX rather than referenced as an `<img src>` because `currentColor` cannot
- * cross an image boundary. An `<img>` is its own document, so a `text-primary` class on
- * the element styles nothing inside it, and the mark rendered flat black regardless of
- * theme. Inline, it inherits colour like any other glyph and follows dark mode for free.
- *
- * No background plate: the shape IS the logo. A coloured square behind it would be the
- * app-icon treatment, which belongs on a home screen and nowhere in the interface.
+ * The WinChat mark: a speech bubble with a W knocked out of it. Inlined as JSX rather than
+ * referenced as an `<img src>` because `currentColor` cannot cross an image boundary.
  */
 export function Logo({ className }: { className?: string }) {
   return (

@@ -1,10 +1,7 @@
 """Migration runner — applies the .sql files in `migrations/` in filename order.
 
-Deliberately ~40 lines instead of Alembic. The schema is plain SQL that a reviewer can
-read top to bottom, and Alembic's autogenerate buys nothing without an ORM model layer.
-Each file runs inside a transaction and is recorded, so re-running is a no-op.
-
-    uv run python -m winchat_api.db.migrate
+Deliberately ~40 lines instead of Alembic. The schema is plain SQL that a reviewer can read top
+to bottom, and Alembic's autogenerate buys nothing without an ORM model layer.
 """
 
 import asyncio

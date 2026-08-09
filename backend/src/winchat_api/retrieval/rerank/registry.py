@@ -44,10 +44,10 @@ def available_providers() -> list[str]:
 def build_reranker(settings: Settings, *, retry_budget_s: float | None = None) -> Reranker:
     """Build the configured reranker, optionally overriding how long it may wait on a 429.
 
-    The override exists for offline harnesses. They issue rerank calls in a tight loop and
-    trip a per-minute limit the request path never approaches, and a reranker that gives up
-    falls back to unranked order — so without it a benchmark quietly measures a reranker
-    that was barely running.
+    The override exists for offline harnesses. They issue rerank calls in a tight loop and trip
+    a per-minute limit the request path never approaches, and a reranker that gives up falls
+    back to unranked order — so without it a benchmark quietly measures a reranker that was
+    barely running.
     """
     builder = _BUILDERS.get(settings.rerank_provider)
     if builder is None:
@@ -66,15 +66,7 @@ def get_reranker() -> Reranker:
     """The configured reranker, on the request path.
 
     Falls back to the no-op when Cohere is selected but unkeyed, so a missing optional key
-    degrades quality instead of taking the app down. The fallback is visible in every
-    response, never silent.
-
-    It does NOT fall back to the LLM reranker, even though one is implemented. That stage
-    only beats the baseline in a configuration whose token cost exceeds the free tier's
-    per-minute budget, at which point it is rate-limited back into RRF order anyway; in the
-    configuration that does fit, it measurably REDUCES recall (66.7% against an 83.3%
-    baseline) because a small model over-filters. Same principle as the rerank refusal
-    threshold: a stage that has not been shown to help is worse than no stage. Set
-    RERANK_PROVIDER=llm to opt in.
+    degrades quality instead of taking the app down. The fallback is visible in every response,
+    never silent.
     """
     return build_reranker(get_settings())

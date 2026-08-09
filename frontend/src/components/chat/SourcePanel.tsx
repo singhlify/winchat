@@ -3,23 +3,18 @@
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { citedIndexes } from "@/lib/api/chat-stream";
 import type { Citation } from "@/lib/api/schemas";
 
 /**
  * The sources behind an answer — every one of them, each a link to the university's own
- * published article.
- *
- * Two groups, and the split is the honest part. **Cited** are the articles the answer
- * actually drew on. **Also searched** are the rest of what retrieval surfaced and the
- * model did not use. Listing all of them as if they backed the answer would manufacture
- * corroboration; hiding the unused ones would hide the assistant's reasoning. So: both,
- * labelled, with the used ones first.
- *
- * The domain is shown on every link. A citation the reader cannot trace to a real,
- * checkable page is decoration.
+ * published article. Two groups, and the split is the honest part.
  */
 export function SourcePanel({
   answer,
@@ -57,7 +52,11 @@ export function SourcePanel({
       )}
 
       {unused.length > 0 && (
-        <Collapsible open={showOthers} onOpenChange={setShowOthers} className="mt-2">
+        <Collapsible
+          open={showOthers}
+          onOpenChange={setShowOthers}
+          className="mt-2"
+        >
           <CollapsibleTrigger className="group flex min-h-9 items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
             <ChevronDown
               className={cn(
@@ -66,7 +65,8 @@ export function SourcePanel({
               )}
               aria-hidden
             />
-            Also searched {unused.length} more {unused.length === 1 ? "article" : "articles"}
+            Also searched {unused.length} more{" "}
+            {unused.length === 1 ? "article" : "articles"}
           </CollapsibleTrigger>
           <CollapsibleContent>
             <ul className="mt-1 flex flex-col gap-1">
@@ -109,7 +109,9 @@ export function SourceLink({
             {citation.index}
           </span>
         )}
-        <span className="flex-1 leading-snug group-hover:underline">{citation.question}</span>
+        <span className="flex-1 leading-snug group-hover:underline">
+          {citation.question}
+        </span>
         <ExternalLink
           className="mt-0.5 size-3.5 shrink-0 text-muted-foreground/60"
           aria-label="opens on ask.uwindsor.ca"

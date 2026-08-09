@@ -1,25 +1,8 @@
 """Proof that a request came from a browser with a human behind it.
 
-Cloudflare Turnstile, verified server-side. The client solves an invisible challenge and
-sends the resulting token; this exchanges it with Cloudflare's `siteverify` endpoint, which
-is the only step that actually proves anything — a token the server never checks is
-decoration.
-
-**Why this layer exists on top of the ones already here.** The origin check stops a bare
-`curl`, but `Origin` is client-supplied and anyone reading the source can set it. Rate
-limits bound one address, and an address is cheap to change. Turnstile is the first control
-that costs an attacker something per request rather than per identity.
-
-**Why it is not a gate on the whole app.** Requiring a challenge before anyone may read or
-ask anything would tax every real visitor to inconvenience a bot that is already capped at
-2000 requests a day by the global breaker. Invisible mode challenges only traffic that
-looks automated, so the median visitor never sees it.
-
-**Why signed-in users skip it.** They have already proven themselves to GitHub, Google, or
-an email round-trip. Asking them to prove it again buys nothing.
-
-Off unless `TURNSTILE_SECRET_KEY` is set, so an unconfigured deployment behaves exactly as
-before rather than rejecting everybody.
+Cloudflare Turnstile, verified server-side. The client solves an invisible challenge and sends
+the resulting token; this exchanges it with Cloudflare's `siteverify` endpoint, which is the
+only step that actually proves anything — a token the server never checks is decoration.
 """
 
 import logging
@@ -58,9 +41,9 @@ async def verify_turnstile(request: Request, *, client_ip: str | None = None) ->
         )
 
     payload = {"secret": secret, "response": token}
-    # Cloudflare uses the address to bind a token to the client that solved it, which is
-    # what stops a solved token being resold. Sent only when we actually trust our view of
-    # the address — behind a proxy with TRUST_PROXY_HEADERS off it would be the proxy's.
+    # Cloudflare uses the address to bind a token to the client that solved it, which is what
+    # stops a solved token being resold. Sent only when we actually trust our view of the
+    # address — behind a proxy with TRUST_PROXY_HEADERS off it would be the proxy's.
     if client_ip and settings.trust_proxy_headers:
         payload["remoteip"] = client_ip
 
@@ -72,7 +55,7 @@ async def verify_turnstile(request: Request, *, client_ip: str | None = None) ->
     except httpx.HTTPError as exc:
         # Fail OPEN on an outage, deliberately. Cloudflare being unreachable is our problem,
         # not the visitor's, and the rate limiter plus the global breaker still bound the
-        # damage. Failing closed here would let a third party take the app down.
+        # damage.
         logger.warning("turnstile verification unavailable, allowing request: %s", exc)
         return
 

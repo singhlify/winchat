@@ -19,22 +19,16 @@ import { useMediaQuery } from "@/lib/use-media-query";
 import { usePersistentState } from "@/lib/use-persistent-state";
 
 /**
- * The application shell: sidebar plus the active conversation.
- *
- * It owns three things the chat view should not: which conversation is open, whether the
- * sidebar is showing, and persistence. Keeping them here means `Chat` stays a view of a
- * conversation rather than a manager of all of them.
+ * The application shell: sidebar plus the active conversation. It owns three things the chat
+ * view should not: which conversation is open, whether the sidebar is showing, and
+ * persistence.
  */
-export function ChatShell({
-  conversationId,
-}: {
-  conversationId?: string;
-}) {
+export function ChatShell({ conversationId }: { conversationId?: string }) {
   const router = useRouter();
 
-  // Keeps the shell as tall as the *visible* area when a keyboard is open. `dvh` alone
-  // does not shrink for the keyboard on any current browser, and the viewport-meta opt-out
-  // that would fix it has no WebKit support.
+  // Keeps the shell as tall as the *visible* area when a keyboard is open. `dvh` alone does
+  // not shrink for the keyboard on any current browser, and the viewport-meta opt-out that
+  // would fix it has no WebKit support.
   useViewportHeight();
 
   // Open by default on desktop, closed on mobile — but only until the user decides,
@@ -53,10 +47,9 @@ export function ChatShell({
   // in render is exactly the pattern that goes stale without re-rendering.
   const [id] = useState(() => conversationId ?? newConversationId());
 
-  // A conversation synced from another device arrives as a stub with no turns; this
-  // fetches the transcript the first time it is opened. Returns null until it has
-  // something, so a locally-produced conversation is never blanked while a request is in
-  // flight.
+  // A conversation synced from another device arrives as a stub with no turns; this fetches
+  // the transcript the first time it is opened. Returns null until it has something, so a
+  // locally-produced conversation is never blanked while a request is in flight.
   const { accessToken } = useSession();
   const hydrated = useConversationHydration(conversationId, accessToken);
 
@@ -85,9 +78,9 @@ export function ChatShell({
         serverId: serverConversationId ?? existing?.serverId,
       });
 
-      // Move to the conversation's own URL after the first exchange. `replace`, not
-      // `push`: Back should return to wherever the user came from, not to the same chat
-      // in its empty state.
+      // Move to the conversation's own URL after the first exchange. `replace`, not `push`:
+      // Back should return to wherever the user came from, not to the same chat in its empty
+      // state.
       if (!navigatedRef.current) {
         navigatedRef.current = true;
         router.replace(`/app/c/${id}`, { scroll: false });
@@ -105,11 +98,11 @@ export function ChatShell({
       />
       <div className="relative flex min-w-0 flex-1 flex-col">
         <Chat
-          // Remounting on id change resets every piece of conversation state at once —
-          // far safer than trying to reconcile a half-streamed answer with a new thread.
-          // Also remounts once a hydrated transcript arrives: `initialTurns` is read at
-          // mount, so without this the fetched turns would sit in storage unseen until the
-          // next navigation.
+          // Remounting on id change resets every piece of conversation state at once — far
+          // safer than trying to reconcile a half-streamed answer with a new thread. Also
+          // remounts once a hydrated transcript arrives: `initialTurns` is read at mount, so
+          // without this the fetched turns would sit in storage unseen until the next
+          // navigation.
           key={hydrated ? `${id}:hydrated` : id}
           initialTurns={hydrated ?? initialTurns}
           onTurnsChange={persist}

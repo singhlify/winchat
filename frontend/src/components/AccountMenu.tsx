@@ -27,17 +27,9 @@ const THEMES = [
 ] as const;
 
 /**
- * One control on the right of the header, holding everything that is a preference rather
- * than part of the conversation: theme, account, sign-out, and the links off to sources.
- *
- * This is the pattern every major chat UI uses, and the reason it works is subtraction. Five
- * separate controls each shout for attention every time you look at the page; one control
- * shouts once and the rest is quiet until you ask. For an app whose entire job is "type a
- * question", quiet is the correct default.
- *
- * When the visitor is signed OUT and Supabase is configured, this falls through to the
- * sign-in panel instead — a menu whose only entry is "sign in" is a worse affordance than
- * the button itself.
+ * One control on the right of the header, holding everything that is a preference rather than
+ * part of the conversation: theme, account, sign-out, and the links off to sources. This is
+ * the pattern every major chat UI uses, and the reason it works is subtraction.
  */
 export function AccountMenu({
   onSession,
@@ -63,9 +55,9 @@ export function AccountMenu({
     return () => sub.subscription.unsubscribe();
   }, [onSession]);
 
-  // Signed out with auth available: show the sign-in panel, which carries its own guest
-  // path. Auth unconfigured: this still renders, because theme and the source links are
-  // useful with or without accounts.
+  // Signed out with auth available: show the sign-in panel, which carries its own guest path.
+  // Auth unconfigured: this still renders, because theme and the source links are useful with
+  // or without accounts.
   if (authConfigured && !email) {
     return <AuthPanel onSession={onSession} />;
   }

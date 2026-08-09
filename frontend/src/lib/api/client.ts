@@ -1,8 +1,5 @@
 /**
  * The HTTP boundary. Everything crossing it is validated.
- *
- * One `request` helper so timeout, error shape and schema parsing are decided once
- * rather than re-improvised per call site.
  */
 
 import type { z } from "zod";
@@ -158,11 +155,8 @@ export async function submitFeedback(
 }
 
 /**
- * The signed-in user's saved conversations.
- *
- * Requires a token — this is the only part of the API that does. Anonymous visitors have
- * no server-side history by design, so callers must treat "not signed in" as an empty list
- * rather than an error state.
+ * The signed-in user's saved conversations. Requires a token — this is the only part of the
+ * API that does.
  */
 export async function fetchConversations(
   options: RequestOptions = {},

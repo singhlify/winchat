@@ -4,24 +4,8 @@ import { motion, useReducedMotion } from "motion/react";
 import { useMemo } from "react";
 
 /**
- * The hero's background: the corpus itself.
- *
- * 556 marks in a loose grid, one per indexed article, with a handful lit in gold — the
- * ones a question would reach. It is the same idea as the retrieval diagram beside it,
- * shown at the scale of the whole collection rather than a single query.
- *
- * Chosen over the obvious alternatives because it means something. A gradient mesh, a dot
- * grid, or a blurred blob would fill the same space and communicate nothing except that
- * the space needed filling — which is precisely the impression this page is trying to
- * avoid. Here the texture *is* the dataset, so it survives the question "why is that
- * there?".
- *
- * Positions are deterministic, not random: a seeded pattern renders identically on server
- * and client, and `Math.random()` here would produce a hydration mismatch. It also means
- * the layout is stable across reloads rather than shuffling, which reads as noise.
- *
- * Rendered as one SVG with 556 tiny rects — a few KB, no canvas, no GPU context, and it
- * inherits theme colours through `currentColor`.
+ * The hero's background: the corpus itself. 556 marks in a loose grid, one per indexed
+ * article, with a handful lit in gold — the ones a question would reach.
  */
 
 const TOTAL = 556;
@@ -40,11 +24,10 @@ export function CorpusField({
 }: {
   className?: string;
   /**
-   * Stretch to the element's box instead of preserving the field's aspect ratio.
-   *
-   * Needed wherever the field is used as a wide banner: letterboxed into a short, full-
-   * width box it collapses into a small dense block in the middle, which reads as a grey
-   * smudge rather than as a collection of articles.
+   * Stretch to the element's box instead of preserving the field's aspect ratio. Needed
+   * wherever the field is used as a wide banner: letterboxed into a short, full- width box it
+   * collapses into a small dense block in the middle, which reads as a grey smudge rather
+   * than as a collection of articles.
    */
   fill?: boolean;
 }) {
@@ -55,9 +38,9 @@ export function CorpusField({
       Array.from({ length: TOTAL }, (_, i) => {
         const column = i % COLUMNS;
         const row = Math.floor(i / COLUMNS);
-        // A small deterministic offset per mark keeps the field from looking like graph
-        // paper — a perfect lattice reads as a texture swatch, a slightly irregular one
-        // reads as a collection of things.
+        // A small deterministic offset per mark keeps the field from looking like graph paper
+        // — a perfect lattice reads as a texture swatch, a slightly irregular one reads as a
+        // collection of things.
         const jitter = ((i * 2654435761) % 100) / 100;
         return {
           i,

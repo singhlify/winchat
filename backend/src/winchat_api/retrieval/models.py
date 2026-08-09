@@ -7,10 +7,10 @@ from dataclasses import dataclass, field
 class RetrievedChunk:
     """One candidate passage, plus how it was found.
 
-    `scores` keeps every stage's number (dense, lexical, rrf, rerank) rather than
-    collapsing to one. Retrieval bugs are otherwise invisible: "the right chunk was
-    ranked 4th by dense and 1st by lexical, and the reranker dropped it" is only
-    diagnosable if each stage's opinion survives.
+    `scores` keeps every stage's number (dense, lexical, rrf, rerank) rather than collapsing to
+    one. Retrieval bugs are otherwise invisible: "the right chunk was ranked 4th by dense and
+    1st by lexical, and the reranker dropped it" is only diagnosable if each stage's opinion
+    survives.
     """
 
     chunk_id: int

@@ -1,13 +1,9 @@
 """The provider-agnostic reranker interface.
 
-A reranker is a cross-encoder: instead of comparing two independent vectors, it reads the
-query and the passage *together* and scores the pair. That is far more accurate and far
-too slow to run over the whole corpus — which is exactly why it sits after retrieval, over
-a few dozen candidates.
-
-Reranking is a precision tool, not a recall tool: it can only reorder what retrieval
-already fetched. It is worth its ~200ms when the right answer is reliably inside the top
-50 but not the top 5.
+A reranker is a cross-encoder: instead of comparing two independent vectors, it reads the query
+and the passage *together* and scores the pair. That is far more accurate and far too slow to
+run over the whole corpus — which is exactly why it sits after retrieval, over a few dozen
+candidates.
 """
 
 from collections.abc import Sequence

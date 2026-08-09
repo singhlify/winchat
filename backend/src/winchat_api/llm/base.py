@@ -1,9 +1,8 @@
 """The provider-agnostic chat interface.
 
 Every generation call in the request path goes through `ChatProvider`. Swapping Groq for
-Anthropic or OpenAI means adding one class here and changing one environment variable —
-no call site changes. This is deliberate: vendor lock-in is a design smell, and the swap
-itself is the demo (see CONTRIBUTING.md, "provider-agnostic LLM layer").
+Anthropic or OpenAI means adding one class here and changing one environment variable — no call
+site changes.
 """
 
 from collections.abc import AsyncIterator, Sequence
@@ -50,9 +49,9 @@ class ChatProvider(Protocol):
     ) -> Completion:
         """Generate the full response.
 
-        `json_object` asks the provider to constrain output to valid JSON. The eval
-        judge depends on it: parsing a verdict out of prose is a source of flaky scores,
-        and a grader that fails to parse silently biases the number it produces.
+        `json_object` asks the provider to constrain output to valid JSON. The eval judge
+        depends on it: parsing a verdict out of prose is a source of flaky scores, and a grader
+        that fails to parse silently biases the number it produces.
         """
         ...
 

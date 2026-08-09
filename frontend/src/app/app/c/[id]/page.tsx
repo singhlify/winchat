@@ -3,19 +3,15 @@ import type { Metadata } from "next";
 import { ChatShell } from "@/components/chat/ChatShell";
 
 /**
- * A single conversation, at its own URL.
- *
- * The transcript itself lives in the visitor's browser, so the server renders only the
- * shell and the client fills in the messages. That is the correct division here: this page
- * is private to one person and one device, and there is nothing for the server — or a
- * crawler — to render.
+ * A single conversation, at its own URL. The transcript itself lives in the visitor's
+ * browser, so the server renders only the shell and the client fills in the messages.
  */
 
 export const metadata: Metadata = {
   title: "Chat",
-  // Deliberately excluded from search. These URLs are per-device and hold nothing a
-  // crawler could see anyway; indexing them would scatter empty shells across search
-  // results and dilute the pages that do have content.
+  // Deliberately excluded from search. These URLs are per-device and hold nothing a crawler
+  // could see anyway; indexing them would scatter empty shells across search results and
+  // dilute the pages that do have content.
   robots: { index: false, follow: false },
 };
 

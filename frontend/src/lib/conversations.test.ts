@@ -1,16 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
- * Covers the duplicate-conversation bug, which reached production.
- *
- * Signing in and asking one question produced TWO sidebar entries: the local conversation
- * holding the transcript, and the server's copy arriving empty. The cause is that both
- * sides legitimately mint an id — the browser needs one before the first request, for the
- * URL and for storage, and Postgres generates its own on insert — so account sync saw an
- * id it had never stored and treated a conversation it already had as new.
- *
- * The environment is "node", so `window` is stubbed rather than pulling in jsdom for two
- * tests. Only localStorage and the storage event matter here.
+ * Covers the duplicate-conversation bug, which reached production. Signing in and asking one
+ * question produced TWO sidebar entries: the local conversation holding the transcript, and
+ * the server's copy arriving empty.
  */
 
 const store = new Map<string, string>();

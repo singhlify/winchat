@@ -1,25 +1,9 @@
 """Embeddings computed in-process with ONNX.
 
-The deployment answer. Ollama needs a separate daemon holding the model in memory, which
-does not fit a small instance; `sentence-transformers` drags in ~2.5 GB of torch. fastembed
-runs the same nomic weights through onnxruntime in about 53 MB, inside the API process —
-no daemon, no vendor, no API key, and no network hop on the request path.
-
-Two things this module must get right:
-
-**The prefixes are fastembed's job here, not ours.** `query_embed` and `embed` apply
-nomic's `search_query:` / `search_document:` prefixes internally, so unlike the Ollama
-provider we must NOT add them — doing so would double them and shift every vector.
-
-**It is CPU-bound and synchronous.** Running it directly in an async handler would block
-the event loop and stall every other in-flight request, including active SSE streams. Every
-call goes through a worker thread.
-
-Vectors from this provider are NOT interchangeable with Ollama's, despite the same model
-name and 768 dimensions. Measured: cosine 0.60-0.91 between the two for identical text, and
-zero top-5 overlap on two of three test queries. Different quantisation, different space.
-`model_id` therefore names the runtime as well as the model, so the ingestion pipeline sees
-a change and re-embeds the corpus instead of silently mixing spaces.
+The deployment answer. Ollama needs a separate daemon holding the model in memory, which does
+not fit a small instance; `sentence-transformers` drags in ~2.5 GB of torch. fastembed runs the
+same nomic weights through onnxruntime in about 53 MB, inside the API process — no daemon, no
+vendor, no API key, and no network hop on the request path.
 """
 
 import asyncio

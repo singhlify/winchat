@@ -1,16 +1,8 @@
 """Embeddings over an OpenAI-compatible `/v1/embeddings` endpoint.
 
-The deployment counterpart to the Ollama provider. Ollama is ideal locally — free, open
-weights, nothing leaves the machine — but it needs a GPU-less container with the model
-resident, which does not fit a small backend instance. Several hosts serve the *same open
-weights* behind the OpenAI embeddings shape, so one client covers all of them and the
-choice of host stays a config line.
-
-The critical invariant: **the model here must be the same one the corpus was ingested
-with.** A query embedded by a different model lands somewhere unrelated in the vector
-space, and the failure is silent — retrieval returns confident nonsense rather than an
-error. `faq_chunks.embedding_model` records what was used, and the ingestion pipeline
-re-embeds when it changes.
+The deployment counterpart to the Ollama provider. Ollama is ideal locally — free, open weights,
+nothing leaves the machine — but it needs a GPU-less container with the model resident, which
+does not fit a small backend instance.
 """
 
 from collections.abc import Sequence

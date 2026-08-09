@@ -12,26 +12,17 @@ import { cn } from "@/lib/utils";
 import type { Citation } from "@/lib/api/schemas";
 
 /**
- * Renders an answer as markdown, with [n] markers turned into clickable citations.
- *
- * Markdown matters more than it looks: the model replies with numbered steps, bold labels
- * and links, and rendering that as preformatted text was making correct answers look like
- * a debug dump.
- *
- * Raw HTML is NOT enabled. react-markdown ignores embedded HTML unless `rehype-raw` is
- * added, and it deliberately is not — this text is model output derived from a scraped
- * corpus we do not control, which is exactly the untrusted path where an injected
- * `<img onerror>` would land.
+ * Renders an answer as markdown, with [n] markers turned into clickable citations. Markdown
+ * matters more than it looks: the model replies with numbered steps, bold labels and links,
+ * and rendering that as preformatted text was making correct answers look like a debug dump.
  */
 
 const CITATION_PROTOCOL = "citation:";
 
 /**
- * A remark plugin, rather than a string replace on the raw markdown.
- *
- * It walks the parsed tree and skips `code` and `inlineCode` nodes, so a literal `[1]`
- * inside a code sample stays literal. A regex over the source string cannot tell the
- * difference between prose and code, and would silently corrupt the latter.
+ * A remark plugin, rather than a string replace on the raw markdown. It walks the parsed tree
+ * and skips `code` and `inlineCode` nodes, so a literal `[1]` inside a code sample stays
+ * literal.
  */
 function remarkCitations(validIndexes: Set<number>) {
   return () => (tree: Root) => {
@@ -106,15 +97,10 @@ export function Markdown({
             // user nothing about what they are about to open.
             aria-label={`Source ${citation.index}: ${citation.question} (opens on ask.uwindsor.ca)`}
             title={citation.question}
-            // Gold, not blue. A citation is the one thing on this page the reader is
-            // meant to notice and follow, and gold is the brand's emphasis colour — the
-            // same mark used on the landing page's worked example, so the gesture is
-            // already familiar before anyone reaches the app.
-            //
-            // The lift on hover is 1px and 120ms. Enough to feel like the marker responds
-            // to the cursor; small enough that a paragraph containing six of them does not
-            // ripple when the mouse crosses it. Disabled under reduced motion, where a
-            // moving target is exactly the problem.
+            // Gold, not blue. A citation is the one thing on this page the reader is meant to
+            // notice and follow, and gold is the brand's emphasis colour — the same mark used
+            // on the landing page's worked example, so the gesture is already familiar before
+            // anyone reaches the app.
             className="border-gold/50 bg-gold/25 text-gold-foreground focus-visible:outline-ring mx-0.5 inline-flex h-4 min-w-4 translate-y-[-1px] items-center justify-center rounded-[4px] border px-1 align-middle text-[10px] font-semibold tabular-nums no-underline transition-all duration-120 hover:-translate-y-[2px] hover:border-gold/80 hover:bg-gold/40 focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-[-1px]"
           >
             {linkChildren}
@@ -189,13 +175,9 @@ export function Markdown({
         components={components}
         /**
          * react-markdown strips URLs whose scheme is not on its safe list — which is the
-         * behaviour we want for untrusted model output, and which silently ate the
-         * internal `citation:` scheme, rendering every citation as plain text.
-         *
-         * So: pass our own scheme through, and hand everything else to the library's
-         * default sanitizer untouched. Disabling `urlTransform` outright would have
-         * "fixed" the citations by removing the protection against a model emitting a
-         * `javascript:` link.
+         * behaviour we want for untrusted model output, and which silently ate the internal
+         * `citation:` scheme, rendering every citation as plain text. So: pass our own scheme
+         * through, and hand everything else to the library's default sanitizer untouched.
          */
         urlTransform={(url) =>
           url.startsWith(CITATION_PROTOCOL) ? url : defaultUrlTransform(url)

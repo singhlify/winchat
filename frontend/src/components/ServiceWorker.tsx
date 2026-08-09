@@ -3,15 +3,9 @@
 import { useEffect } from "react";
 
 /**
- * Register the service worker, in production only.
- *
- * Skipped in development on purpose: a worker that caches build assets while those assets
- * are being rebuilt every few seconds serves stale chunks and produces hydration errors
- * that look like application bugs.
- *
- * Registration is deferred to `load` so it never competes with the first paint for
- * bandwidth. The whole point is a faster launch, and paying for it during the launch that
- * matters most would defeat it.
+ * Register the service worker, in production only. Skipped in development on purpose: a
+ * worker that caches build assets while those assets are being rebuilt every few seconds
+ * serves stale chunks and produces hydration errors that look like application bugs.
  */
 export function ServiceWorker() {
   useEffect(() => {

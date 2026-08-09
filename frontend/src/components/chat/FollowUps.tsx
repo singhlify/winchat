@@ -5,20 +5,9 @@ import { ArrowUpRight } from "lucide-react";
 import type { Turn } from "@/components/chat/use-chat";
 
 /**
- * Follow-up questions, taken from the corpus rather than invented.
- *
- * Every suggestion here is the *title of a real University of Windsor FAQ article* that
- * retrieval surfaced for this question but the answer did not end up citing. So a
- * suggestion is never a guess about what might exist — it is a question the assistant can
- * definitely answer, because the article is already indexed.
- *
- * That is the whole reason this is worth building. A generated "you might also ask" costs
- * a model call and can propose questions the corpus cannot answer, which teaches people
- * the assistant is unreliable. This costs nothing, cannot hallucinate, and surfaces the
- * genuinely useful thing retrieval already knew and was throwing away: the near misses.
- *
- * Shown only under the newest answer. Suggestions under an older turn would compete with
- * the conversation that has since moved on.
+ * Follow-up questions, taken from the corpus rather than invented. Every suggestion here is
+ * the *title of a real University of Windsor FAQ article* that retrieval surfaced for this
+ * question but the answer did not end up citing.
  */
 
 const MAX_SUGGESTIONS = 3;

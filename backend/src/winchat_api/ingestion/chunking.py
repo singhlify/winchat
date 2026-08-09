@@ -1,30 +1,14 @@
 """Splitting answers into retrievable chunks.
 
-Sized for this corpus, not from a tutorial default. Measured over all 556 answers:
-median 621 characters, 90th percentile 1,900, max 4,263. At a 1,600-character target
-roughly nine in ten answers stay whole — which is what we want, because an intact FAQ
-answer is already the ideal retrieval unit and splitting it would strand its conclusion in
-a chunk that no longer mentions the topic. Only the long tail gets split.
-
-Splits prefer paragraph boundaries, then sentences, and only cut mid-sentence when a
-single sentence is itself oversized. Overlap carries the tail of one chunk into the next so
-a fact spanning the seam is still retrievable from either side.
-
-`max_chars` bounds the text a chunk is *built* from; the carried-over overlap is added on
-top, so the true upper bound is `max_chars + overlap_chars`. Measured over this corpus:
-665 chunks from 556 answers, 85% single-chunk, largest 1,749 characters.
-
-Every chunk is paired with its parent question before embedding (see `context_text`).
-That is contextual retrieval: chunk 3 of a long answer contains no clue what question it
-answers, and the question is the highest-signal context available for free.
+Sized for this corpus, not from a tutorial default. Measured over all 556 answers: median 621
+characters, 90th percentile 1,900, max 4,263.
 """
 
 import re
 from dataclasses import dataclass
 
 # ~1,600 characters ≈ 400 tokens. Research puts factoid Q&A retrieval in the 256-512 token
-# band; this corpus is factoid FAQ. nomic-embed's 8k window is not the binding constraint —
-# retrieval precision is.
+# band; this corpus is factoid FAQ.
 DEFAULT_MAX_CHARS = 1600
 DEFAULT_OVERLAP_CHARS = 200
 

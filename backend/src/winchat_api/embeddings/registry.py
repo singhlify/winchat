@@ -1,14 +1,7 @@
 """Embedding provider selection.
 
 Mirrors `llm/registry.py`. Ollama is the default for local work: open weights, runs on the
-machine, no vendor call. The deployed configuration is `cohere` — not because it is better,
-but because an in-process model makes the container 920 MB and no free tier fits that.
-Because ingestion stamps every vector with `model_id`, swapping the model is a re-ingest
-rather than a silent mismatch.
-
-`retry_budget_s` is a parameter and not just a setting because the two callers have
-opposite tolerances: the request path must fail fast, and offline ingestion should ride out
-a rate-limit window instead of aborting halfway through the corpus.
+machine, no vendor call.
 """
 
 from collections.abc import Callable

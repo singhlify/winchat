@@ -1,19 +1,7 @@
 """The ingestion pipeline: corpus file → chunks → embeddings → pgvector.
 
-Offline by design. Nothing here ever runs during a chat request — embedding documents
-inside a request is the classic mistake this architecture is built to avoid.
-
-Three properties worth calling out, because they are what separate a re-runnable pipeline
-from a one-shot script:
-
-* **Deletions are handled.** The corpus already shrank 558 → 556 mid-scrape. A pipeline
-  that only upserts leaves answers in the index that the university has unpublished, and
-  the assistant then cites content that no longer exists. Every run reconciles: any
-  `a_id` absent from the corpus file is removed.
-* **Unchanged answers are not re-embedded.** `content_hash` is compared, not `lastmod`,
-  so a touched timestamp costs nothing while a real edit is caught.
-* **A change of embedding model forces a re-embed.** Vectors from two models are not
-  comparable, and mixing them degrades retrieval silently rather than raising.
+Offline by design. Nothing here ever runs during a chat request — embedding documents inside a
+request is the classic mistake this architecture is built to avoid.
 """
 
 import logging
@@ -96,14 +84,9 @@ async def _write_answer(
 ) -> None:
     """Replace an answer and all of its chunks atomically.
 
-    Takes the pool, not a connection, and holds one only for the duration of the write.
-    An earlier version held a single connection across the whole embedding loop and the
-    pooler closed it out from under us — never hold a database connection across slow
-    external I/O.
-
-    Delete-then-insert rather than per-chunk upsert: an edit changes how the text splits,
-    so chunk 4 of the old version has no relationship to chunk 4 of the new one. Matching
-    them by index would leave stale text behind.
+    Takes the pool, not a connection, and holds one only for the duration of the write. An
+    earlier version held a single connection across the whole embedding loop and the pooler
+    closed it out from under us — never hold a database connection across slow external I/O.
     """
     async with pool.acquire() as connection, connection.transaction():
         await connection.execute(

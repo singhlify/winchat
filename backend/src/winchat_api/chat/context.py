@@ -1,13 +1,8 @@
 """Turning retrieved chunks into a numbered context block the model can cite.
 
 Citations are grouped by `a_id`, not by chunk. Two chunks from the same FAQ answer are one
-source to a reader — numbering them [1] and [2] would imply two independent confirmations
-of the same claim, which is exactly the kind of false corroboration a citation UI must not
-manufacture.
-
-URLs are deliberately kept out of the prompt. The model never needs to write a link: the
-UI resolves [n] to a URL from the sources it was handed. A model that cannot see URLs
-cannot invent one.
+source to a reader — numbering them [1] and [2] would imply two independent confirmations of the
+same claim, which is exactly the kind of false corroboration a citation UI must not manufacture.
 """
 
 from collections.abc import Sequence

@@ -10,15 +10,8 @@ import { fetchSources } from "@/lib/api/client";
 import type { Source } from "@/lib/api/schemas";
 
 /**
- * Every source, listed.
- *
- * This page exists for people first: it is the assistant's complete, checkable boundary.
- * Anyone can see exactly which university articles it can draw on and click through to the
- * original.
- *
- * It happens to be the strongest page on the site for search and AI-answer engines too,
- * because it is a large body of real, structured, link-rich text about a specific domain —
- * rendered on the server, so it is present in the HTML rather than assembled by script.
+ * Every source, listed. This page exists for people first: it is the assistant's complete,
+ * checkable boundary.
  */
 
 export const revalidate = 3600;

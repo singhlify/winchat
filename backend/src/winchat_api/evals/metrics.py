@@ -1,13 +1,7 @@
-"""Tier 1: deterministic checks. No model, no cost, no variance.
+"""Tier 1: deterministic checks.
 
-These run first and are the ones worth gating hardest on, because they cannot flake. A
-citation pointing at a source that does not exist is a bug every time, not a matter of
-judgement.
-
-`must_include` is matched case-insensitively on a whitespace-normalized string, so an
-answer that writes "$25.00" or wraps a phrase across a line break is not failed for
-formatting. It is a substring check, not a semantic one — that is deliberate: tier 1 is
-supposed to be boring and certain, and semantics are tier 2's job.
+No model, no cost, no variance. These run first and are the ones worth gating hardest on,
+because they cannot flake.
 """
 
 import re

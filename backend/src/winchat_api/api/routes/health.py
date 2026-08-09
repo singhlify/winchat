@@ -1,17 +1,7 @@
 """Health endpoints.
 
-Two endpoints, deliberately separate:
-
-* ``/healthz`` — liveness. Answers "is this process up?" with zero external calls, so a
-  platform health check never fails because a third party is slow. This is what the host
-  (Render) should poll.
-* ``/readyz`` — readiness. Actually exercises every configured dependency with a real
-  call. Slower, and intended for humans and deploy gates, not for a 5-second liveness probe.
-
-A dependency that is not configured reports ``not_configured`` — never ``ok``. Locally that
-is expected (we are mid-build) and readiness still returns 200 as ``degraded``. Anywhere
-other than ``local`` it is a failure: a deployed app missing its API key is not ready, and a
-health check that lies about that is worse than no health check.
+Two endpoints, deliberately separate: ``/healthz`` — liveness. Answers "is this process up?"
+with zero external calls, so a platform health check never fails because a third party is slow.
 """
 
 import asyncio
@@ -75,13 +65,6 @@ async def healthz() -> LivenessResponse:
 
 # A prompt roughly the size of a real one: system rules plus six retrieved passages plus a
 # question is ~3-5k tokens. The probe used to send the single word "ping".
-#
-# That gap is the whole point. A one-token probe passes while a real request fails, because
-# a provider's daily quota is measured in tokens, not calls. This build log already records
-# that exact failure (§4.16) and the health check kept the flaw: `/readyz` reported the LLM
-# healthy all day while every question came back "the service is busy".
-#
-# A probe must cost roughly what the work costs, or it is only testing that a socket opens.
 _LLM_PROBE = "Answer with the single word OK. " + ("Context passage. " * 320)
 
 
@@ -138,13 +121,11 @@ async def _check_embeddings() -> DependencyCheck:
 async def _check_reranker() -> DependencyCheck:
     """Report which reranker is actually live.
 
-    This exists because of a real incident: the API was started before a Cohere key was
-    added to .env, settings are cached per process, and it ran for a whole session with
-    reranking silently off — answering "the sources do not mention it" for questions the
-    corpus does answer. Retrieval recall differs by 17 points between those two states, and
-    nothing surfaced the difference.
-
-    A degraded stage that no health check reports is indistinguishable from a broken app.
+    This exists because of a real incident: the API was started before a Cohere key was added to
+    .env, settings are cached per process, and it ran for a whole session with reranking
+    silently off — answering "the sources do not mention it" for questions the corpus does
+    answer. Retrieval recall differs by 17 points between those two states, and nothing surfaced
+    the difference.
     """
     settings = get_settings()
     configured = settings.rerank_provider
@@ -168,9 +149,9 @@ async def _check_reranker() -> DependencyCheck:
 async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
     """Query the corpus itself.
 
-    `select 1` would only prove the socket is open. Counting indexed chunks proves the
-    schema exists and the corpus was actually ingested — an empty index is a working
-    database and a broken assistant, and readiness should not call that healthy.
+    `select 1` would only prove the socket is open. Counting indexed chunks proves the schema
+    exists and the corpus was actually ingested — an empty index is a working database and a
+    broken assistant, and readiness should not call that healthy.
     """
     settings = get_settings()
     if not settings.database_url:
@@ -203,10 +184,8 @@ async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
 def _check_config() -> DependencyCheck:
     """Settings that are safe locally and dangerous in production.
 
-    A dependency check answers "can I reach it". This one answers "am I configured the way
-    a deployed service must be" — a different question, and one nothing else asks. Both
-    failures below are silent: the app works perfectly with either, right up until someone
-    exploits it.
+    A dependency check answers "can I reach it". This one answers "am I configured the way a
+    deployed service must be" — a different question, and one nothing else asks.
     """
     settings = get_settings()
     if settings.app_env in NON_DEPLOYED_ENVS:
@@ -216,18 +195,15 @@ def _check_config() -> DependencyCheck:
 
     problems: list[str] = []
 
-    # The salt is what makes an anonymous subject unguessable. With the shipped default it
-    # is public knowledge, so anyone can compute the hash for a given IP — enough to
-    # confirm whether someone used the service, and to reason about the counter keyspace.
+    # The salt is what makes an anonymous subject unguessable. With the shipped default it is
+    # public knowledge, so anyone can compute the hash for a given IP — enough to confirm
+    # whether someone used the service, and to reason about the counter keyspace.
     if settings.rate_limit_salt == Settings.model_fields["rate_limit_salt"].default:
         problems.append("RATE_LIMIT_SALT is still the built-in default — set a random value")
 
     # Behind a proxy, `request.client.host` is the PROXY's address, identical for everyone.
     # With this off in production, every anonymous visitor hashes to the same subject and
-    # shares one 20-per-hour budget — the first user of the hour locks out the rest. The
-    # opposite mistake (on, with no proxy in front) lets a client forge X-Forwarded-For and
-    # mint a fresh identity per request; the app cannot detect that, so it stays a
-    # documented deploy-time decision rather than a check.
+    # shares one 20-per-hour budget — the first user of the hour locks out the rest.
     if not settings.trust_proxy_headers:
         problems.append(
             "TRUST_PROXY_HEADERS is off — behind a proxy every visitor shares one "

@@ -12,13 +12,9 @@ import {
 import { fetchModels } from "@/lib/api/client";
 
 /**
- * Model selector.
- *
- * The list comes from the API and is never hard-coded here: the backend owns the
- * allowlist, and a client-side copy would drift from what the server will actually accept.
- *
- * The eval reference model is labelled. Users may pick freely, but every published quality
- * number was measured on one specific model, and the UI should not let those blur.
+ * Model selector. The list comes from the API and is never hard-coded here: the backend owns
+ * the allowlist, and a client-side copy would drift from what the server will actually
+ * accept.
  */
 export function ModelPicker({
   value,

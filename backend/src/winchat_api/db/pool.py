@@ -1,8 +1,8 @@
 """Postgres connection pool.
 
-Plain SQL over asyncpg — no `supabase-js`, no ORM. The database is ordinary Postgres, so
-this code moves to any Postgres host unchanged; that portability is the reason Supabase was
-chosen without being locked into.
+Plain SQL over asyncpg — no `supabase-js`, no ORM. The database is ordinary Postgres, so this
+code moves to any Postgres host unchanged; that portability is the reason Supabase was chosen
+without being locked into.
 """
 
 import asyncpg
@@ -25,9 +25,9 @@ async def create_pool(
 ) -> asyncpg.Pool:
     """Open a pool.
 
-    `with_vector_type=False` is for the migration runner: the `vector` type does not exist
-    until the first migration creates the extension, and registering a codec for a type
-    that is not there yet fails the connection before it can fix itself.
+    `with_vector_type=False` is for the migration runner: the `vector` type does not exist until
+    the first migration creates the extension, and registering a codec for a type that is not
+    there yet fails the connection before it can fix itself.
     """
     settings = get_settings()
     if not settings.database_url:
@@ -38,15 +38,9 @@ async def create_pool(
         min_size=min_size,
         max_size=max_size,
         init=_init_connection if with_vector_type else None,
-        # Recycle idle connections before the server does.
-        #
-        # Supabase's pooler closes connections that sit idle, and asyncpg does not find out
-        # until it hands one to a query — which then dies mid-statement with
-        # ConnectionDoesNotExistError. Keeping our own idle lifetime well under the
-        # server's means asyncpg discards them first and opens a fresh one.
-        #
-        # This bites during QUIET periods, not busy ones: a request after a lull gets the
-        # stale connection. On a scale-to-zero host that is a common shape.
+        # Recycle idle connections before the server does. Supabase's pooler closes
+        # connections that sit idle, and asyncpg does not find out until it hands one to a
+        # query — which then dies mid-statement with ConnectionDoesNotExistError.
         max_inactive_connection_lifetime=60.0,
         # A dead connection can still be handed out inside the race window above. One
         # retry on acquire turns a user-visible 500 into an invisible reconnect.

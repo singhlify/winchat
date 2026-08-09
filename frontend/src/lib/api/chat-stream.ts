@@ -1,10 +1,6 @@
 /**
- * The streaming chat client.
- *
- * `EventSource` — the browser's built-in SSE client — only issues GET requests, and a
- * question with conversation history does not belong in a URL. So the stream is read from
- * a POST response body and the SSE framing is parsed here. It is about thirty lines and
- * buys full control over headers, aborting and validation.
+ * The streaming chat client. `EventSource` — the browser's built-in SSE client — only issues
+ * GET requests, and a question with conversation history does not belong in a URL.
  */
 
 import { API_BASE_URL, ApiError } from "@/lib/api/client";
@@ -41,9 +37,9 @@ export async function* streamChat(
   if (accessToken) headers.authorization = `Bearer ${accessToken}`;
 
   // Guests prove they are a browser; signed-in visitors already proved it to an identity
-  // provider, so asking them again is pure latency. A null token is sent as nothing at
-  // all — the API treats that as "feature off" when it holds no Turnstile secret, which
-  // is what keeps an unconfigured deployment working exactly as before.
+  // provider, so asking them again is pure latency. A null token is sent as nothing at all —
+  // the API treats that as "feature off" when it holds no Turnstile secret, which is what
+  // keeps an unconfigured deployment working exactly as before.
   if (!accessToken && turnstileConfigured) {
     const token = await getTurnstileToken();
     if (token) headers["cf-turnstile-response"] = token;

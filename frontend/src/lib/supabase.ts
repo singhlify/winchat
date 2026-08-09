@@ -1,13 +1,5 @@
 /**
- * Supabase client — for AUTHENTICATION ONLY.
- *
- * This is the one place `supabase-js` is allowed. It never reads or writes application
- * data: every query goes through our own API as plain SQL, which is what keeps the
- * database portable. Using the vendor SDK for login is a different trade — auth is a
- * protocol, not a schema, and hand-rolling session management, refresh and email flows
- * would spend the project's scarce time on the least differentiating part of it.
- *
- * Returns null when unconfigured, so the app runs anonymously without a Supabase project.
+ * Supabase client — for AUTHENTICATION ONLY. This is the one place `supabase-js` is allowed.
  */
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -27,8 +19,7 @@ export function getSupabase(): SupabaseClient | null {
       autoRefreshToken: true,
       // PKCE rather than the implicit flow. A browser app is a *public* client — it cannot
       // keep a secret — so the implicit flow returns tokens directly in the URL fragment,
-      // where they land in history and in anything that logs URLs. PKCE returns a
-      // single-use code that is worthless without the verifier held in this tab.
+      // where they land in history and in anything that logs URLs.
       flowType: "pkce",
       // Lets the client finish an OAuth or recovery redirect on load, which is what makes
       // /auth/callback and /auth/reset work without hand-rolling a code exchange.
@@ -39,12 +30,9 @@ export function getSupabase(): SupabaseClient | null {
 }
 
 /**
- * Where a provider or an email link should send the user back to.
- *
- * Read from the live origin rather than NEXT_PUBLIC_SITE_URL on purpose: preview
- * deployments have their own origin, and a hardcoded production URL would bounce a
- * preview login into production. Every value returned here must also be listed in
- * Supabase's redirect allowlist, which is what stops an open redirect.
+ * Where a provider or an email link should send the user back to. Read from the live origin
+ * rather than NEXT_PUBLIC_SITE_URL on purpose: preview deployments have their own origin, and
+ * a hardcoded production URL would bounce a preview login into production.
  */
 export function authRedirectTo(path: string): string | undefined {
   if (typeof window === "undefined") return undefined;

@@ -1,12 +1,7 @@
 """Running queries as the signed-in user, so Row Level Security actually applies.
 
-The pool connects as a privileged role. Issuing a query on it directly bypasses every
-policy in the schema. `user_scoped` opens a transaction, drops to the `authenticated` role
-and installs the request's JWT claims, so `auth.uid()` resolves and the policies bind.
-
-Both settings use `set_config(..., is_local => true)`, which reverts when the transaction
-ends. Without that, a pooled connection would carry one user's identity into whichever
-request borrows it next — the worst possible bug in a multi-tenant system.
+The pool connects as a privileged role. Issuing a query on it directly bypasses every policy in
+the schema.
 """
 
 import json

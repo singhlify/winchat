@@ -13,18 +13,8 @@ import { RetrievalMark } from "@/components/RetrievalMark";
 import { fetchSources } from "@/lib/api/client";
 
 /**
- * The landing page.
- *
- * The app moved to /app so that / can be a real page: server-rendered prose that a crawler
- * and a language model can actually read. The chat interface is a client shell behind a
- * stream — excellent for using, invisible to indexing — so leaving it at the root meant the
- * most linkable URL on the site said nothing about what this is.
- *
- * It has two audiences and does not pretend otherwise. A student wants to know whether the
- * answers can be trusted; someone evaluating the engineering wants to know whether the
- * quality claims are measured. Both get the same evidence, which is the honest way to serve
- * them at once — every number below is from the eval suite in this repository, and the
- * limitations are stated rather than rounded away.
+ * The landing page. The app moved to /app so that / can be a real page: server-rendered prose
+ * that a crawler and a language model can actually read.
  */
 
 export const revalidate = 3600;
@@ -237,7 +227,6 @@ export default async function LandingPage() {
                 // Centred once the three sit side by side. Staggering them left/centre/right
                 // used the band's full width but left each column reading as its own
                 // fragment; centred, the three figures line up as one row of results.
-                // Mobile stays left, where they stack into a single column.
                 className="px-2 py-7 sm:px-6 sm:text-center"
               >
                 <dt className="sr-only">{stat.label}</dt>

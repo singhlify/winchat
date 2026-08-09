@@ -1,33 +1,7 @@
 """Embeddings from Cohere's hosted `/v2/embed` endpoint.
 
-**Why this exists: hosting, not quality.** The fastembed provider runs the same nomic
-weights in-process, which is architecturally nicer — no vendor, no key, no network hop on
-the request path. It also makes the container 920 MB, because the model is resident in
-memory, and every free container tier worth using caps at 512 MB. Moving the model out
-drops the image to roughly 200 MB and the app fits a free instance.
-
-**The trade, stated plainly.** Cohere's embedding weights are closed. The project's
-anti-lock-in claim is now about the *interface*, not every provider behind it — this file
-is a drop-in `EmbeddingProvider` and switching back is one config line plus a re-ingest.
-That is the claim the architecture actually supports, and it is the honest one.
-
-Three things this module has to get right:
-
-**`input_type` is not optional.** Cohere's v3/v4 embedding models are trained with
-asymmetric task types — a corpus chunk must be embedded as `search_document` and a user
-question as `search_query`. Send both as the same type and retrieval degrades with no
-error, which is the same trap the nomic prefixes set. The two-method interface is what
-makes it impossible to get wrong at a call site.
-
-**`output_dimension` is part of the vector space.** embed-v4.0 is Matryoshka-trained, so
-it will return 256, 512, 1024 or 1536 dimensions from the same model. Vectors of different
-widths are not comparable, so the dimension is baked into `model_id` alongside the model
-name — otherwise a dimension change would look like "same model" to the ingestion pipeline
-and silently mix two spaces.
-
-**Rate limits are real.** Cohere trial keys meter per endpoint. A 429 mid-ingest would
-otherwise abort a 665-chunk run partway through, so retries are bounded by a time budget
-rather than an attempt count.
+Why this exists: hosting, not quality. The fastembed provider runs the same nomic weights in-
+process, which is architecturally nicer — no vendor, no key, no network hop on the request path.
 """
 
 import asyncio

@@ -4,23 +4,8 @@ import { animate, useInView, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Count a figure up when it scrolls into view.
- *
- * Used only on the measured results, because those numbers *are* the argument of that
- * section — animating them makes the eye land on them, which is what you want the reader
- * to take away. It would be decoration anywhere else on this page.
- *
- * Three details that keep it from feeling like a gimmick:
- *
- * **It eases out, hard.** A linear count reads like a loading spinner. `easeOut` lands the
- * last few digits slowly, which is what makes the final value feel arrived-at.
- *
- * **It is short.** 1.1s. Long counters hold the reader hostage to an animation while they
- * are trying to read a number, which is the opposite of the intent.
- *
- * **The final value is in the DOM from the first render.** The element renders its real
- * text and is only overwritten while animating, so a crawler, a reader with reduced motion,
- * and anyone whose JavaScript failed all see `100%` rather than `0`.
+ * Count a figure up when it scrolls into view. Used only on the measured results, since
+ * those numbers are the point of that section.
  */
 export function CountUp({
   value,

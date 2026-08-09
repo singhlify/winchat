@@ -1,25 +1,13 @@
 /**
- * Runtime contracts for everything the API returns.
- *
- * TypeScript types vanish at build time — they describe what we *believe* the server
- * sends. These schemas check it. The failure they prevent is the quiet one: a backend
- * field gets renamed, the type still compiles, and the UI renders `undefined` somewhere
- * three components deep with no clue where it came from. Parsing at the boundary turns
- * that into one loud error naming the exact field.
- *
- * Every type below is inferred from its schema, so the parser and the type can never
- * disagree.
+ * Runtime contracts for everything the API returns. TypeScript types vanish at build time —
+ * they describe what we *believe* the server sends.
  */
 
 import { z } from "zod";
 
 /**
- * A URL that is safe to place in an `href`.
- *
- * `z.url()` alone is NOT enough: `javascript:alert(1)` is a syntactically valid URL and
- * passes it. Rendering that as a link is a cross-site scripting vector — the classic one.
- * These values originate from a corpus scraped off a site we do not control, so the scheme
- * has to be checked, not assumed.
+ * A URL that is safe to place in an `href`. `z.url()` alone is NOT enough:
+ * `javascript:alert(1)` is a syntactically valid URL and passes it.
  */
 const httpUrl = z.url().refine(
   (value) => {
@@ -148,7 +136,7 @@ export type ChatEvent =
   | { type: "error"; message: string; detail?: string };
 
 /** Parses one SSE frame. Unknown event names return null rather than throwing, so a new
- *  server-side event type cannot break an older client mid-stream. */
+ * server-side event type cannot break an older client mid-stream. */
 export function parseChatEvent(event: string, data: string): ChatEvent | null {
   const payload: unknown = JSON.parse(data);
 
@@ -169,8 +157,8 @@ export function parseChatEvent(event: string, data: string): ChatEvent | null {
 // ---------------------------------------------------------------- outbound
 
 /** Mirrors the server's own validation. Catching an over-long message here saves a
- *  round trip; the server still enforces it, because a client check is a convenience,
- *  never a control. */
+ * round trip; the server still enforces it, because a client check is a convenience,
+ * never a control. */
 export const chatRequestSchema = z.object({
   message: z.string().min(1).max(2000),
   history: z
@@ -188,11 +176,10 @@ export const chatRequestSchema = z.object({
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
 
 /**
- * A conversation saved to the signed-in user's account.
- *
- * Validated rather than trusted, like every other response: this data crosses a network
- * boundary and is rendered into the UI, so a shape change upstream should fail loudly here
- * instead of surfacing as an undefined halfway down a component tree.
+ * A conversation saved to the signed-in user's account. Validated rather than trusted, like
+ * every other response: this data crosses a network boundary and is rendered into the UI, so
+ * a shape change upstream should fail loudly here instead of surfacing as an undefined
+ * halfway down a component tree.
  */
 export const conversationSummarySchema = z.object({
   id: z.string(),

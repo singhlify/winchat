@@ -3,22 +3,9 @@
 import { motion, useReducedMotion } from "motion/react";
 
 /**
- * The hero graphic: a diagram of what the app actually does.
- *
- * Drawn as SVG rather than illustrated, and specific rather than abstract — it shows a
- * question resolving to two of 556 indexed articles, which is the product's whole claim.
- * A generic gradient blob or a stock isometric laptop would fill the same space and say
- * nothing; worse, it would say "this space needed filling", which is the impression the
- * page is trying not to give.
- *
- * The motion is diegetic: the connector lines draw from the question toward the sources,
- * in the direction retrieval actually flows. It runs once on mount and then stops, because
- * a looping animation beside a paragraph competes with reading it.
- *
- * SVG rather than canvas or WebGL: it is a few hundred bytes, scales to any density, works
- * with no JavaScript at all, and inherits `currentColor` so it follows the theme for free.
- * A shader here would cost a library, a GPU context and battery on the phones most of this
- * app's visitors are using, to draw eleven lines.
+ * The hero graphic: a diagram of what the app actually does. Drawn as SVG rather than
+ * illustrated, and specific rather than abstract — it shows a question resolving to two of
+ * 556 indexed articles, which is the product's whole claim.
  */
 export function RetrievalMark({ className }: { className?: string }) {
   const reduced = useReducedMotion();
@@ -49,7 +36,12 @@ export function RetrievalMark({ className }: { className?: string }) {
         className="fill-primary/10 stroke-primary/40"
         strokeWidth="1"
       />
-      <text x="35" y="74" textAnchor="middle" className="fill-primary text-[9px]">
+      <text
+        x="35"
+        y="74"
+        textAnchor="middle"
+        className="fill-primary text-[9px]"
+      >
         question
       </text>
 
@@ -65,7 +57,11 @@ export function RetrievalMark({ className }: { className?: string }) {
           strokeWidth="1.25"
           className="stroke-gold"
           {...draw}
-          transition={{ duration: 0.9, delay: line.delay, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: 0.9,
+            delay: line.delay,
+            ease: [0.22, 1, 0.36, 1],
+          }}
         />
       ))}
 
@@ -75,7 +71,11 @@ export function RetrievalMark({ className }: { className?: string }) {
           key={y}
           initial={reduced ? undefined : { opacity: 0, x: -6 }}
           animate={reduced ? undefined : { opacity: 1, x: 0 }}
-          transition={{ duration: 0.45, delay: 0.75 + index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: 0.45,
+            delay: 0.75 + index * 0.12,
+            ease: [0.22, 1, 0.36, 1],
+          }}
         >
           <rect
             x="152"
@@ -98,7 +98,12 @@ export function RetrievalMark({ className }: { className?: string }) {
       ))}
 
       {/* The corpus the two were chosen from — context for the two boxes above. */}
-      <text x="184" y="132" textAnchor="middle" className="fill-muted-foreground text-[8px]">
+      <text
+        x="184"
+        y="132"
+        textAnchor="middle"
+        className="fill-muted-foreground text-[8px]"
+      >
         of 556 indexed articles
       </text>
     </svg>

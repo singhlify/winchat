@@ -1,8 +1,8 @@
 """Reading the scraped corpus off disk.
 
 The scraper's output is the contract (`docs/DATA.md`): one JSON object per line, keyed by
-`a_id`. This module is the only place that knows that format, so re-scraping or changing
-the source shape touches one file.
+`a_id`. This module is the only place that knows that format, so re-scraping or changing the
+source shape touches one file.
 """
 
 import hashlib
@@ -18,12 +18,8 @@ REQUIRED_FIELDS = ("a_id", "question", "answer_text", "url")
 
 # Every citation the app renders is a link the user is invited to trust, shown next to a
 # University of Windsor answer. The URL comes from a file on disk, so nothing downstream
-# distinguishes "scraped from ask.uwindsor.ca" from "someone edited answers.jsonl" — the
-# UI lends its credibility to whatever host ends up in this field.
-#
-# Retrieval corpora are a documented injection channel in their own right, and the defence
-# has to sit in the ingestion pipeline: by the time a poisoned row is embedded, every later
-# stage treats it as legitimate. Provenance is checked once, here, at the boundary.
+# distinguishes "scraped from ask.uwindsor.ca" from "someone edited answers.jsonl" — the UI
+# lends its credibility to whatever host ends up in this field.
 ALLOWED_SOURCE_HOSTS = frozenset({"ask.uwindsor.ca"})
 
 
@@ -84,9 +80,9 @@ def load_answers(path: Path) -> list[Answer]:
 def _check_source(url: str, path: Path, line_number: int) -> None:
     """Refuse an answer whose URL is not from an allowed source.
 
-    Fails the whole ingest rather than skipping the row. A corpus with unexpected hosts in
-    it is not a corpus with one bad line — it is a file that is not what it claims to be,
-    and quietly dropping rows would hide that.
+    Fails the whole ingest rather than skipping the row. A corpus with unexpected hosts in it is
+    not a corpus with one bad line — it is a file that is not what it claims to be, and quietly
+    dropping rows would hide that.
     """
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"}:

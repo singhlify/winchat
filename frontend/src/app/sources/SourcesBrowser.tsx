@@ -6,23 +6,16 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import type { Source } from "@/lib/api/schemas";
 
 /**
- * Client-side filtering over a server-rendered list.
- *
- * The full list ships in the HTML — that is what makes it crawlable and what makes it work
- * with JavaScript disabled. Filtering then happens in the browser with no round trip,
- * because 556 rows is nothing to search locally and a server call per keystroke would be
- * slower and more fragile.
- *
- * `useDeferredValue` keeps typing responsive: the input updates immediately while the
- * filtered list re-renders at a lower priority.
+ * Client-side filtering over a server-rendered list. The full list ships in the HTML — that
+ * is what makes it crawlable and what makes it work with JavaScript disabled.
  */
 export function SourcesBrowser({ sources }: { sources: Source[] }) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // "/" to focus the filter, the convention in every search-first interface, plus
-  // Cmd/Ctrl+K for people who expect a command palette. Neither fires while you are
-  // already typing somewhere, or "/" would be impossible to type into this very field.
+  // "/" to focus the filter, the convention in every search-first interface, plus Cmd/Ctrl+K
+  // for people who expect a command palette. Neither fires while you are already typing
+  // somewhere, or "/" would be impossible to type into this very field.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;

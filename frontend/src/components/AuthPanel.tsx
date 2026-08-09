@@ -18,18 +18,9 @@ import {
 import { authConfigured, getSupabase } from "@/lib/supabase";
 
 /**
- * Sign-in control: email/password, social providers, and password recovery.
- *
- * Optional by design — the FAQ is public, so requiring an account to ask a public question
- * would be friction with no security benefit. An account buys saved history and a higher
- * rate limit (100/hour against 20), and the panel says exactly that.
- *
- * Renders nothing when Supabase is unconfigured, so the app is fully usable without it.
- *
- * One panel with three views rather than three routes: signing in is an interruption to
- * whatever the visitor came here to do, and sending them to a separate page loses their
- * place. The two views that MUST be routes — the OAuth return and the recovery link — are
- * pages under /auth, because an email link has nowhere else to land.
+ * Sign-in control: email/password, social providers, and password recovery. Optional by
+ * design — the FAQ is public, so requiring an account to ask a public question would be
+ * friction with no security benefit.
  */
 
 type View = "in" | "up" | "forgot";
@@ -175,8 +166,8 @@ export function AuthPanel({
         <div
           role="dialog"
           // Non-modal on purpose: the page behind stays usable, because the whole point is
-          // that signing in is optional. A modal would imply otherwise and would need a
-          // focus trap that fights the "just carry on" path below.
+          // that signing in is optional. A modal would imply otherwise and would need a focus
+          // trap that fights the "just carry on" path below.
           aria-modal="false"
           aria-labelledby="auth-panel-title"
           aria-describedby="auth-panel-description"

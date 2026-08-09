@@ -10,15 +10,11 @@
      * body size on a phone is a readability problem rather than a style. */
   --font-display: var(--font-display);
 
-  /* --- Type scale ----------------------------------------------------------------
-     * A 1.2 minor-third ramp from a 16px base, with line-heights that tighten as size
-     * grows: 1.6 is right for a paragraph and far too loose for a 40px headline, which is
-     * why a single global leading always looks wrong somewhere.
-     *
-     * This replaces an app where 88 of ~128 type sizes were text-sm or text-xs, patched
-     * with one-off text-[15px], text-[11px] and text-[10px]. That is not a scale, it is a
-     * default with exceptions — and it is why everything read as one flat plane.
-     * ------------------------------------------------------------------------------- */
+  /* --- Type scale ---------------------------------------------------------------- A 1.2 minor-
+     third ramp from a 16px base, with line-heights that tighten as size grows: 1.6 is right for
+     a paragraph and far too loose for a 40px headline, which is why a single global leading
+     always looks wrong somewhere. This replaces an app where 88 of ~128 type sizes were text-sm
+     or text-xs, patched with one-off text-[15px], text-[11px] and text-[10px]. */
   --text-2xs: 0.6875rem; /* 11px — metadata, timestamps */
   --text-2xs--line-height: 1.45;
   --text-xs: 0.8125rem; /* 13px — labels, captions */
@@ -87,28 +83,18 @@
 }
 
 :root {
-  /* --- Colour system -------------------------------------------------------------
-     * Neutrals carry a slight cool cast (hue 250, chroma 0.004-0.02) rather than the
-     * chroma-0 greys this replaced. Dead-neutral grey is what every untouched shadcn
-     * install ships; a tint gives the interface a temperature and makes the accent read
-     * as belonging to the same family rather than pasted on.
-     *
-     * The accent is teal-leaning blue (hue 215) — deliberately NOT the University of
-     * Windsor's own blue. This app is independent and says so in three places; borrowing
-     * the university's brand colour would undercut that in the one channel nobody reads
-     * consciously.
-     *
-     * Every pair below is verified by `node scripts/check-contrast.mjs`, which reads these
-     * exact tokens. The stock theme failed AA three times in light mode: dividers at
-     * 1.26:1, the focus ring at 2.59:1, and muted text at 4.34:1.
-     * ------------------------------------------------------------------------------- */
+  /* --- Colour system ------------------------------------------------------------- Neutrals
+     carry a slight cool cast (hue 250, chroma 0.004-0.02) rather than the chroma-0 greys this
+     replaced. Dead-neutral grey is what every untouched shadcn install ships; a tint gives the
+     interface a temperature and makes the accent read as belonging to the same family rather
+     than pasted on. */
   --background: oklch(0.9761 0.0088 253);
   --foreground: oklch(0.4155 0.0453 258);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.4155 0.0453 258);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.4155 0.0453 258);
-  --primary: oklch(0.5680 0.2050 257);
+  --primary: oklch(0.568 0.205 257);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.9328 0.0157 254);
   --secondary-foreground: oklch(0.4155 0.0453 258);
@@ -119,25 +105,13 @@
   --destructive: oklch(0.5568 0.2078 25);
   /* Dividers are decorative; form-field edges are not (SC 1.4.11), so `input` is
      * markedly stronger than `border` rather than the same value twice. */
-  --border: oklch(0.8620 0.0200 254);
-  --input: oklch(0.6420 0.0360 254);
-  --ring: oklch(0.5680 0.2050 257);
-  /* --- Gold ----------------------------------------------------------------------
-     * Blue and gold, which is Windsor's own pairing — a deliberate choice, and the reason
-     * the independence disclaimer stays prominent in three places rather than becoming a
-     * footer. Familiar colours make affiliation easier to assume, so the words have to
-     * work harder.
-     *
-     * Gold is a BRAND accent, never a status. Amber already means "I could not answer
-     * this" and emerald means "done"; a third warm colour competing with those would make
-     * the palette ambiguous exactly where it needs to be clear. So gold appears only where
-     * nothing semantic is being said: the display rule on the landing page, the measured
-     * numbers, and the citation markers.
-     *
-     * `gold` at this lightness is for large text and fills only — 3.6:1 against white,
-     * which clears AA for large text but not for body copy. `gold-foreground` is the
-     * darkened version to use whenever gold has to carry small text.
-     * ------------------------------------------------------------------------------- */
+  --border: oklch(0.862 0.02 254);
+  --input: oklch(0.642 0.036 254);
+  --ring: oklch(0.568 0.205 257);
+  /* --- Gold ---------------------------------------------------------------------- Blue and
+     gold, which is Windsor's own pairing — a deliberate choice, and the reason the independence
+     disclaimer stays prominent in three places rather than becoming a footer. Familiar colours
+     make affiliation easier to assume, so the words have to work harder. */
   --gold: oklch(0.79 0.155 80);
   --gold-foreground: oklch(0.42 0.098 74);
   --gold-muted: oklch(0.955 0.045 88);
@@ -152,44 +126,44 @@
    * page is a glare, not an accent. */
   --band: oklch(0.3211 0.0369 261);
   --band-foreground: oklch(0.9761 0.0088 253);
-  --chart-1: oklch(0.5680 0.2050 257);
-  --chart-2: oklch(0.4700 0.1900 275);
-  --chart-3: oklch(0.6300 0.1700 340);
+  --chart-1: oklch(0.568 0.205 257);
+  --chart-2: oklch(0.47 0.19 275);
+  --chart-3: oklch(0.63 0.17 340);
   --chart-4: oklch(0.44 0.019 256);
   --chart-5: oklch(0.27 0.024 258);
   --radius: 0.5rem;
   --sidebar: oklch(0.9561 0.0118 253);
   --sidebar-foreground: oklch(0.4155 0.0453 258);
-  --sidebar-primary: oklch(0.5680 0.2050 257);
+  --sidebar-primary: oklch(0.568 0.205 257);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.9328 0.0157 254);
   --sidebar-accent-foreground: oklch(0.4155 0.0453 258);
-  --sidebar-border: oklch(0.8620 0.0200 254);
-  --sidebar-ring: oklch(0.5680 0.2050 257);
+  --sidebar-border: oklch(0.862 0.02 254);
+  --sidebar-ring: oklch(0.568 0.205 257);
 }
 
 .dark {
-  /* The dark theme is not the light one inverted. Backgrounds keep the same cool hue but
-     * more chroma, because a tint that reads as neutral on white reads as flat grey on
-     * black; and the accent lightens, since a mid-tone blue that sits well on white has
-     * nowhere near enough luminance against a dark surface. */
+  /* The dark theme is not the light one inverted. Backgrounds keep the same cool hue but more
+     chroma, because a tint that reads as neutral on white reads as flat grey on black; and the
+     accent lightens, since a mid-tone blue that sits well on white has nowhere near enough
+     luminance against a dark surface. */
   --background: oklch(0.2033 0.0311 265);
-  --foreground: oklch(0.8322 0.0330 213);
+  --foreground: oklch(0.8322 0.033 213);
   --card: oklch(0.2333 0.0311 265);
-  --card-foreground: oklch(0.8322 0.0330 213);
+  --card-foreground: oklch(0.8322 0.033 213);
   --popover: oklch(0.2333 0.0311 265);
-  --popover-foreground: oklch(0.8322 0.0330 213);
+  --popover-foreground: oklch(0.8322 0.033 213);
   --primary: oklch(0.7686 0.1287 226);
   --primary-foreground: oklch(0.2033 0.0311 265);
   --secondary: oklch(0.2733 0.0311 265);
-  --secondary-foreground: oklch(0.8322 0.0330 213);
+  --secondary-foreground: oklch(0.8322 0.033 213);
   --muted: oklch(0.2733 0.0311 265);
-  --muted-foreground: oklch(0.7122 0.0330 213);
+  --muted-foreground: oklch(0.7122 0.033 213);
   --accent: oklch(0.3033 0.0411 265);
-  --accent-foreground: oklch(0.8822 0.0330 213);
-  --destructive: oklch(0.7016 0.1700 22);
+  --accent-foreground: oklch(0.8822 0.033 213);
+  --destructive: oklch(0.7016 0.17 22);
   --border: oklch(0.3233 0.0311 265);
-  --input: oklch(0.5100 0.0330 265);
+  --input: oklch(0.51 0.033 265);
   --ring: oklch(0.7686 0.1287 226);
   /* Lifted and slightly desaturated against a dark ground: the light-mode gold turns
      * muddy on a dark surface, and full chroma on near-black reads as a warning. */
@@ -198,19 +172,19 @@
   --gold-muted: oklch(0.33 0.06 82);
   --gold-ink: oklch(0.24 0.05 74);
   --gold-strong: oklch(0.83 0.155 84);
-  --band: oklch(0.2533 0.0350 265);
-  --band-foreground: oklch(0.8822 0.0330 213);
+  --band: oklch(0.2533 0.035 265);
+  --band-foreground: oklch(0.8822 0.033 213);
   --chart-1: oklch(0.7686 0.1287 226);
-  --chart-2: oklch(0.7100 0.1200 280);
-  --chart-3: oklch(0.7400 0.1500 350);
+  --chart-2: oklch(0.71 0.12 280);
+  --chart-3: oklch(0.74 0.15 350);
   --chart-4: oklch(0.735 0.021 252);
   --chart-5: oklch(0.965 0.004 250);
   --sidebar: oklch(0.2233 0.0311 265);
-  --sidebar-foreground: oklch(0.8322 0.0330 213);
+  --sidebar-foreground: oklch(0.8322 0.033 213);
   --sidebar-primary: oklch(0.7686 0.1287 226);
   --sidebar-primary-foreground: oklch(0.2033 0.0311 265);
   --sidebar-accent: oklch(0.3033 0.0411 265);
-  --sidebar-accent-foreground: oklch(0.8822 0.0330 213);
+  --sidebar-accent-foreground: oklch(0.8822 0.033 213);
   --sidebar-border: oklch(0.3233 0.0311 265);
   --sidebar-ring: oklch(0.7686 0.1287 226);
 }
@@ -227,21 +201,10 @@
   }
 }
 
-/* --- Grain --------------------------------------------------------------------------
- * A very low-opacity noise layer over the whole page.
- *
- * Flat digital colour is one of the things that makes a screen look like a screen: real
- * printed and photographed surfaces have grain, and its absence is felt more than it is
- * noticed. A few percent of fractal noise gives large flat areas — the hero, the closing
- * band — something for the eye to rest on, and stops wide gradients from banding.
- *
- * Generated by SVG `feTurbulence` as a data URI rather than shipped as an image: no extra
- * request, no cache concern, and it scales to any density without going soft.
- *
- * `pointer-events: none` and `aria-hidden` by construction — it is a decorative layer that
- * must never intercept a click or reach the accessibility tree. Removed entirely under
- * `prefers-reduced-transparency`, where an overlay is exactly what the setting asks about.
- * ---------------------------------------------------------------------------------- */
+/* --- Grain -------------------------------------------------------------------------- A very
+   low-opacity noise layer over the whole page. Flat digital colour is one of the things that
+   makes a screen look like a screen: real printed and photographed surfaces have grain, and its
+   absence is felt more than it is noticed. */
 body::after {
   content: "";
   position: fixed;
@@ -263,15 +226,10 @@ body::after {
   }
 }
 
-/* --- Pointer cursor -----------------------------------------------------------------
- * Tailwind v4 reset gives `button` `cursor: default`, reversing v3's `cursor: pointer`.
- * The consequence is that every button in a v4 app silently stops looking clickable,
- * which is exactly the kind of regression that survives review because nothing renders
- * differently in a screenshot.
- *
- * Restored for anything a person can activate, and deliberately NOT for disabled
- * controls, where a pointer would promise something that will not happen.
- * ---------------------------------------------------------------------------------- */
+/* --- Pointer cursor ----------------------------------------------------------------- Tailwind
+   v4 reset gives `button` `cursor: default`, reversing v3's `cursor: pointer`. The consequence
+   is that every button in a v4 app silently stops looking clickable, which is exactly the kind
+   of regression that survives review because nothing renders differently in a screenshot. */
 button:not(:disabled):not([aria-disabled="true"]),
 [role="button"]:not([aria-disabled="true"]),
 [role="menuitem"],

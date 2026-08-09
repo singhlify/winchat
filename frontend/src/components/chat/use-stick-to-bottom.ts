@@ -6,12 +6,8 @@ const PINNED_THRESHOLD_PX = 80;
 
 /**
  * Keeps a scroll container pinned to the bottom as content streams in — but only while the
- * user has not scrolled away.
- *
- * The naive version scrolls to the bottom on every token, which yanks the page out from
- * under anyone reading back through an earlier answer. Tracking whether they are near the
- * bottom, and surfacing a "jump to latest" affordance when they are not, is the difference
- * between a chat that follows along and one that fights you.
+ * user has not scrolled away. The naive version scrolls to the bottom on every token, which
+ * yanks the page out from under anyone reading back through an earlier answer.
  */
 export function useStickToBottom(dependencies: unknown[]) {
   const scrollRef = useRef<HTMLElement>(null);

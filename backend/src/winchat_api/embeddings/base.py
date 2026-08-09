@@ -2,13 +2,8 @@
 
 Two methods, not one, because they are not interchangeable: several open models (including
 nomic-embed) are trained with asymmetric prefixes — documents and queries must be encoded
-differently or retrieval quality silently degrades. Baking that into the interface means a
-call site cannot get it wrong.
-
-`model_id` is carried explicitly so ingestion can stamp every stored vector with the model
-that produced it. Querying a pgvector table with vectors from a different model returns
-plausible-looking nonsense; the stamp is what lets us detect that instead of debugging bad
-answers later.
+differently or retrieval quality silently degrades. Baking that into the interface means a call
+site cannot get it wrong.
 """
 
 from collections.abc import Sequence

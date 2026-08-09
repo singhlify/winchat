@@ -1,18 +1,7 @@
 """Deciding when not to answer.
 
-Two independent defences, because neither is sufficient alone:
-
-1. **A retrieval threshold** (here). If nothing retrieved is topically close, the model is
-   never called. This is the cheap, deterministic gate — no tokens spent, no latency, and
-   no opportunity to hallucinate from irrelevant context.
-2. **A grounding instruction in the prompt** (`prompts.SYSTEM_PROMPT`, rule 3). This
-   catches what a similarity score structurally cannot.
-
-Why both: calibrating on real queries showed "What are the admission requirements at the
-University of Toronto?" scoring 0.7849 against this corpus — above any usable threshold,
-because the question genuinely is near-identical in meaning to "What are your admission
-requirements?". Only a reader can notice it is about a different university. A threshold
-alone would answer it with UWindsor's requirements and sound confident doing so.
+Two independent defences, because neither is sufficient alone: a retrieval threshold here, and
+rule 3 of the system prompt telling the model to refuse when the sources do not answer.
 """
 
 from dataclasses import dataclass

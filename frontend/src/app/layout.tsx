@@ -8,19 +8,8 @@ import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { cn } from "@/lib/utils";
 
 /**
- * Two faces, chosen rather than inherited.
- *
- * Geist was here because it ships with Next.js — the same reason it is on a large share of
- * apps built this year, which is exactly the problem. Neither of these is a default
- * anywhere.
- *
- * Source Sans 3 for the interface: a humanist sans with open apertures and a tall
- * x-height, which is what keeps a 15px answer readable on a phone. Geometric sans faces
- * look cleaner in a specimen and blur into each other at body size.
- *
- * Instrument Serif for display type only. A university FAQ is editorial, academic
- * material, and a high-contrast serif says so in a way no sans can. Confined to headings,
- * because a serif at body size on a phone is a readability problem, not a style.
+ * Two faces, chosen rather than inherited. Geist was here because it ships with Next.js — the
+ * same reason it is on a large share of apps built this year, which is exactly the problem.
  */
 const sans = Source_Sans_3({
   subsets: ["latin"],
@@ -93,18 +82,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   // No maximum-scale and no user-scalable=no: blocking pinch-zoom fails WCAG 1.4.4 (which
-  // requires at least 2x scaling), and is the accessibility mistake most often shipped in
-  // the name of an "app-like" feel.
+  // requires at least 2x scaling), and is the accessibility mistake most often shipped in the
+  // name of an "app-like" feel.
   width: "device-width",
   initialScale: 1,
   // The default is `resizes-visual`, where the on-screen keyboard resizes only the visual
-  // viewport and leaves layout untouched — which is exactly how a bottom-pinned composer
-  // ends up hidden behind the keyboard on a phone. `resizes-content` resizes the layout
-  // viewport instead, so the composer is pushed above it.
-  //
-  // Chromium ONLY — WebKit has no support at any version, so this does nothing on iPhone,
-  // which is most of this app's traffic. It is half the fix; `useViewportHeight` is the
-  // other half and works everywhere `visualViewport` does. Neither is load-bearing alone.
+  // viewport and leaves layout untouched — which is exactly how a bottom-pinned composer ends
+  // up hidden behind the keyboard on a phone. `resizes-content` resizes the layout viewport
+  // instead, so the composer is pushed above it.
   interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fdfdfe" },
