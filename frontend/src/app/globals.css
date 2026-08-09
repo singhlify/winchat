@@ -56,6 +56,8 @@
   --color-gold-foreground: var(--gold-foreground);
   --color-gold-muted: var(--gold-muted);
   --color-gold-ink: var(--gold-ink);
+  --color-band: var(--band);
+  --color-band-foreground: var(--band-foreground);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -142,6 +144,11 @@
      * token here — gold is a light surface whichever theme is active, so flipping this to
      * light in dark mode would put pale text on a pale fill. */
   --gold-ink: oklch(0.27 0.055 74);
+  /* The closing CTA band. Deep in BOTH themes rather than following `primary`, which
+   * lightens in dark mode — a full-bleed slab of the light-mode primary against a dark
+   * page is a glare, not an accent. */
+  --band: oklch(0.33 0.075 228);
+  --band-foreground: oklch(0.97 0.008 228);
   --chart-1: oklch(0.48 0.104 224);
   --chart-2: oklch(0.58 0.09 200);
   --chart-3: oklch(0.65 0.075 180);
@@ -187,6 +194,8 @@
   --gold-foreground: oklch(0.88 0.11 84);
   --gold-muted: oklch(0.3 0.05 80);
   --gold-ink: oklch(0.24 0.05 74);
+  --band: oklch(0.27 0.055 230);
+  --band-foreground: oklch(0.95 0.008 228);
   --chart-1: oklch(0.72 0.108 222);
   --chart-2: oklch(0.68 0.09 200);
   --chart-3: oklch(0.72 0.075 180);

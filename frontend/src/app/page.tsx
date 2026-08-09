@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Reveal } from "@/components/Reveal";
+import { RetrievalMark } from "@/components/RetrievalMark";
 import { fetchSources } from "@/lib/api/client";
 
 /**
@@ -111,40 +113,75 @@ export default async function LandingPage() {
       </header>
 
       <main id="main">
-        <section className="mx-auto max-w-3xl px-6 pb-16 pt-12 text-center sm:pt-20">
-          <p className="text-sm font-medium text-muted-foreground">
-            Unofficial · built on the university’s public FAQ
-          </p>
-          <h1 className="mt-4 font-display text-4xl leading-[1.08] text-balance sm:text-5xl">
-            University of Windsor questions,{" "}
-            <span className="text-gold-foreground italic">
-              answered with the source attached
-            </span>
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            Admissions, fees, courses, UwinCARD, deadlines. WinChat answers from
-            {sourceCount ? ` ${sourceCount} ` : " "}
-            published FAQ articles and links to every one it used — and tells
-            you when the answer isn’t there.
-          </p>
+        {/* Left-aligned, not centred. A centred hero over a centred sub-head over a
+            centred button row is the layout every template ships, and it also reads worse:
+            centred prose gives the eye no fixed left edge to return to on each line.
+            Editorial pages left-align their body text for exactly that reason. */}
+        <section className="mx-auto grid max-w-5xl gap-10 px-6 pt-14 pb-20 sm:pt-20 lg:grid-cols-[1.35fr_1fr] lg:items-end lg:gap-16">
+          <div>
+            <p className="text-gold-foreground flex items-center gap-2.5 text-xs font-medium tracking-[0.14em] uppercase">
+              <span aria-hidden className="bg-gold h-px w-8" />
+              Unofficial · built on the university’s public FAQ
+            </p>
+            <h1 className="font-display mt-6 text-[2.75rem] leading-[1.04] text-balance sm:text-6xl">
+              University of Windsor questions,{" "}
+              <span className="text-gold-foreground italic">
+                answered with the source attached
+              </span>
+            </h1>
+            <p className="text-muted-foreground mt-6 max-w-xl text-lg leading-relaxed text-pretty">
+              Admissions, fees, courses, UwinCARD, deadlines. WinChat answers
+              from
+              {sourceCount ? ` ${sourceCount} ` : " "}
+              published FAQ articles and links to every one it used — and tells
+              you when the answer isn’t there.
+            </p>
 
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/app"
-              className="w-full rounded-full bg-primary px-7 py-3 text-base font-medium text-primary-foreground hover:opacity-90 sm:w-auto"
-            >
-              Ask a question
-            </Link>
-            <Link
-              href="/sources"
-              className="w-full rounded-full border border-border px-7 py-3 text-base font-medium hover:bg-muted sm:w-auto"
-            >
-              Browse the sources
-            </Link>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                href="/app"
+                className="bg-primary text-primary-foreground rounded-full px-7 py-3 text-center text-base font-medium transition-opacity hover:opacity-90"
+              >
+                Ask a question
+              </Link>
+              <Link
+                href="/sources"
+                className="border-input hover:bg-muted rounded-full border px-7 py-3 text-center text-base font-medium transition-colors"
+              >
+                Browse the sources
+              </Link>
+            </div>
+            <p className="text-muted-foreground mt-4 text-sm">
+              No account needed. Free to use.
+            </p>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            No account needed. Free to use.
-          </p>
+
+          {/* A worked example rather than an illustration. It shows the behaviour the whole
+              page is claiming — a cited answer — so the second column carries evidence
+              instead of decoration. */}
+          <div className="lg:mb-2">
+            <RetrievalMark className="mb-5 w-full max-w-[280px] text-foreground lg:ml-auto" />
+            <figure className="border-border bg-muted/40 rounded-2xl border p-5">
+              <figcaption className="text-muted-foreground text-2xs tracking-[0.12em] uppercase">
+                A real answer
+              </figcaption>
+              <p className="mt-3 text-sm font-medium">
+                “How much does it cost to replace a lost UwinCARD?”
+              </p>
+              <p className="mt-3 text-sm leading-relaxed">
+                There is a $25 charge for the production of replacement cards{" "}
+                <span className="bg-gold/25 text-gold-ink text-2xs rounded px-1 py-0.5 font-medium">
+                  1
+                </span>
+              </p>
+              <p className="text-muted-foreground border-border text-2xs mt-3 border-t pt-3">
+                <span className="bg-gold/25 text-gold-ink mr-1.5 rounded px-1 py-0.5 font-medium">
+                  1
+                </span>
+                Is there a fee for the UwinCARD? — ask.uwindsor.ca
+              </p>
+            </figure>
+          </div>
         </section>
 
         <section
@@ -154,7 +191,7 @@ export default async function LandingPage() {
           <div className="mx-auto max-w-5xl px-6 py-16">
             <h2
               id="trust-heading"
-              className="text-center font-display text-3xl"
+              className="font-display text-3xl sm:text-4xl"
             >
               Why you can check the answers
             </h2>
@@ -180,21 +217,22 @@ export default async function LandingPage() {
         >
           <h2
             id="measured-heading"
-            className="text-center font-display text-3xl"
+            className="font-display text-3xl sm:text-4xl"
           >
             Measured, not asserted
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground mt-3 max-w-2xl text-base leading-relaxed">
             An assistant that sounds confident is easy to build. These numbers
             come from an evaluation suite that runs against the real pipeline on
             every change, and the build fails when they drop.
           </p>
 
-          <dl className="mt-10 grid gap-6 sm:grid-cols-3">
-            {MEASURED.map((stat) => (
-              <div
+          <dl className="border-border mt-10 grid divide-y divide-border border-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            {MEASURED.map((stat, index) => (
+              <Reveal
                 key={stat.label}
-                className="rounded-xl border border-border p-6 text-center"
+                delay={index * 0.08}
+                className="px-2 py-7 sm:px-6"
               >
                 <dt className="sr-only">{stat.label}</dt>
                 <dd>
@@ -208,13 +246,13 @@ export default async function LandingPage() {
                     {stat.detail}
                   </span>
                 </dd>
-              </div>
+              </Reveal>
             ))}
           </dl>
 
           {/* Stated on the page rather than buried in a repo, because a quality claim
               without its caveat is a marketing claim. */}
-          <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground border-gold/50 mt-8 max-w-2xl border-l-2 pl-4 text-sm leading-relaxed">
             Honest limits: the graded set is 26 hand-written questions, so these
             are indicative rather than definitive, and one known failure remains
             — the model occasionally computes a date instead of copying it.
@@ -223,16 +261,24 @@ export default async function LandingPage() {
           </p>
         </section>
 
-        <section className="border-t border-border">
-          <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-            <h2 className="font-display text-3xl">Ask it something</h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              “How much does it cost to replace a lost UwinCARD?” · “What is the
-              last day to drop a course?” · “How do I activate my UWin account?”
-            </p>
+        {/* The one deliberately loud block on the page. Every section above sits on the
+            same near-white ground, so a full-bleed band in the brand blue gives the page a
+            terminal beat and stops the closing CTA reading as one more row of text. */}
+        <section className="bg-band text-band-foreground">
+          <div className="mx-auto grid max-w-5xl gap-8 px-6 py-16 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <h2 className="font-display text-3xl sm:text-4xl">
+                Ask it something
+              </h2>
+              <p className="mt-3 max-w-xl text-base leading-relaxed opacity-85">
+                “How much does it cost to replace a lost UwinCARD?” · “What is
+                the last day to drop a course?” · “How do I activate my UWin
+                account?”
+              </p>
+            </div>
             <Link
               href="/app"
-              className="mt-8 inline-block rounded-full bg-primary px-7 py-3 text-base font-medium text-primary-foreground hover:opacity-90"
+              className="bg-background text-foreground justify-self-start rounded-full px-8 py-3.5 text-base font-medium transition-opacity hover:opacity-90 lg:justify-self-end"
             >
               Open WinChat
             </Link>
