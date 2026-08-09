@@ -7,11 +7,14 @@
  *
  * The link is deliberately not `nofollow`: it points at the author's own site, and a real
  * backlink from a working project is worth having.
+ *
+ * No location in the wording. A city name is a hiring signal the author did not ask to
+ * send, and this line is read by exactly the people it would signal to.
  */
 export function Credit({ className }: { className?: string }) {
   return (
     <span className={className}>
-      Built in Windsor by{" "}
+      Designed and built by{" "}
       <a
         href="https://singhlify.com/"
         target="_blank"
