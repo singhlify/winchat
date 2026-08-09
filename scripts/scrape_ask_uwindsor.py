@@ -20,6 +20,7 @@ from __future__ import annotations
 import json
 import re
 import time
+import sys
 import urllib.request
 from datetime import datetime, timezone
 from html import unescape
@@ -34,6 +35,12 @@ USER_AGENT = (
     "(personal RAG study project; contact gs130899@gmail.com)"
 )
 REQUEST_DELAY_S = 1.2  # be polite: ~1 request/second
+
+# A scrape that lost pages must never reach the ingest. Downstream, an answer missing from
+# the file is indistinguishable from one the university unpublished, so a partial scrape
+# would read as a mass deletion. Exit non-zero instead and leave the database alone.
+MAX_FAILURE_RATIO = 0.02
+MIN_LISTED = 100
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "data" / "ask_uwindsor"
 RAW_DIR = OUT_DIR / "raw"
@@ -142,7 +149,7 @@ def parse_sitemap(xml: str) -> list[dict[str, str]]:
     return entries
 
 
-def main() -> None:
+def main() -> int:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     ANSWERS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -209,6 +216,26 @@ def main() -> None:
     print("done>>>", f"{len(records)} saved, {len(failures)} failed")
     print("output>>>", OUT_DIR)
 
+    if len(entries) < MIN_LISTED:
+        print(
+            f"ABORT>>> the sitemap listed only {len(entries)} answers, expected at least"
+            f" {MIN_LISTED}. Treating this as a broken sitemap, not a shrunken corpus.",
+            file=sys.stderr,
+        )
+        return 1
+
+    allowed = max(1, int(len(entries) * MAX_FAILURE_RATIO))
+    if len(failures) > allowed:
+        print(
+            f"ABORT>>> {len(failures)} of {len(entries)} pages failed to fetch, cap is"
+            f" {allowed}. answers.jsonl is incomplete and must not be ingested."
+            f" First few: {', '.join(f['a_id'] for f in failures[:10])}",
+            file=sys.stderr,
+        )
+        return 1
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

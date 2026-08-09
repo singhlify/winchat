@@ -152,3 +152,37 @@ def test_a_non_http_scheme_is_rejected(tmp_path):
 
     with pytest.raises(CorpusError, match="not http"):
         load_answers(_corpus(tmp_path, "javascript:alert(1)"))
+
+
+def test_the_deletion_guard_allows_a_normal_refresh():
+    """The real 558 to 556 shrink must still go through. A guard that blocks routine
+    removals gets disabled, and then it protects nothing."""
+    from winchat_api.ingestion.pipeline import _deletion_guard
+
+    _deletion_guard(["101", "102"], indexed=556, max_ratio=0.05)
+
+
+def test_the_deletion_guard_refuses_a_truncated_corpus():
+    """The failure this exists for: a scrape that lost most of its pages looks exactly like
+    a corpus where most answers were unpublished."""
+    from winchat_api.ingestion.pipeline import MassDeletionRefused, _deletion_guard
+
+    with pytest.raises(MassDeletionRefused, match="refusing to delete 300 of 556"):
+        _deletion_guard([str(i) for i in range(300)], indexed=556, max_ratio=0.05)
+
+
+def test_the_deletion_guard_can_be_turned_off_deliberately():
+    """A genuine bulk removal has to be possible, but only by someone who typed the flag."""
+    from winchat_api.ingestion.pipeline import _deletion_guard
+
+    _deletion_guard([str(i) for i in range(500)], indexed=556, max_ratio=1.0)
+    _deletion_guard([str(i) for i in range(500)], indexed=556, max_ratio=None)
+
+
+def test_the_deletion_guard_never_lets_a_small_corpus_be_emptied():
+    """int(4 * 0.05) is 0, so without the floor of 1 this would divide by nothing and let a
+    tiny corpus be wiped one answer at a time."""
+    from winchat_api.ingestion.pipeline import MassDeletionRefused, _deletion_guard
+
+    with pytest.raises(MassDeletionRefused):
+        _deletion_guard(["1", "2"], indexed=4, max_ratio=0.05)

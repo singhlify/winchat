@@ -1,6 +1,8 @@
-"""Ingestion CLI. uv run python -m winchat_api.ingestion.run --dry-run uv run python -m
-winchat_api.ingestion.run uv run python -m winchat_api.ingestion.run --force # after changing
-chunking.
+"""Ingestion CLI.
+
+uv run python -m winchat_api.ingestion.run --dry-run   # report the plan, write nothing
+uv run python -m winchat_api.ingestion.run             # the real run
+uv run python -m winchat_api.ingestion.run --force     # re-embed everything
 """
 
 import argparse
@@ -11,7 +13,7 @@ from pathlib import Path
 from winchat_api.config import get_settings
 from winchat_api.db.pool import create_pool
 from winchat_api.embeddings.registry import build_embedding_provider
-from winchat_api.ingestion.pipeline import ingest
+from winchat_api.ingestion.pipeline import MassDeletionRefused, ingest
 
 logger = logging.getLogger("ingestion")
 
@@ -22,6 +24,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--limit", type=int, default=None, help="only process the first N answers")
     parser.add_argument("--force", action="store_true", help="re-embed everything")
     parser.add_argument("--dry-run", action="store_true", help="report the plan, write nothing")
+    parser.add_argument(
+        "--max-deletion-ratio",
+        type=float,
+        default=0.05,
+        help="abort if a refresh would delete more than this share of the corpus "
+        "(default 0.05). Pass 1 to allow any number.",
+    )
     return parser.parse_args()
 
 
@@ -49,7 +58,13 @@ async def main() -> None:
             force=args.force,
             limit=args.limit,
             dry_run=args.dry_run,
+            max_deletion_ratio=args.max_deletion_ratio,
         )
+    except MassDeletionRefused as exc:
+        # Loud on purpose. This runs unattended, so the only useful failure is one that
+        # stops and says why.
+        logger.error("REFUSED: %s", exc)
+        raise SystemExit(2) from exc
     finally:
         await pool.close()
 

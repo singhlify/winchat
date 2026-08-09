@@ -133,6 +133,28 @@ async def _write_answer(
         )
 
 
+class MassDeletionRefused(RuntimeError):
+    """A refresh asked to delete more of the corpus than the guard allows.
+
+    Raised before anything is written. A partial scrape looks exactly like a corpus where
+    most answers were unpublished, and on a schedule nobody is watching the number.
+    """
+
+
+def _deletion_guard(stale: Sequence[str], indexed: int, max_ratio: float | None) -> None:
+    if max_ratio is None or not stale or indexed == 0:
+        return
+    allowed = max(1, int(indexed * max_ratio))
+    if len(stale) > allowed:
+        raise MassDeletionRefused(
+            f"refusing to delete {len(stale)} of {indexed} indexed answers "
+            f"(cap is {allowed}, {max_ratio:.0%}). The corpus is probably truncated: a scrape "
+            f"that lost pages is indistinguishable from answers being unpublished. "
+            f"Check the scrape, then re-run with --max-deletion-ratio 1 if the removals are "
+            f"real. First few: {', '.join(sorted(stale)[:10])}"
+        )
+
+
 async def _reconcile_deletions(
     pool: asyncpg.Pool, live_ids: Sequence[str], report: IngestionReport
 ) -> None:
@@ -154,6 +176,7 @@ async def ingest(
     force: bool = False,
     limit: int | None = None,
     dry_run: bool = False,
+    max_deletion_ratio: float | None = 0.05,
 ) -> IngestionReport:
     started = time.perf_counter()
     report = IngestionReport()
@@ -176,8 +199,14 @@ async def ingest(
     report.inserted = sum(1 for answer in pending if answer.a_id not in state)
     report.updated = len(pending) - report.inserted
 
+    # Checked before any embedding or writing, so a truncated corpus costs nothing and
+    # changes nothing. A --limit run only ever sees part of the corpus, so it never deletes
+    # and never needs the guard.
+    stale = [a_id for a_id in state if a_id not in {answer.a_id for answer in answers}]
+    if limit is None:
+        _deletion_guard(stale, len(state), max_deletion_ratio)
+
     if dry_run:
-        stale = [a_id for a_id in state if a_id not in {answer.a_id for answer in answers}]
         report.deleted = len(stale)
         report.deleted_ids = stale
         report.duration_s = time.perf_counter() - started
