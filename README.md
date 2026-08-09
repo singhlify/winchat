@@ -1,7 +1,7 @@
 # WinChat
 
 A retrieval-augmented assistant that answers University of Windsor questions from the
-university's public FAQ, with a citation on every claim and a calibrated "I don't know".
+university's public FAQ, with a citation on every claim.
 
 **[Try it](https://winchat.vercel.app)** — no account needed.
 
@@ -78,9 +78,3 @@ uv run python -m winchat_api.ask "how do I drop a course?"
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
----
-
-Not affiliated with the University of Windsor. WinChat is an independent project built over
-the university's public FAQ at [ask.uwindsor.ca](https://ask.uwindsor.ca); it links to that
-content rather than republishing it. For anything official, use the FAQ directly.
