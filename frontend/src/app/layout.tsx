@@ -61,6 +61,9 @@ export const metadata: Metadata = {
     "ask.uwindsor.ca",
   ],
   alternates: { canonical: "/" },
+  // iOS ignores the manifest's icons for the home-screen shortcut.
+  appleWebApp: { capable: true, title: "WinChat", statusBarStyle: "default" },
+  icons: { apple: "/apple-touch-icon.png" },
   openGraph: {
     type: "website",
     siteName: "WinChat",

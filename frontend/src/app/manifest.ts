@@ -32,23 +32,32 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en-CA",
     dir: "ltr",
     icons: [
-      // SVG covers every size on browsers that accept it, which is most of them now.
+      // PNG at 192 and 512 first, because those are what Chrome's installability check and
+      // Bubblewrap/Play packaging actually require. SVG-only manifests can pass a Lighthouse
+      // audit and still fail to produce an Android package.
       {
-        src: "/icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
         purpose: "any",
       },
-      // Maskable is a separate entry, not an extra purpose on the one above: a maskable
-      // icon is designed with a safe zone and gets cropped to the platform's shape, so
-      // reusing a plain icon as maskable is how installed apps end up with their edges
-      // shaved off.
       {
-        src: "/icon-maskable.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      // Maskable is a separate ENTRY, not an extra purpose on the icons above: a maskable
+      // icon is drawn with a safe zone and then cropped to the platform's shape, so reusing
+      // a plain icon here is how installed apps end up with their edges shaved off.
+      {
+        src: "/icon-maskable-512.png",
+        sizes: "512x512",
+        type: "image/png",
         purpose: "maskable",
       },
+      // Scalable fallback for anything that prefers it.
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
     ],
     shortcuts: [
       {
