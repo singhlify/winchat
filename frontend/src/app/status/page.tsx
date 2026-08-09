@@ -17,6 +17,38 @@ import { cn } from "@/lib/utils";
  * path the chat stream uses, so a green board here means the browser really can reach the
  * API — not merely that the Next.js server can.
  */
+/**
+ * What each dependency means in words a visitor can act on.
+ *
+ * The raw keys and provider strings are accurate and useless: "reranker · cohere ·
+ * rerank-v3.5" says nothing about whether answers will be any good. Each row now states
+ * the consequence of that check failing, which is the only reason anyone opens this page.
+ */
+const EXPLAINS: Record<string, { title: string; means: string }> = {
+  config: {
+    title: "Configuration",
+    means: "Deployment settings are correct for a live site.",
+  },
+  llm: {
+    title: "Answer generation",
+    means:
+      "The language model responds to a full-size request, not just a token.",
+  },
+  embeddings: {
+    title: "Question understanding",
+    means: "Questions can be turned into vectors and matched against articles.",
+  },
+  reranker: {
+    title: "Answer ranking",
+    means:
+      "The best article is picked from the candidates. Off, answers get noticeably worse.",
+  },
+  database: {
+    title: "Article index",
+    means: "The indexed FAQ articles are reachable.",
+  },
+};
+
 export default function StatusPage() {
   const { data, error, isFetching, refetch } = useQuery({
     queryKey: ["readiness"],
@@ -79,7 +111,11 @@ export default function StatusPage() {
                       : "not_configured"
                 }
               />
-              api v{data.version} · {data.env} · {data.status}
+              {data.status === "ok"
+                ? "Everything is working."
+                : data.status === "degraded"
+                  ? "Working, with something not configured."
+                  : "Something is wrong. Answers may fail."}
             </p>
 
             <ul className="flex flex-col gap-2">
@@ -91,15 +127,17 @@ export default function StatusPage() {
                   <div className="flex items-start gap-3">
                     <Dot status={check.status} className="mt-1.5" />
                     <div>
-                      <p className="font-medium">{name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {[check.provider, check.model]
-                          .filter(Boolean)
-                          .join(" · ") || "—"}
+                      <p className="font-medium">
+                        {EXPLAINS[name]?.title ?? name}
                       </p>
-                      {check.detail && (
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                          {check.detail}
+                      <p className="text-sm text-muted-foreground">
+                        {EXPLAINS[name]?.means}
+                      </p>
+                      {(check.detail || check.model) && (
+                        <p className="text-muted-foreground/70 mt-1 text-xs">
+                          {[check.detail, check.model]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </p>
                       )}
                     </div>

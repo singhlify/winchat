@@ -63,9 +63,25 @@ def _error_event(message: str, exc: Exception) -> str:
     contains the organisation id and the account's quota. The full exception is logged;
     the client gets a sentence it can act on.
     """
-    detail = "The service is busy right now. Please try again shortly."
-    if isinstance(exc, ProviderError) and "rate limit" not in str(exc).lower():
+    text = str(exc).lower()
+
+    if isinstance(exc, ProviderError) and "rate limit" in text:
+        # A per-minute limit clears in seconds; a daily quota does not clear until the
+        # window rolls. Telling someone to "try again shortly" when the answer is
+        # "tomorrow" wastes their time and makes the app look broken rather than capped.
+        # Groq says which in the 429 body, and this used to discard that distinction.
+        daily = any(k in text for k in ("per day", "tokens per day", "tpd", "daily"))
+        detail = (
+            "Today's free usage limit has been reached. It resets within 24 hours; "
+            "picking a different model in the composer may work in the meantime."
+            if daily
+            else "Too many questions in the last minute. Try again in a few seconds."
+        )
+    elif isinstance(exc, ProviderError):
         detail = "The language model could not be reached."
+    else:
+        detail = "Something went wrong answering that. Please try again."
+
     return _sse("error", {"message": message, "detail": detail})
 
 

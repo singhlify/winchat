@@ -73,8 +73,20 @@ async def healthz() -> LivenessResponse:
     )
 
 
+# A prompt roughly the size of a real one: system rules plus six retrieved passages plus a
+# question is ~3-5k tokens. The probe used to send the single word "ping".
+#
+# That gap is the whole point. A one-token probe passes while a real request fails, because
+# a provider's daily quota is measured in tokens, not calls. This build log already records
+# that exact failure (§4.16) and the health check kept the flaw: `/readyz` reported the LLM
+# healthy all day while every question came back "the service is busy".
+#
+# A probe must cost roughly what the work costs, or it is only testing that a socket opens.
+_LLM_PROBE = "Answer with the single word OK. " + ("Context passage. " * 320)
+
+
 async def _check_llm() -> DependencyCheck:
-    """Smallest possible real generation — proves credentials, network, and model name."""
+    """A representative generation, not a trivial one. See the note above."""
     settings = get_settings()
     if settings.llm_provider == "groq" and not settings.groq_api_key:
         return DependencyCheck(
@@ -86,7 +98,9 @@ async def _check_llm() -> DependencyCheck:
     started = time.perf_counter()
     try:
         provider = get_chat_provider()
-        completion = await provider.complete([Message(role="user", content="ping")], max_tokens=1)
+        completion = await provider.complete(
+            [Message(role="user", content=_LLM_PROBE)], max_tokens=4
+        )
     except Exception as exc:
         return DependencyCheck(
             status="error", provider=settings.llm_provider, detail=str(exc)[:300]

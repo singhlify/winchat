@@ -283,3 +283,21 @@ def test_the_rewrite_prompt_still_forbids_dragging_in_answer_details():
     from winchat_api.chat.prompts import REWRITE_PROMPT
 
     assert "do not copy addresses" in REWRITE_PROMPT.lower()
+
+
+def test_a_daily_quota_is_reported_differently_from_a_per_minute_limit():
+    """Both arrive as a 429. Only one of them clears if you wait a few seconds.
+
+    Saying "try again shortly" when the real answer is "tomorrow" makes a capped app look
+    broken, and the distinction is in the provider's own message, which this used to throw
+    away.
+    """
+    from winchat_api.api.routes.chat import _error_event
+    from winchat_api.llm.base import ProviderError
+
+    daily = _error_event("x", ProviderError("rate limit reached for tokens per day (TPD)"))
+    minute = _error_event("x", ProviderError("rate limit reached for tokens per minute"))
+
+    assert "24 hours" in daily
+    assert "few seconds" in minute
+    assert daily != minute
