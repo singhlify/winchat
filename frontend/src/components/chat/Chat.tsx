@@ -16,7 +16,6 @@ import { useStickToBottom } from "@/components/chat/use-stick-to-bottom";
 import { Header } from "@/components/Header";
 
 export function Chat({
-  sourceCount,
   initialTurns,
   onTurnsChange,
   sidebarOpen,
@@ -24,7 +23,6 @@ export function Chat({
   model,
   onModelChange,
 }: {
-  sourceCount?: number;
   initialTurns?: Turn[];
   onTurnsChange?: (turns: Turn[], serverConversationId: string | null) => void;
   sidebarOpen: boolean;
@@ -191,7 +189,7 @@ export function Chat({
       >
         <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
           {turns.length === 0 ? (
-            <EmptyState onPick={ask} sourceCount={sourceCount} />
+            <EmptyState onPick={ask} />
           ) : (
             // role="log" marks a sequential, append-only region — the right semantic
             // for a transcript, and distinct from the status and alert regions above.

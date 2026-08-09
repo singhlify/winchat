@@ -47,7 +47,11 @@ export function SiteNav({
   const pathname = usePathname();
   const { setAccessToken } = useSession();
 
-  const links = [{ href: "/sources", label: "Sources" }];
+  // Hidden inside the app, where the sidebar already carries this link. Two routes to the
+  // same page a few hundred pixels apart reads as an oversight, not as convenience.
+  const links = pathname.startsWith("/app")
+    ? []
+    : [{ href: "/sources", label: "Sources" }];
 
   return (
     <header

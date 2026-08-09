@@ -66,15 +66,15 @@ const MEASURED = [
 const TRUST = [
   {
     title: "Every claim is cited",
-    body: "Answers link to the exact University of Windsor article they came from, so you can read the original rather than take a chatbot's word for it.",
+    body: "Every claim links to the University of Windsor article it came from, so you can read the original.",
   },
   {
     title: "It says “I don’t know”",
-    body: "When nothing in the FAQ is close enough to your question, WinChat declines instead of inventing an answer. That threshold was calibrated, not guessed.",
+    body: "When nothing in the FAQ is close enough, it declines rather than inventing an answer. The threshold was calibrated, not guessed.",
   },
   {
     title: "Nothing is required of you",
-    body: "No account, no sign-up wall. Ask a question and get an answer; your chats stay in your browser unless you choose to sign in.",
+    body: "No account, no sign-up wall. Your chats stay in your browser unless you choose to sign in.",
   },
 ];
 
@@ -219,9 +219,9 @@ export default async function LandingPage() {
             Measured, not asserted
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl text-base leading-relaxed">
-            An assistant that sounds confident is easy to build. These numbers
-            come from an evaluation suite that runs against the real pipeline on
-            every change, and the build fails when they drop.
+            An assistant that sounds confident is easy to build. These come from
+            an evaluation suite that runs on every change, and the build fails
+            when they drop.
           </p>
 
           <dl className="border-border mt-10 grid divide-y divide-border border-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
@@ -269,9 +269,7 @@ export default async function LandingPage() {
                 Ask it something
               </h2>
               <p className="mt-3 max-w-xl text-base leading-relaxed opacity-85">
-                “How much does it cost to replace a lost UwinCARD?” · “What is
-                the last day to drop a course?” · “How do I activate my UWin
-                account?”
+                Free, no account needed.
               </p>
             </div>
             <Link

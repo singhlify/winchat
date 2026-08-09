@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { ChatShell } from "@/components/chat/ChatShell";
-import { fetchSources } from "@/lib/api/client";
 
 /**
  * A single conversation, at its own URL.
@@ -28,12 +27,5 @@ export default async function ConversationPage({
   // Route params are async in Next 16 — synchronous access was removed.
   const { id } = await params;
 
-  let sourceCount: number | undefined;
-  try {
-    sourceCount = (await fetchSources({ limit: 1 })).total;
-  } catch {
-    // Nice to have; the chat works without it.
-  }
-
-  return <ChatShell conversationId={id} sourceCount={sourceCount} />;
+  return <ChatShell conversationId={id} />;
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, ShieldCheck, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 /**
  * The first screen.
@@ -19,13 +18,7 @@ export const SUGGESTIONS = [
   "Where is the Odette School of Business?",
 ];
 
-export function EmptyState({
-  onPick,
-  sourceCount,
-}: {
-  onPick: (question: string) => void;
-  sourceCount?: number;
-}) {
+export function EmptyState({ onPick }: { onPick: (question: string) => void }) {
   return (
     <div className="flex flex-col gap-8 py-6 sm:py-10">
       <div className="flex flex-col gap-2">
@@ -33,22 +26,8 @@ export function EmptyState({
           Ask anything about the University of Windsor.
         </h2>
         <p className="max-w-prose text-[15px] text-muted-foreground text-pretty">
-          Every answer is drawn from the university&rsquo;s own published FAQ articles and
-          links back to them, so you can check it yourself. If the answer isn&rsquo;t in
-          there, it says so instead of guessing.
-        </p>
-        <p className="max-w-prose text-sm text-muted-foreground text-pretty">
-          An independent project, not affiliated with or operated by the University of
-          Windsor. For anything official, use{" "}
-          <a
-            href="https://ask.uwindsor.ca"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 hover:text-foreground"
-          >
-            ask.uwindsor.ca
-          </a>
-          .
+          Answers come from the university&rsquo;s published FAQ articles, with
+          a link to every source used.
         </p>
       </div>
 
@@ -74,51 +53,6 @@ export function EmptyState({
           ))}
         </ul>
       </div>
-
-      <dl className="grid gap-3 sm:grid-cols-3">
-        <Fact
-          icon={<BookOpen className="size-4" aria-hidden />}
-          term={sourceCount ? `${sourceCount} articles` : "Official articles"}
-          detail={
-            <>
-              indexed from{" "}
-              <Link href="/sources" className="underline underline-offset-2 hover:text-foreground">
-                ask.uwindsor.ca
-              </Link>
-            </>
-          }
-        />
-        <Fact
-          icon={<Sparkles className="size-4" aria-hidden />}
-          term="Cited answers"
-          detail="every claim links to its source"
-        />
-        <Fact
-          icon={<ShieldCheck className="size-4" aria-hidden />}
-          term="Says “I don’t know”"
-          detail="rather than inventing an answer"
-        />
-      </dl>
-    </div>
-  );
-}
-
-function Fact({
-  icon,
-  term,
-  detail,
-}: {
-  icon: React.ReactNode;
-  term: string;
-  detail: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1 rounded-xl border border-border/60 bg-muted/30 p-3">
-      <dt className="flex items-center gap-1.5 text-sm font-medium">
-        <span className="text-primary">{icon}</span>
-        {term}
-      </dt>
-      <dd className="text-xs text-muted-foreground">{detail}</dd>
     </div>
   );
 }

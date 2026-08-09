@@ -1,5 +1,4 @@
 import { ChatShell } from "@/components/chat/ChatShell";
-import { fetchSources } from "@/lib/api/client";
 
 /**
  * The chat page.
@@ -10,12 +9,6 @@ import { fetchSources } from "@/lib/api/client";
 export const revalidate = 3600;
 
 export default async function Home() {
-  let sourceCount: number | undefined;
-  try {
-    sourceCount = (await fetchSources({ limit: 1 })).total;
-  } catch {
-    // A number is nice to have; the chat works without it.
-  }
 
-  return <ChatShell sourceCount={sourceCount} />;
+  return <ChatShell />;
 }

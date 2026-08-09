@@ -98,7 +98,7 @@ export function Composer({
             // key on the keyboard silently deleted a question and its answer. Undo stays
             // available as an explicit control.
           }}
-          placeholder="Ask about admissions, fees, courses, campus…"
+          placeholder="Ask a question…"
           aria-describedby="composer-hint"
           // text-base (16px) on mobile, NOT the 15px this used to be. iOS Safari zooms the
           // whole page when a focused input is under 16px — so tapping the composer, the
@@ -144,7 +144,7 @@ export function Composer({
             stated where people actually look — not in a footer nobody scrolls to. This
             sits under the composer, the one element present on every screen. */}
         <span className="min-w-0 truncate">
-          Independent project · not affiliated with the University of Windsor
+          Not affiliated with the University of Windsor
         </span>
         <span className="hidden shrink-0 sm:inline">
           <kbd className="rounded border border-border px-1 py-px font-sans">

@@ -27,10 +27,8 @@ import { usePersistentState } from "@/lib/use-persistent-state";
  */
 export function ChatShell({
   conversationId,
-  sourceCount,
 }: {
   conversationId?: string;
-  sourceCount?: number;
 }) {
   const router = useRouter();
 
@@ -115,7 +113,6 @@ export function ChatShell({
           key={hydrated ? `${id}:hydrated` : id}
           initialTurns={hydrated ?? initialTurns}
           onTurnsChange={persist}
-          sourceCount={sourceCount}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={() => setOverride(!sidebarOpen)}
           model={model}
