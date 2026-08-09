@@ -74,7 +74,13 @@ export function useChat({
   const [turns, setTurns] = useState<Turn[]>(initialTurns ?? []);
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  // Two copies of the same fact, on purpose. The ref is read inside `send` to attach the
+  // id to the NEXT request without forcing a render; the state is what the component tree
+  // is allowed to see. Reading a ref during render returns whatever it held at the last
+  // render, so exposing `conversationRef.current` directly would hand callers a stale id —
+  // which is exactly the duplicate-conversation bug this value exists to prevent.
   const conversationRef = useRef<string | null>(null);
+  const [serverConversationId, setServerConversationId] = useState<string | null>(null);
 
   const patchLast = useCallback((patch: Partial<Turn>) => {
     setTurns((previous) => {
@@ -201,6 +207,7 @@ export function useChat({
   const clear = useCallback(() => {
     abortRef.current?.abort();
     conversationRef.current = null;
+    setServerConversationId(null);
     setTurns([]);
   }, []);
 
@@ -235,6 +242,6 @@ export function useChat({
     // The id the SERVER filed this conversation under, which is not the id the browser
     // uses for its own URL and storage. Exposed so the shell can record the link; without
     // it, syncing pulls the server's copy back as a second, duplicate conversation.
-    serverConversationId: conversationRef.current,
+    serverConversationId,
   };
 }
