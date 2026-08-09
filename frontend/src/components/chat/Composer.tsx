@@ -3,7 +3,6 @@
 import { ArrowUp, Square } from "lucide-react";
 
 import { Credit } from "@/components/Credit";
-import { ModelPicker } from "@/components/ModelPicker";
 import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -36,8 +35,6 @@ export function Composer({
   onChange,
   onSubmit,
   onStop,
-  model,
-  onModelChange,
   busy,
   ref,
 }: {
@@ -45,8 +42,6 @@ export function Composer({
   onChange: (value: string) => void;
   onSubmit: () => void;
   onStop: () => void;
-  model?: string | null;
-  onModelChange?: (model: string | null) => void;
   busy: boolean;
   ref?: Ref<ComposerHandle>;
 }) {
@@ -156,9 +151,6 @@ export function Composer({
         id="composer-hint"
         className="mt-1.5 flex items-center justify-between gap-2 px-1 text-[11px] text-muted-foreground"
       >
-        {onModelChange && (
-          <ModelPicker value={model ?? null} onChange={onModelChange} />
-        )}
         {/* The name contains "Win", which reads as Windsor, so independence has to be
             stated where people actually look — not in a footer nobody scrolls to. This
             sits under the composer, the one element present on every screen. */}

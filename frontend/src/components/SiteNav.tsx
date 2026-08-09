@@ -71,7 +71,9 @@ export function SiteNav({
           className="focus-visible:outline-ring flex items-center gap-2 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
         >
           <Logo className="text-primary size-[22px]" />
-          <span className="text-sm font-semibold tracking-tight">WinChat</span>
+          <span className="hidden text-sm font-semibold tracking-tight sm:inline">
+            WinChat
+          </span>
         </Link>
 
         <nav
