@@ -62,9 +62,17 @@ export function SiteNav({
             was the one navigational dead end left in the product. */}
         <Link
           href="/"
-          className="focus-visible:outline-ring rounded-sm text-sm font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4"
+          className="focus-visible:outline-ring flex items-center gap-2 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
         >
-          WinChat
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt=""
+            width={22}
+            height={22}
+            className="rounded-[5px]"
+          />
+          <span className="text-sm font-semibold tracking-tight">WinChat</span>
         </Link>
 
         <nav

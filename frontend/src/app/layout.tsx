@@ -69,6 +69,7 @@ export const metadata: Metadata = {
     siteName: "WinChat",
     title: TITLE,
     description: DESCRIPTION,
+    images: [{ url: "/icon-512.png", width: 512, height: 512, alt: "WinChat" }],
     url: "/",
     locale: "en_CA",
   },
