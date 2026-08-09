@@ -65,7 +65,12 @@ export interface UseChatOptions {
  * inside a cache that has nothing to cache. Query handles the request/response endpoints
  * (models, sources); the stream is its own thing.
  */
-export function useChat({ accessToken, model, initialTurns, onFeedback }: UseChatOptions) {
+export function useChat({
+  accessToken,
+  model,
+  initialTurns,
+  onFeedback,
+}: UseChatOptions) {
   const [turns, setTurns] = useState<Turn[]>(initialTurns ?? []);
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -122,11 +127,15 @@ export function useChat({ accessToken, model, initialTurns, onFeedback }: UseCha
             setTurns((previous) => {
               const next = [...previous];
               const last = next[next.length - 1];
-              next[next.length - 1] = { ...last, content: last.content + event.text };
+              next[next.length - 1] = {
+                ...last,
+                content: last.content + event.text,
+              };
               return next;
             });
           } else if (event.type === "done") {
-            if (event.conversation_id) conversationRef.current = event.conversation_id;
+            if (event.conversation_id)
+              conversationRef.current = event.conversation_id;
             patchLast({ model: event.model, timings: event.timings_ms });
           } else if (event.type === "error") {
             patchLast({ error: event.detail ?? event.message });
@@ -142,7 +151,9 @@ export function useChat({ accessToken, model, initialTurns, onFeedback }: UseCha
                 ? exception.message
                 : "Something went wrong. Please try again.",
             retryAfterSeconds:
-              exception instanceof ApiError ? (exception.retryAfterSeconds ?? null) : null,
+              exception instanceof ApiError
+                ? (exception.retryAfterSeconds ?? null)
+                : null,
           });
         }
       } finally {
@@ -212,5 +223,18 @@ export function useChat({ accessToken, model, initialTurns, onFeedback }: UseCha
     [onFeedback, turns],
   );
 
-  return { turns, busy, send, stop, retry, undo, clear, rate };
+  return {
+    turns,
+    busy,
+    send,
+    stop,
+    retry,
+    undo,
+    clear,
+    rate,
+    // The id the SERVER filed this conversation under, which is not the id the browser
+    // uses for its own URL and storage. Exposed so the shell can record the link; without
+    // it, syncing pulls the server's copy back as a second, duplicate conversation.
+    serverConversationId: conversationRef.current,
+  };
 }

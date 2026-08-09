@@ -23,7 +23,7 @@ export function Chat({
 }: {
   sourceCount?: number;
   initialTurns?: Turn[];
-  onTurnsChange?: (turns: Turn[]) => void;
+  onTurnsChange?: (turns: Turn[], serverConversationId: string | null) => void;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
   model: string | null;
@@ -62,7 +62,17 @@ export function Chat({
     [accessToken],
   );
 
-  const { turns, busy, send, stop, retry, undo, clear, rate } = useChat({
+  const {
+    turns,
+    busy,
+    send,
+    stop,
+    retry,
+    undo,
+    clear,
+    rate,
+    serverConversationId,
+  } = useChat({
     accessToken,
     model,
     initialTurns,
@@ -73,8 +83,8 @@ export function Chat({
   // written to storage on every token.
   useEffect(() => {
     if (busy || turns.length === 0) return;
-    onTurnsChange?.(turns);
-  }, [busy, turns, onTurnsChange]);
+    onTurnsChange?.(turns, serverConversationId);
+  }, [busy, turns, serverConversationId, onTurnsChange]);
 
   const { scrollRef, bottomRef, isPinned, scrollToBottom } = useStickToBottom([
     turns,

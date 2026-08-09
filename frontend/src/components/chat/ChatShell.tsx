@@ -64,7 +64,7 @@ export function ChatShell({
   const navigatedRef = useRef(Boolean(conversationId));
 
   const persist = useCallback(
-    (turns: Turn[]) => {
+    (turns: Turn[], serverConversationId: string | null) => {
       const firstQuestion = turns.find((turn) => turn.role === "user");
       if (!firstQuestion) return;
 
@@ -76,6 +76,9 @@ export function ChatShell({
         createdAt: existing?.createdAt ?? Date.now(),
         updatedAt: Date.now(),
         turns,
+        // Links this local conversation to the row the API created, so account sync
+        // recognises it instead of adding a duplicate.
+        serverId: serverConversationId ?? existing?.serverId,
       });
 
       // Move to the conversation's own URL after the first exchange. `replace`, not

@@ -30,6 +30,18 @@ export interface Conversation {
   createdAt: number;
   updatedAt: number;
   turns: Turn[];
+  /**
+   * The id the SERVER filed this conversation under, when the user was signed in.
+   *
+   * Deliberately separate from `id`. The browser mints its own id before the first request
+   * — it needs one for the URL and for storage — while Postgres mints a different one on
+   * insert. Both are correct; they are simply two names for the same conversation.
+   *
+   * Recording the link is what stops sync from treating the server's copy as a new
+   * conversation. Without it, asking one question while signed in produced TWO sidebar
+   * entries: the local one holding the transcript, and the server's arriving empty.
+   */
+  serverId?: string;
 }
 
 type Listener = () => void;
@@ -173,7 +185,13 @@ export function mergeServerConversations(
   }[],
 ): number {
   const local = read();
-  const known = new Set(local.map((conversation) => conversation.id));
+  // Match on BOTH ids. A conversation created on this device is known by its server id,
+  // and one synced from elsewhere is known by the id it arrived with.
+  const known = new Set<string>();
+  for (const conversation of local) {
+    known.add(conversation.id);
+    if (conversation.serverId) known.add(conversation.serverId);
+  }
 
   const additions: Conversation[] = remote
     .filter((conversation) => !known.has(conversation.id))
