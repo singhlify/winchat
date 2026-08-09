@@ -1,6 +1,9 @@
 "use client";
 
-import ReactMarkdown, { defaultUrlTransform, type Components } from "react-markdown";
+import ReactMarkdown, {
+  defaultUrlTransform,
+  type Components,
+} from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { visit } from "unist-util-visit";
 import type { Root, Text } from "mdast";
@@ -37,7 +40,9 @@ function remarkCitations(validIndexes: Set<number>) {
       if (parent.type === "link") return; // never nest a link inside a link
 
       const pattern = /\[(\d+)\]/g;
-      const children: (Text | { type: "link"; url: string; children: Text[] })[] = [];
+      const children: (
+        Text | { type: "link"; url: string; children: Text[] }
+      )[] = [];
       let lastIndex = 0;
       let match: RegExpExecArray | null;
 
@@ -46,7 +51,10 @@ function remarkCitations(validIndexes: Set<number>) {
         if (!validIndexes.has(citationIndex)) continue;
 
         if (match.index > lastIndex) {
-          children.push({ type: "text", value: node.value.slice(lastIndex, match.index) });
+          children.push({
+            type: "text",
+            value: node.value.slice(lastIndex, match.index),
+          });
         }
         children.push({
           type: "link",
@@ -76,13 +84,17 @@ export function Markdown({
   citations?: Citation[];
   className?: string;
 }) {
-  const byIndex = new Map(citations.map((citation) => [citation.index, citation]));
+  const byIndex = new Map(
+    citations.map((citation) => [citation.index, citation]),
+  );
   const validIndexes = new Set(byIndex.keys());
 
   const components: Components = {
     a({ href, children: linkChildren, ...props }) {
       if (href?.startsWith(CITATION_PROTOCOL)) {
-        const citation = byIndex.get(Number(href.slice(CITATION_PROTOCOL.length)));
+        const citation = byIndex.get(
+          Number(href.slice(CITATION_PROTOCOL.length)),
+        );
         if (!citation) return <span>[{linkChildren}]</span>;
 
         return (
@@ -94,7 +106,16 @@ export function Markdown({
             // user nothing about what they are about to open.
             aria-label={`Source ${citation.index}: ${citation.question} (opens on ask.uwindsor.ca)`}
             title={citation.question}
-            className="mx-0.5 inline-flex h-4 min-w-4 translate-y-[-1px] items-center justify-center rounded-[4px] border border-primary/25 bg-primary/10 px-1 align-middle text-[10px] font-semibold text-primary no-underline tabular-nums transition-colors hover:border-primary/50 hover:bg-primary/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            // Gold, not blue. A citation is the one thing on this page the reader is
+            // meant to notice and follow, and gold is the brand's emphasis colour — the
+            // same mark used on the landing page's worked example, so the gesture is
+            // already familiar before anyone reaches the app.
+            //
+            // The lift on hover is 1px and 120ms. Enough to feel like the marker responds
+            // to the cursor; small enough that a paragraph containing six of them does not
+            // ripple when the mouse crosses it. Disabled under reduced motion, where a
+            // moving target is exactly the problem.
+            className="border-gold/40 bg-gold/15 text-gold-foreground focus-visible:outline-ring mx-0.5 inline-flex h-4 min-w-4 translate-y-[-1px] items-center justify-center rounded-[4px] border px-1 align-middle text-[10px] font-semibold tabular-nums no-underline transition-all duration-120 hover:-translate-y-[2px] hover:border-gold/70 hover:bg-gold/30 focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-[-1px]"
           >
             {linkChildren}
           </a>
@@ -116,19 +137,27 @@ export function Markdown({
       );
     },
     ol: ({ children: c }) => (
-      <ol className="my-2 list-decimal space-y-1 pl-5 marker:text-muted-foreground">{c}</ol>
+      <ol className="my-2 list-decimal space-y-1 pl-5 marker:text-muted-foreground">
+        {c}
+      </ol>
     ),
     ul: ({ children: c }) => (
-      <ul className="my-2 list-disc space-y-1 pl-5 marker:text-muted-foreground">{c}</ul>
+      <ul className="my-2 list-disc space-y-1 pl-5 marker:text-muted-foreground">
+        {c}
+      </ul>
     ),
     li: ({ children: c }) => <li className="pl-0.5">{c}</li>,
     p: ({ children: c }) => <p className="my-2 first:mt-0 last:mb-0">{c}</p>,
     strong: ({ children: c }) => <strong className="font-semibold">{c}</strong>,
     code: ({ children: c }) => (
-      <code className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">{c}</code>
+      <code className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
+        {c}
+      </code>
     ),
     pre: ({ children: c }) => (
-      <pre className="my-3 overflow-x-auto rounded-lg bg-muted p-3 text-sm">{c}</pre>
+      <pre className="my-3 overflow-x-auto rounded-lg bg-muted p-3 text-sm">
+        {c}
+      </pre>
     ),
     table: ({ children: c }) => (
       <div className="my-3 overflow-x-auto">
@@ -136,9 +165,13 @@ export function Markdown({
       </div>
     ),
     th: ({ children: c }) => (
-      <th className="border-b border-border px-2 py-1 text-left font-medium">{c}</th>
+      <th className="border-b border-border px-2 py-1 text-left font-medium">
+        {c}
+      </th>
     ),
-    td: ({ children: c }) => <td className="border-b border-border/50 px-2 py-1">{c}</td>,
+    td: ({ children: c }) => (
+      <td className="border-b border-border/50 px-2 py-1">{c}</td>
+    ),
     h1: ({ children: c }) => <h3 className="mt-3 mb-1 font-semibold">{c}</h3>,
     h2: ({ children: c }) => <h3 className="mt-3 mb-1 font-semibold">{c}</h3>,
     h3: ({ children: c }) => <h3 className="mt-3 mb-1 font-semibold">{c}</h3>,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CountUp } from "@/components/CountUp";
 import { Reveal } from "@/components/Reveal";
 import { RetrievalMark } from "@/components/RetrievalMark";
 import { fetchSources } from "@/lib/api/client";
@@ -236,13 +237,14 @@ export default async function LandingPage() {
               >
                 <dt className="sr-only">{stat.label}</dt>
                 <dd>
-                  <span className="block text-3xl font-semibold tracking-tight">
-                    {stat.value}
-                  </span>
-                  <span className="mt-1 block text-sm font-medium">
+                  <CountUp
+                    value={stat.value}
+                    className="text-gold-foreground font-display block text-5xl leading-none"
+                  />
+                  <span className="mt-3 block text-sm font-medium">
                     {stat.label}
                   </span>
-                  <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">
+                  <span className="text-muted-foreground mt-1.5 block text-xs leading-relaxed">
                     {stat.detail}
                   </span>
                 </dd>
