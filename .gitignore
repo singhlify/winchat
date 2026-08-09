@@ -34,7 +34,9 @@ chroma/
 .vscode/
 
 
-# Local development context — not part of the shipped project
-docs/
+# Local development context — not part of the shipped project.
+# No trailing slash on `docs`: it is a symlink to the private notes repo, and `docs/` matches
+# only real directories, so the slash would leave the link itself tracked.
+docs
 CONTRIBUTING.md
 scripts/azure_free_tier_audit.sh
