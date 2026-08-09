@@ -1,9 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 
 import { Credit } from "@/components/Credit";
+import { SiteNav } from "@/components/SiteNav";
 
 import { Button } from "@/components/ui/button";
 import { fetchReadiness } from "@/lib/api/client";
@@ -58,106 +58,100 @@ export default function StatusPage() {
   });
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6">
-      <nav className="text-sm">
-        <Link
-          href="/"
-          className="text-muted-foreground underline underline-offset-2 hover:text-foreground"
-        >
-          ← Back to WinChat
-        </Link>
-      </nav>
+    <>
+      <SiteNav />
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6">
+        <main id="main" className="flex flex-col gap-4">
+          <header className="flex items-baseline justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">
+                System status
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Each dependency answers a real call, not a ping.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+            >
+              {isFetching ? "Checking…" : "Re-check"}
+            </Button>
+          </header>
 
-      <main id="main" className="flex flex-col gap-4">
-        <header className="flex items-baseline justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              System status
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Each dependency answers a real call, not a ping.
+          {error && (
+            <p
+              role="alert"
+              className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm"
+            >
+              {error instanceof Error
+                ? error.message
+                : "Could not reach the API."}
             </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void refetch()}
-            disabled={isFetching}
-          >
-            {isFetching ? "Checking…" : "Re-check"}
-          </Button>
-        </header>
+          )}
 
-        {error && (
-          <p
-            role="alert"
-            className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm"
-          >
-            {error instanceof Error
-              ? error.message
-              : "Could not reach the API."}
-          </p>
-        )}
+          {data && (
+            <>
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Dot
+                  status={
+                    data.status === "ok"
+                      ? "ok"
+                      : data.status === "error"
+                        ? "error"
+                        : "not_configured"
+                  }
+                />
+                {data.status === "ok"
+                  ? "Everything is working."
+                  : data.status === "degraded"
+                    ? "Working, with something not configured."
+                    : "Something is wrong. Answers may fail."}
+              </p>
 
-        {data && (
-          <>
-            <p className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Dot
-                status={
-                  data.status === "ok"
-                    ? "ok"
-                    : data.status === "error"
-                      ? "error"
-                      : "not_configured"
-                }
-              />
-              {data.status === "ok"
-                ? "Everything is working."
-                : data.status === "degraded"
-                  ? "Working, with something not configured."
-                  : "Something is wrong. Answers may fail."}
-            </p>
-
-            <ul className="flex flex-col gap-2">
-              {Object.entries(data.checks).map(([name, check]) => (
-                <li
-                  key={name}
-                  className="flex items-start justify-between gap-4 rounded-xl border border-border px-4 py-3"
-                >
-                  <div className="flex items-start gap-3">
-                    <Dot status={check.status} className="mt-1.5" />
-                    <div>
-                      <p className="font-medium">
-                        {EXPLAINS[name]?.title ?? name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {EXPLAINS[name]?.means}
-                      </p>
-                      {(check.detail || check.model) && (
-                        <p className="text-muted-foreground/70 mt-1 text-xs">
-                          {[check.detail, check.model]
-                            .filter(Boolean)
-                            .join(" · ")}
+              <ul className="flex flex-col gap-2">
+                {Object.entries(data.checks).map(([name, check]) => (
+                  <li
+                    key={name}
+                    className="flex items-start justify-between gap-4 rounded-xl border border-border px-4 py-3"
+                  >
+                    <div className="flex items-start gap-3">
+                      <Dot status={check.status} className="mt-1.5" />
+                      <div>
+                        <p className="font-medium">
+                          {EXPLAINS[name]?.title ?? name}
                         </p>
-                      )}
+                        <p className="text-sm text-muted-foreground">
+                          {EXPLAINS[name]?.means}
+                        </p>
+                        {(check.detail || check.model) && (
+                          <p className="text-muted-foreground/70 mt-1 text-xs">
+                            {[check.detail, check.model]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  {check.latency_ms !== null && (
-                    <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
-                      {check.latency_ms} ms
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </main>
+                    {check.latency_ms !== null && (
+                      <span className="shrink-0 text-sm tabular-nums text-muted-foreground">
+                        {check.latency_ms} ms
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </main>
 
-      <footer className="border-border mt-12 border-t pt-6 pb-10">
-        <Credit className="text-muted-foreground text-sm" />
-      </footer>
-    </div>
+        <footer className="border-border mt-12 border-t pt-6 pb-10">
+          <Credit className="text-muted-foreground text-sm" />
+        </footer>
+      </div>
+    </>
   );
 }
 

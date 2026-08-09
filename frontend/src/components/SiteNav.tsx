@@ -50,9 +50,9 @@ export function SiteNav({
 
   // Hidden inside the app, where the sidebar already carries this link. Two routes to the
   // same page a few hundred pixels apart reads as an oversight, not as convenience.
-  const links = pathname.startsWith("/app")
-    ? []
-    : [{ href: "/sources", label: "Sources" }];
+  const inApp = pathname.startsWith("/app");
+
+  const links = inApp ? [] : [{ href: "/sources", label: "Sources" }];
 
   return (
     <header
@@ -71,7 +71,15 @@ export function SiteNav({
           className="focus-visible:outline-ring flex items-center gap-2 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
         >
           <Logo className="text-primary size-[22px]" />
-          <span className="hidden text-sm font-semibold tracking-tight sm:inline">
+          <span
+            className={cn(
+              "text-sm font-semibold tracking-tight",
+              // Hidden on a narrow screen ONLY inside the app, where the model picker needs
+              // the room. Everywhere else nothing is competing for it, so hiding the name
+              // would just make the bar emptier for no gain.
+              inApp && "hidden sm:inline",
+            )}
+          >
             WinChat
           </span>
         </Link>
