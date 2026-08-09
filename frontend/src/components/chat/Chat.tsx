@@ -1,13 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
+import { FollowUps } from "@/components/chat/FollowUps";
+import { ShortcutsDialog } from "@/components/chat/ShortcutsDialog";
 import { AssistantMessage, UserMessage } from "@/components/chat/Message";
 import { Composer, type ComposerHandle } from "@/components/chat/Composer";
 import { EmptyState } from "@/components/chat/EmptyState";
 import { useChat, type Turn } from "@/components/chat/use-chat";
 import { submitFeedback } from "@/lib/api/client";
 import { useSession } from "@/lib/session";
+import { useShortcuts } from "@/lib/use-shortcuts";
 import { useAccountSync } from "@/lib/use-account-sync";
 import { useStickToBottom } from "@/components/chat/use-stick-to-bottom";
 import { Header } from "@/components/Header";
@@ -30,6 +33,7 @@ export function Chat({
   onModelChange: (model: string | null) => void;
 }) {
   const [draft, setDraft] = useState("");
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   // The session lives in context: ChatShell sits above this component and needs the same
   // token to hydrate a conversation opened from another device.
   const { accessToken, setAccessToken } = useSession();
@@ -37,6 +41,7 @@ export function Chat({
   // Signing in makes the account's saved conversations appear in the sidebar. Without
   // this the server kept a history it could never show anyone.
   useAccountSync(accessToken);
+
   const composerRef = useRef<ComposerHandle>(null);
 
   const onFeedback = useCallback(
@@ -97,6 +102,13 @@ export function Chat({
     (token: string | null) => setAccessToken(token),
     [setAccessToken],
   );
+
+  useShortcuts({
+    onNewChat: clear,
+    onStop: stop,
+    onShowHelp: () => setShortcutsOpen(true),
+    busy,
+  });
 
   const submit = useCallback(() => {
     send(draft);
@@ -197,13 +209,23 @@ export function Chat({
                     onEdit={busy ? undefined : () => handleEdit(index)}
                   />
                 ) : (
-                  <AssistantMessage
-                    key={turn.id}
-                    turn={turn}
-                    isLast={index === turns.length - 1}
-                    onRetry={retry}
-                    onRate={(vote) => rate(turn.id, vote)}
-                  />
+                  // A fragment, not a wrapper element: `ol` may only contain `li`, and a
+                  // stray div breaks the item count a screen reader announces.
+                  <Fragment key={turn.id}>
+                    <AssistantMessage
+                      turn={turn}
+                      isLast={index === turns.length - 1}
+                      onRetry={retry}
+                      onRate={(vote) => rate(turn.id, vote)}
+                    />
+                    {/* Only under the newest answer: suggestions beneath an older turn
+                        would compete with a conversation that has since moved on. */}
+                    {index === turns.length - 1 && (
+                      <li>
+                        <FollowUps turn={turn} onAsk={ask} disabled={busy} />
+                      </li>
+                    )}
+                  </Fragment>
                 ),
               )}
             </ol>
@@ -223,6 +245,11 @@ export function Chat({
           </button>
         </div>
       )}
+
+      <ShortcutsDialog
+        open={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+      />
 
       {/* pb-[env(safe-area-inset-bottom)] keeps the composer clear of the iOS home bar. */}
       <div className="border-t border-border/60 bg-background/85 backdrop-blur">
