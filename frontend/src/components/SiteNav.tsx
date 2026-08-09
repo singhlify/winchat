@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { AccountMenu } from "@/components/AccountMenu";
+import { Logo } from "@/components/Logo";
 import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
@@ -64,14 +65,7 @@ export function SiteNav({
           href="/"
           className="focus-visible:outline-ring flex items-center gap-2 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.svg"
-            alt=""
-            width={22}
-            height={22}
-            className="rounded-[5px]"
-          />
+          <Logo className="text-primary size-[22px]" />
           <span className="text-sm font-semibold tracking-tight">WinChat</span>
         </Link>
 

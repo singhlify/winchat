@@ -1,11 +1,4 @@
-<svg width="512" height="512" viewBox="32 32 448 448" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WinChat">
-  <defs>
-    <linearGradient id="wc" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0b4f6c" />
-      <stop offset="100%" stop-color="#3a9ec4" />
-    </linearGradient>
-  </defs>
-  <rect x="32" y="32" width="448" height="448" rx="104" fill="url(#wc)" />
-  <path d="M 160 152 h 192 c 26.5 0 48 21.5 48 48 v 96 c 0 26.5 -21.5 48 -48 48 h -112 l -48 48 v -48 h -32 c -26.5 0 -48 -21.5 -48 -48 v -96 c 0 -26.5 21.5 -48 48 -48 z" fill="#FFFFFF" />
-  <path d="M 188 212 l 28 72 l 40 -48 l 40 48 l 28 -72" fill="none" stroke="url(#wc)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+<svg width="512" height="512" viewBox="112 136 288 288" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WinChat">
+  <path d="M 160 152 h 192 c 26.5 0 48 21.5 48 48 v 96 c 0 26.5 -21.5 48 -48 48 h -112 l -48 48 v -48 h -32 c -26.5 0 -48 -21.5 -48 -48 v -96 c 0 -26.5 21.5 -48 48 -48 z" fill="#0b4f6c" />
+  <path d="M 188 212 l 28 72 l 40 -48 l 40 48 l 28 -72" fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
 </svg>
