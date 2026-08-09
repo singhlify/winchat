@@ -91,7 +91,11 @@ function SidebarContent({ onNavigate }: { onNavigate: () => void }) {
       {/* No wordmark and no spacer. The global nav carries the wordmark, and reserving
           its height here just moved the redundancy from a duplicate label to an empty
           band. "New chat" is the first thing you want in a sidebar, so it goes first. */}
-      <div className="px-3 pt-3 pb-2">
+      {/* pt-12 on mobile only. Inside the Sheet the close button sits at the top-right,
+          and removing the old header spacer left "New chat" sliding underneath it. On
+          desktop there is no Sheet and no close button, so the padding would just be a
+          gap. */}
+      <div className="px-3 pt-12 pb-2 md:pt-3">
         <Button
           asChild
           variant="outline"
