@@ -4,7 +4,6 @@ import { PenSquare } from "lucide-react";
 
 import { SidebarToggle } from "@/components/chat/Sidebar";
 
-import { ModelPicker } from "@/components/ModelPicker";
 import { SiteNav } from "@/components/SiteNav";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,14 +29,10 @@ import {
  * than a preference.
  */
 export function Header({
-  model,
-  onModelChange,
   onNewChat,
   sidebarOpen,
   onToggleSidebar,
 }: {
-  model: string | null;
-  onModelChange: (model: string | null) => void;
   onNewChat?: () => void;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
@@ -46,7 +41,6 @@ export function Header({
     <SiteNav
       // No "Open WinChat" here: it would point at the page you are already on.
       cta={false}
-      trailing={<ModelPicker value={model} onChange={onModelChange} />}
       leading={
         <>
           <SidebarToggle open={sidebarOpen} onToggle={onToggleSidebar} />

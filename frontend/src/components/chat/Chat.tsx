@@ -158,8 +158,6 @@ export function Chat({
     // The shell owns the viewport height; this fills whatever column it is given.
     <div className="flex h-full min-h-0 flex-col">
       <Header
-        model={model}
-        onModelChange={onModelChange}
         onNewChat={turns.length > 0 ? clear : undefined}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={onToggleSidebar}
@@ -255,6 +253,8 @@ export function Chat({
             onChange={setDraft}
             onSubmit={submit}
             onStop={stop}
+            model={model}
+            onModelChange={onModelChange}
             busy={busy}
           />
         </div>

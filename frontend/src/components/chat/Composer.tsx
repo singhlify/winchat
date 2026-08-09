@@ -3,6 +3,7 @@
 import { ArrowUp, Square } from "lucide-react";
 
 import { Credit } from "@/components/Credit";
+import { ModelPicker } from "@/components/ModelPicker";
 import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,8 @@ export function Composer({
   onChange,
   onSubmit,
   onStop,
+  model,
+  onModelChange,
   busy,
   ref,
 }: {
@@ -42,6 +45,8 @@ export function Composer({
   onChange: (value: string) => void;
   onSubmit: () => void;
   onStop: () => void;
+  model?: string | null;
+  onModelChange?: (model: string | null) => void;
   busy: boolean;
   ref?: Ref<ComposerHandle>;
 }) {
@@ -138,16 +143,26 @@ export function Composer({
         )}
       </div>
 
+      {/* The model picker lives here, not in the top bar.
+       *
+       * It was in the nav, where it had no room at 390px and was hidden outright — so on a
+       * phone there was no way to choose a model at all. Beside the composer it is visible
+       * at every width and sits next to the thing it actually governs: the message you are
+       * about to send. That is where every major chat UI puts it, and the reason is the same.
+       *
+       * Not the sidebar, which would hide it behind a drawer on exactly the devices that
+       * had the problem. */}
       <div
         id="composer-hint"
-        className="mt-1.5 flex items-center justify-between gap-3 px-1 text-[11px] text-muted-foreground"
+        className="mt-1.5 flex items-center justify-between gap-2 px-1 text-[11px] text-muted-foreground"
       >
+        {onModelChange && (
+          <ModelPicker value={model ?? null} onChange={onModelChange} />
+        )}
         {/* The name contains "Win", which reads as Windsor, so independence has to be
             stated where people actually look — not in a footer nobody scrolls to. This
             sits under the composer, the one element present on every screen. */}
-        <span className="min-w-0 truncate">
-          <Credit />
-        </span>
+
         <span className="hidden shrink-0 sm:inline">
           <kbd className="rounded border border-border px-1 py-px font-sans">
             Enter
@@ -164,6 +179,11 @@ export function Composer({
           </span>
         )}
       </div>
+
+      {/* Its own quiet line, so a credit never competes with a control for the same row. */}
+      <p className="text-muted-foreground mt-1 px-1 text-center text-[11px]">
+        <Credit />
+      </p>
     </form>
   );
 }

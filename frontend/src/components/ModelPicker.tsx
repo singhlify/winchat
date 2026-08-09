@@ -42,7 +42,7 @@ export function ModelPicker({
       <SelectTrigger
         size="sm"
         aria-label="Language model"
-        className="hidden max-w-[13rem] font-mono text-xs sm:flex"
+        className="flex max-w-[9rem] font-mono text-xs sm:max-w-[13rem]"
       >
         <SelectValue />
       </SelectTrigger>
