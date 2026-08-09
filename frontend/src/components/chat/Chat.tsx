@@ -36,7 +36,7 @@ export function Chat({
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   // The session lives in context: ChatShell sits above this component and needs the same
   // token to hydrate a conversation opened from another device.
-  const { accessToken, setAccessToken } = useSession();
+  const { accessToken } = useSession();
 
   // Signing in makes the account's saved conversations appear in the sidebar. Without
   // this the server kept a history it could never show anyone.
@@ -98,10 +98,6 @@ export function Chat({
   // `setAccessToken` is a useState setter behind the context, so it is referentially
   // stable and listing it costs nothing — but the linter cannot prove that through a
   // context boundary, and silencing the rule is worse than satisfying it.
-  const handleSession = useCallback(
-    (token: string | null) => setAccessToken(token),
-    [setAccessToken],
-  );
 
   useShortcuts({
     onNewChat: clear,
@@ -163,7 +159,6 @@ export function Chat({
     // The shell owns the viewport height; this fills whatever column it is given.
     <div className="flex h-full min-h-0 flex-col">
       <Header
-        onSession={handleSession}
         model={model}
         onModelChange={onModelChange}
         onNewChat={turns.length > 0 ? clear : undefined}

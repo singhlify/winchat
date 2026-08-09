@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     "Every University of Windsor FAQ article WinChat can answer from, with a direct link to each one on ask.uwindsor.ca.",
   alternates: { canonical: "/sources" },
   openGraph: {
-    title: "All sources — WinChat",
+    title: "All sources · WinChat",
     description:
       "The complete list of University of Windsor FAQ articles behind every WinChat answer.",
     url: "/sources",
@@ -77,7 +77,7 @@ export default async function SourcesPage() {
           </h1>
           <p className="max-w-prose text-[15px] text-muted-foreground text-pretty">
             WinChat answers only from the {total > 0 ? `${total} ` : ""}
-            University of Windsor FAQ articles below — nothing else. Each one
+            University of Windsor FAQ articles below, and nothing else. Each one
             links to the university&rsquo;s own published page, so you can
             verify any answer at its origin. If a topic isn&rsquo;t on this
             list, WinChat will tell you it doesn&rsquo;t know rather than guess.
@@ -92,7 +92,7 @@ export default async function SourcesPage() {
             >
               ask.uwindsor.ca
             </a>{" "}
-            — the University of Windsor&rsquo;s official answer service. WinChat
+            , the University of Windsor&rsquo;s official answer service. WinChat
             is an independent project and is not affiliated with or operated by
             the university.
           </p>

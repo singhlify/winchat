@@ -88,9 +88,10 @@ function SidebarContent({ onNavigate }: { onNavigate: () => void }) {
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
-      <div className="flex items-center gap-2 px-3 py-3">
-        <span className="text-sm font-semibold tracking-tight">WinChat</span>
-      </div>
+      {/* No wordmark here. The global nav carries it, and two "WinChat" labels a few
+          pixels apart read as a rendering bug rather than as branding. The spacing is kept
+          so the sidebar's first control still lines up with the nav's. */}
+      <div className="h-[52px]" aria-hidden />
 
       <div className="px-3 pb-2">
         <Button

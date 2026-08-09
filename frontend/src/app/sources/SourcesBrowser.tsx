@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, Search } from "lucide-react";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 import type { Source } from "@/lib/api/schemas";
 
@@ -18,6 +18,33 @@ import type { Source } from "@/lib/api/schemas";
  */
 export function SourcesBrowser({ sources }: { sources: Source[] }) {
   const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // "/" to focus the filter, the convention in every search-first interface, plus
+  // Cmd/Ctrl+K for people who expect a command palette. Neither fires while you are
+  // already typing somewhere, or "/" would be impossible to type into this very field.
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const typing =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+
+      const wants =
+        (event.key === "/" && !typing) ||
+        ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k");
+
+      if (!wants) return;
+      event.preventDefault();
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
   const deferredQuery = useDeferredValue(query);
 
   const filtered = useMemo(() => {
@@ -40,10 +67,11 @@ export function SourcesBrowser({ sources }: { sources: Source[] }) {
         </label>
         <input
           id="source-filter"
+          ref={inputRef}
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Filter these articles…"
+          placeholder="Filter these articles…    /"
           className="h-11 w-full rounded-xl border border-input bg-background pr-3 pl-9 text-[15px] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/25"
         />
       </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CorpusField } from "@/components/CorpusField";
+import { SiteNav } from "@/components/SiteNav";
 import { CountUp } from "@/components/CountUp";
 import { HeroScroll } from "@/components/HeroScroll";
 import { Reveal } from "@/components/Reveal";
@@ -25,7 +26,7 @@ import { fetchSources } from "@/lib/api/client";
 
 export const revalidate = 3600;
 
-const TITLE = "WinChat — University of Windsor FAQ, answered with sources";
+const TITLE = "WinChat · University of Windsor FAQ, answered with sources";
 const DESCRIPTION =
   "Ask about admissions, fees, courses and campus services. Every answer is drawn from the " +
   "university's own published FAQ articles and links back to the source, so you can check " +
@@ -97,23 +98,7 @@ export default async function LandingPage() {
         Skip to content
       </a>
 
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
-        <span className="text-sm font-semibold tracking-tight">WinChat</span>
-        <nav aria-label="Primary" className="flex items-center gap-5 text-sm">
-          <Link
-            href="/sources"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Sources
-          </Link>
-          <Link
-            href="/app"
-            className="rounded-full bg-primary px-4 py-1.5 font-medium text-primary-foreground hover:opacity-90"
-          >
-            Open WinChat
-          </Link>
-        </nav>
-      </header>
+      <SiteNav />
 
       <main id="main">
         {/* Left-aligned, not centred. A centred hero over a centred sub-head over a
@@ -142,7 +127,7 @@ export default async function LandingPage() {
                   Admissions, fees, courses, UwinCARD, deadlines. WinChat
                   answers from
                   {sourceCount ? ` ${sourceCount} ` : " "}
-                  published FAQ articles and links to every one it used — and
+                  published FAQ articles and links to every one it used, and
                   tells you when the answer isn’t there.
                 </p>
 
@@ -188,7 +173,7 @@ export default async function LandingPage() {
                     <span className="bg-gold/25 text-gold-ink mr-1.5 rounded px-1 py-0.5 font-medium">
                       1
                     </span>
-                    Is there a fee for the UwinCARD? — ask.uwindsor.ca
+                    Is there a fee for the UwinCARD? · ask.uwindsor.ca
                   </p>
                 </figure>
               </div>
@@ -268,7 +253,7 @@ export default async function LandingPage() {
           <p className="text-muted-foreground border-gold/50 mt-8 max-w-2xl border-l-2 pl-4 text-sm leading-relaxed">
             Honest limits: the graded set is 26 hand-written questions, so these
             are indicative rather than definitive, and one known failure remains
-            — the model occasionally computes a date instead of copying it.
+            : the model occasionally computes a date instead of copying it.
             Always confirm anything that affects a deadline or a payment against
             the official page.
           </p>
@@ -315,8 +300,8 @@ export default async function LandingPage() {
             >
               ask.uwindsor.ca
             </a>{" "}
-            and links back to it. For anything official — deadlines, fees,
-            admission decisions — use the university’s own pages.
+            and links back to it. For anything official, such as deadlines, fees
+            or admission decisions, use the university’s own pages.
           </p>
 
           <nav

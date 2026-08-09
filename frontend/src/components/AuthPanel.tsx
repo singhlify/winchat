@@ -195,7 +195,7 @@ export function AuthPanel({
                 exists. Copy is a claim like any other. */}
             {view === "forgot"
               ? "We will email you a link to choose a new password."
-              : "Optional. WinChat works without an account — signing in saves your conversations to your account and raises your hourly limit from 20 to 100."}
+              : "Optional. WinChat works without an account. Signing in saves your conversations and raises your hourly limit from 20 to 100."}
           </p>
 
           {view !== "forgot" && (
