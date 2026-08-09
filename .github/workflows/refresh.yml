@@ -1,0 +1,129 @@
+name: Corpus refresh
+
+# Re-scrapes ask.uwindsor.ca and updates the index in place.
+#
+# Weekly rather than every few months because the source is bursty: measured over 12 months
+# it averages 8 edits a month, but clusters at term boundaries (27 in one March, 23 in one
+# November) when deadlines and fees change. Those are the answers people ask about, so a long
+# cycle would serve stale dates with a real citation attached, which is worse than refusing.
+#
+# Runs the day before the eval gate, so Monday's run grades the corpus this job produced.
+#
+# No redeploy follows. The API reads the same database, so new vectors are live the moment
+# this finishes.
+
+on:
+  schedule:
+    - cron: "0 6 * * 0" # Sundays 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      max_deletion_ratio:
+        description: "Share of the corpus a refresh may delete. Raise it only for a genuine bulk removal."
+        required: false
+        default: "0.05"
+
+# Never let two refreshes write to the index at once.
+concurrency:
+  group: corpus-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    # Holds the database and Cohere credentials. The job has to name the environment or the
+    # secrets are not injected.
+    environment: prod
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        # Named explicitly to get `set -o pipefail`, which GitHub does NOT apply to the
+        # default shell. Without it `scraper | tee` reports tee's exit code, so a refusing
+        # scraper would look like a passing step and the guard would protect nothing.
+        shell: bash
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      # Must match what the stored vectors were built with. A mismatch does not error, it
+      # retrieves confident nonsense.
+      EMBEDDING_PROVIDER: cohere
+      COHERE_EMBED_MODEL: embed-v4.0
+      COHERE_EMBED_DIMENSION: "1024"
+      RERANK_PROVIDER: cohere
+      RERANK_MODEL: rerank-v3.5
+      # Offline work can afford to wait out a rate-limit window. Failing halfway through the
+      # corpus is worse than taking longer.
+      EMBEDDING_INGEST_RETRY_BUDGET_S: "300"
+      RERANK_RETRY_BUDGET_S: "120"
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: backend/.python-version
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install
+        working-directory: backend
+        run: uv sync --locked
+
+      # Stdlib only, so it runs outside the project environment. Exits non-zero if the
+      # sitemap looks broken or too many pages failed, which stops the ingest from ever
+      # seeing a truncated corpus.
+      - name: Scrape the FAQ
+        run: python scripts/scrape_ask_uwindsor.py | tee scrape.log
+
+      - name: Plan the update
+        working-directory: backend
+        run: |
+          uv run python -m winchat_api.ingestion.run \
+            --dry-run \
+            --max-deletion-ratio "${{ inputs.max_deletion_ratio || '0.05' }}" \
+            2>&1 | tee plan.log
+
+      - name: Update the index
+        working-directory: backend
+        run: |
+          uv run python -m winchat_api.ingestion.run \
+            --max-deletion-ratio "${{ inputs.max_deletion_ratio || '0.05' }}" \
+            2>&1 | tee ingest.log
+
+      # Proves the index still answers, rather than assuming it. Deterministic checks only,
+      # so there is no judge cost.
+      - name: Verify retrieval still works
+        working-directory: backend
+        run: uv run python -m winchat_api.evals.run --tier1 --json refresh-eval.json
+
+      - name: Write the report
+        if: always()
+        run: |
+          {
+            echo "## Corpus refresh"
+            echo
+            echo '```'
+            tail -n 3 scrape.log 2>/dev/null || echo "the scrape did not finish"
+            echo
+            grep -E "answers in corpus|REFUSED" backend/ingest.log backend/plan.log 2>/dev/null | tail -n 4 \
+              || echo "no ingest summary, the run stopped before writing"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-logs
+          path: |
+            scrape.log
+            backend/plan.log
+            backend/ingest.log
+            backend/refresh-eval.json
+            data/ask_uwindsor/manifest.json
+          if-no-files-found: warn
