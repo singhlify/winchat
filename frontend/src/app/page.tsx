@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CorpusField } from "@/components/CorpusField";
 import { CountUp } from "@/components/CountUp";
+import { HeroScroll } from "@/components/HeroScroll";
 import { Reveal } from "@/components/Reveal";
 import { RetrievalMark } from "@/components/RetrievalMark";
 import { fetchSources } from "@/lib/api/client";
@@ -118,72 +120,81 @@ export default async function LandingPage() {
             centred button row is the layout every template ships, and it also reads worse:
             centred prose gives the eye no fixed left edge to return to on each line.
             Editorial pages left-align their body text for exactly that reason. */}
-        <section className="mx-auto grid max-w-5xl gap-10 px-6 pt-14 pb-20 sm:pt-20 lg:grid-cols-[1.35fr_1fr] lg:items-end lg:gap-16">
-          <div>
-            <p className="text-gold-foreground flex items-center gap-2.5 text-xs font-medium tracking-[0.14em] uppercase">
-              <span aria-hidden className="bg-gold h-px w-8" />
-              Unofficial · built on the university’s public FAQ
-            </p>
-            <h1 className="font-display mt-6 text-[2.75rem] leading-[1.04] text-balance sm:text-6xl">
-              University of Windsor questions,{" "}
-              <span className="text-gold-foreground italic">
-                answered with the source attached
-              </span>
-            </h1>
-            <p className="text-muted-foreground mt-6 max-w-xl text-lg leading-relaxed text-pretty">
-              Admissions, fees, courses, UwinCARD, deadlines. WinChat answers
-              from
-              {sourceCount ? ` ${sourceCount} ` : " "}
-              published FAQ articles and links to every one it used — and tells
-              you when the answer isn’t there.
-            </p>
+        <div className="relative isolate overflow-hidden">
+          {/* The corpus, behind the words. Masked to fade out before it reaches the text,
+              so it reads as ground rather than competing with the headline. */}
+          <CorpusField className="text-foreground pointer-events-none absolute -top-8 right-0 hidden w-[46%] [mask-image:linear-gradient(to_bottom_left,black,transparent_72%)] lg:block" />
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href="/app"
-                className="bg-primary text-primary-foreground rounded-full px-7 py-3 text-center text-base font-medium transition-opacity hover:opacity-90"
-              >
-                Ask a question
-              </Link>
-              <Link
-                href="/sources"
-                className="border-input hover:bg-muted rounded-full border px-7 py-3 text-center text-base font-medium transition-colors"
-              >
-                Browse the sources
-              </Link>
-            </div>
-            <p className="text-muted-foreground mt-4 text-sm">
-              No account needed. Free to use.
-            </p>
-          </div>
+          <HeroScroll>
+            <section className="mx-auto grid max-w-5xl gap-10 px-6 pt-14 pb-20 sm:pt-20 lg:grid-cols-[1.35fr_1fr] lg:items-end lg:gap-16">
+              <div>
+                <p className="text-gold-foreground flex items-center gap-2.5 text-xs font-medium tracking-[0.14em] uppercase">
+                  <span aria-hidden className="bg-gold h-px w-8" />
+                  Unofficial · built on the university’s public FAQ
+                </p>
+                <h1 className="font-display mt-6 text-[2.75rem] leading-[1.04] text-balance sm:text-6xl">
+                  University of Windsor questions,{" "}
+                  <span className="text-gold-foreground italic">
+                    answered with the source attached
+                  </span>
+                </h1>
+                <p className="text-muted-foreground mt-6 max-w-xl text-lg leading-relaxed text-pretty">
+                  Admissions, fees, courses, UwinCARD, deadlines. WinChat
+                  answers from
+                  {sourceCount ? ` ${sourceCount} ` : " "}
+                  published FAQ articles and links to every one it used — and
+                  tells you when the answer isn’t there.
+                </p>
 
-          {/* A worked example rather than an illustration. It shows the behaviour the whole
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Link
+                    href="/app"
+                    className="bg-primary text-primary-foreground rounded-full px-7 py-3 text-center text-base font-medium transition-opacity hover:opacity-90"
+                  >
+                    Ask a question
+                  </Link>
+                  <Link
+                    href="/sources"
+                    className="border-input hover:bg-muted rounded-full border px-7 py-3 text-center text-base font-medium transition-colors"
+                  >
+                    Browse the sources
+                  </Link>
+                </div>
+                <p className="text-muted-foreground mt-4 text-sm">
+                  No account needed. Free to use.
+                </p>
+              </div>
+
+              {/* A worked example rather than an illustration. It shows the behaviour the whole
               page is claiming — a cited answer — so the second column carries evidence
               instead of decoration. */}
-          <div className="lg:mb-2">
-            <RetrievalMark className="mb-5 w-full max-w-[280px] text-foreground lg:ml-auto" />
-            <figure className="border-border bg-muted/40 rounded-2xl border p-5">
-              <figcaption className="text-muted-foreground text-2xs tracking-[0.12em] uppercase">
-                A real answer
-              </figcaption>
-              <p className="mt-3 text-sm font-medium">
-                “How much does it cost to replace a lost UwinCARD?”
-              </p>
-              <p className="mt-3 text-sm leading-relaxed">
-                There is a $25 charge for the production of replacement cards{" "}
-                <span className="bg-gold/25 text-gold-ink text-2xs rounded px-1 py-0.5 font-medium">
-                  1
-                </span>
-              </p>
-              <p className="text-muted-foreground border-border text-2xs mt-3 border-t pt-3">
-                <span className="bg-gold/25 text-gold-ink mr-1.5 rounded px-1 py-0.5 font-medium">
-                  1
-                </span>
-                Is there a fee for the UwinCARD? — ask.uwindsor.ca
-              </p>
-            </figure>
-          </div>
-        </section>
+              <div className="lg:mb-2">
+                <RetrievalMark className="mb-5 w-full max-w-[280px] text-foreground lg:ml-auto" />
+                <figure className="border-border bg-muted/40 rounded-2xl border p-5">
+                  <figcaption className="text-muted-foreground text-2xs tracking-[0.12em] uppercase">
+                    A real answer
+                  </figcaption>
+                  <p className="mt-3 text-sm font-medium">
+                    “How much does it cost to replace a lost UwinCARD?”
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed">
+                    There is a $25 charge for the production of replacement
+                    cards{" "}
+                    <span className="bg-gold/25 text-gold-ink text-2xs rounded px-1 py-0.5 font-medium">
+                      1
+                    </span>
+                  </p>
+                  <p className="text-muted-foreground border-border text-2xs mt-3 border-t pt-3">
+                    <span className="bg-gold/25 text-gold-ink mr-1.5 rounded px-1 py-0.5 font-medium">
+                      1
+                    </span>
+                    Is there a fee for the UwinCARD? — ask.uwindsor.ca
+                  </p>
+                </figure>
+              </div>
+            </section>
+          </HeroScroll>
+        </div>
 
         <section
           aria-labelledby="trust-heading"

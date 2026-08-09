@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CorpusField } from "@/components/CorpusField";
+
 import { SourcesBrowser } from "@/app/sources/SourcesBrowser";
 import { fetchSources } from "@/lib/api/client";
 import type { Source } from "@/lib/api/schemas";
@@ -59,16 +61,26 @@ export default async function SourcesPage() {
       </nav>
 
       <main id="main">
-        <header className="mb-6 flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-balance">
+        <header className="mb-8 flex flex-col gap-3">
+          <p className="text-gold-foreground flex items-center gap-2.5 text-xs font-medium tracking-[0.14em] uppercase">
+            <span aria-hidden className="bg-gold h-px w-8" />
+            The complete corpus
+          </p>
+          {/* The field is the list, drawn. It gives the page an opening image that is
+              literally its own content rather than a stock header graphic. */}
+          <CorpusField
+            fill
+            className="text-foreground -mt-1 mb-1 h-14 w-full [mask-image:linear-gradient(to_right,black,transparent_85%)]"
+          />
+          <h1 className="font-display text-4xl text-balance sm:text-5xl">
             Every source behind WinChat
           </h1>
           <p className="max-w-prose text-[15px] text-muted-foreground text-pretty">
-            WinChat answers only from the {total > 0 ? total : ""} University of Windsor FAQ
-            articles below — nothing else. Each one links to the university&rsquo;s own
-            published page, so you can verify any answer at its origin. If a topic
-            isn&rsquo;t on this list, WinChat will tell you it doesn&rsquo;t know rather
-            than guess.
+            WinChat answers only from the {total > 0 ? `${total} ` : ""}
+            University of Windsor FAQ articles below — nothing else. Each one
+            links to the university&rsquo;s own published page, so you can
+            verify any answer at its origin. If a topic isn&rsquo;t on this
+            list, WinChat will tell you it doesn&rsquo;t know rather than guess.
           </p>
           <p className="text-sm text-muted-foreground">
             Source:{" "}
@@ -80,14 +92,16 @@ export default async function SourcesPage() {
             >
               ask.uwindsor.ca
             </a>{" "}
-            — the University of Windsor&rsquo;s official answer service. WinChat is an
-            independent project and is not affiliated with or operated by the university.
+            — the University of Windsor&rsquo;s official answer service. WinChat
+            is an independent project and is not affiliated with or operated by
+            the university.
           </p>
         </header>
 
         {unavailable ? (
           <p className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
-            The source list is temporarily unavailable. Please try again shortly.
+            The source list is temporarily unavailable. Please try again
+            shortly.
           </p>
         ) : (
           <SourcesBrowser sources={sources} />

@@ -23,7 +23,9 @@ export function SourcesBrowser({ sources }: { sources: Source[] }) {
   const filtered = useMemo(() => {
     const needle = deferredQuery.trim().toLowerCase();
     if (!needle) return sources;
-    return sources.filter((source) => source.question.toLowerCase().includes(needle));
+    return sources.filter((source) =>
+      source.question.toLowerCase().includes(needle),
+    );
   }, [deferredQuery, sources]);
 
   return (
@@ -54,9 +56,9 @@ export function SourcesBrowser({ sources }: { sources: Source[] }) {
 
       {filtered.length === 0 ? (
         <p className="rounded-lg border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
-          No article titles match &ldquo;{query}&rdquo;. WinChat searches the full text of
-          every article, not just titles, so it may still find an answer — try asking it
-          directly.
+          No article titles match &ldquo;{query}&rdquo;. WinChat searches the
+          full text of every article, not just titles, so it may still find an
+          answer — try asking it directly.
         </p>
       ) : (
         <ul className="flex flex-col divide-y divide-border/60">
@@ -66,7 +68,7 @@ export function SourcesBrowser({ sources }: { sources: Source[] }) {
                 href={source.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex min-h-11 items-start gap-3 py-2.5 transition-colors hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                className="group focus-visible:outline-ring flex min-h-11 items-start gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-accent/60 focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <span className="flex-1 text-[15px] leading-snug group-hover:underline">
                   {source.question}
