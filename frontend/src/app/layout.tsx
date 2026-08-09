@@ -1,14 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Instrument_Serif, Source_Sans_3 } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "@/app/providers";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({
+/**
+ * Two faces, chosen rather than inherited.
+ *
+ * Geist was here because it ships with Next.js — the same reason it is on a large share of
+ * apps built this year, which is exactly the problem. Neither of these is a default
+ * anywhere.
+ *
+ * Source Sans 3 for the interface: a humanist sans with open apertures and a tall
+ * x-height, which is what keeps a 15px answer readable on a phone. Geometric sans faces
+ * look cleaner in a specimen and blur into each other at body size.
+ *
+ * Instrument Serif for display type only. A university FAQ is editorial, academic
+ * material, and a high-contrast serif says so in a way no sans can. Confined to headings,
+ * because a serif at body size on a phone is a readability problem, not a style.
+ */
+const sans = Source_Sans_3({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
+});
+
+const display = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -90,7 +113,7 @@ export default function RootLayout({
   return (
     <html
       lang="en-CA"
-      className={cn("font-sans", geist.variable)}
+      className={cn("font-sans", sans.variable, display.variable)}
       suppressHydrationWarning
     >
       {/* suppressHydrationWarning on <body> too, not just <html>.

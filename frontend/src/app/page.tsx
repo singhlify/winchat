@@ -115,8 +115,11 @@ export default async function LandingPage() {
           <p className="text-sm font-medium text-muted-foreground">
             Unofficial · built on the university’s public FAQ
           </p>
-          <h1 className="mt-4 text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-            University of Windsor questions, answered with the source attached
+          <h1 className="mt-4 font-display text-4xl leading-[1.08] text-balance sm:text-5xl">
+            University of Windsor questions,{" "}
+            <span className="text-gold-foreground italic">
+              answered with the source attached
+            </span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
             Admissions, fees, courses, UwinCARD, deadlines. WinChat answers from
@@ -151,7 +154,7 @@ export default async function LandingPage() {
           <div className="mx-auto max-w-5xl px-6 py-16">
             <h2
               id="trust-heading"
-              className="text-center text-2xl font-semibold tracking-tight"
+              className="text-center font-display text-3xl"
             >
               Why you can check the answers
             </h2>
@@ -177,7 +180,7 @@ export default async function LandingPage() {
         >
           <h2
             id="measured-heading"
-            className="text-center text-2xl font-semibold tracking-tight"
+            className="text-center font-display text-3xl"
           >
             Measured, not asserted
           </h2>
@@ -222,9 +225,7 @@ export default async function LandingPage() {
 
         <section className="border-t border-border">
           <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Ask it something
-            </h2>
+            <h2 className="font-display text-3xl">Ask it something</h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
               “How much does it cost to replace a lost UwinCARD?” · “What is the
               last day to drop a course?” · “How do I activate my UWin account?”
