@@ -68,7 +68,7 @@ export function Chat({
     send,
     stop,
     retry,
-    undo,
+    editFrom,
     clear,
     rate,
     serverConversationId,
@@ -103,10 +103,22 @@ export function Chat({
     setDraft("");
   }, [draft, send]);
 
-  const handleUndo = useCallback(() => {
-    const restored = undo();
-    if (restored !== null) composerRef.current?.setValue(restored);
-  }, [undo]);
+  /**
+   * Rewind to a question and put it back in the composer for rewriting.
+   *
+   * Focus moves to the composer deliberately: the message the user was pointing at has
+   * just disappeared from the transcript, and leaving focus on a removed element strands
+   * a keyboard or screen-reader user with nothing selected.
+   */
+  const handleEdit = useCallback(
+    (index: number) => {
+      const restored = editFrom(index);
+      if (restored === null) return;
+      composerRef.current?.setValue(restored);
+      composerRef.current?.focus();
+    },
+    [editFrom],
+  );
 
   const ask = useCallback(
     (question: string) => {
@@ -179,7 +191,11 @@ export function Chat({
             <ol role="log" className="flex flex-col gap-6 py-6">
               {turns.map((turn, index) =>
                 turn.role === "user" ? (
-                  <UserMessage key={turn.id} content={turn.content} />
+                  <UserMessage
+                    key={turn.id}
+                    content={turn.content}
+                    onEdit={busy ? undefined : () => handleEdit(index)}
+                  />
                 ) : (
                   <AssistantMessage
                     key={turn.id}
@@ -217,9 +233,7 @@ export function Chat({
             onChange={setDraft}
             onSubmit={submit}
             onStop={stop}
-            onUndo={handleUndo}
             busy={busy}
-            canUndo={turns.length > 0}
           />
         </div>
       </div>

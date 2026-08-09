@@ -80,7 +80,9 @@ export function useChat({
   // render, so exposing `conversationRef.current` directly would hand callers a stale id —
   // which is exactly the duplicate-conversation bug this value exists to prevent.
   const conversationRef = useRef<string | null>(null);
-  const [serverConversationId, setServerConversationId] = useState<string | null>(null);
+  const [serverConversationId, setServerConversationId] = useState<
+    string | null
+  >(null);
 
   const patchLast = useCallback((patch: Partial<Turn>) => {
     setTurns((previous) => {
@@ -194,14 +196,28 @@ export function useChat({
     void run(lastUser.content, turns.slice(0, index));
   }, [busy, run, turns]);
 
-  /** Remove the last question and its answer, putting the text back for editing. */
-  const undo = useCallback((): string | null => {
-    if (busy) return null;
-    const lastUser = [...turns].reverse().find((turn) => turn.role === "user");
-    if (!lastUser) return null;
-    setTurns(turns.slice(0, turns.lastIndexOf(lastUser)));
-    return lastUser.content;
-  }, [busy, turns]);
+  /**
+   * Rewind to a question so it can be rewritten, returning its text.
+   *
+   * Replaces the old `undo`, which could only take back the LAST exchange. Editing any
+   * earlier question is what every major chat UI does, and it is the more useful shape: a
+   * conversation that went wrong usually went wrong several turns back, and the fix is to
+   * ask that question differently rather than to unpick everything since.
+   *
+   * Everything after the edited question is dropped, because it was an answer to a
+   * question that no longer exists. Keeping it would leave a transcript whose replies do
+   * not follow from anything above them.
+   */
+  const editFrom = useCallback(
+    (index: number): string | null => {
+      if (busy) return null;
+      const turn = turns[index];
+      if (!turn || turn.role !== "user") return null;
+      setTurns(turns.slice(0, index));
+      return turn.content;
+    },
+    [busy, turns],
+  );
 
   /** Start over. A new conversation id is minted on the next answer. */
   const clear = useCallback(() => {
@@ -236,7 +252,7 @@ export function useChat({
     send,
     stop,
     retry,
-    undo,
+    editFrom,
     clear,
     rate,
     // The id the SERVER filed this conversation under, which is not the id the browser

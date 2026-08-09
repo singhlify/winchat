@@ -1,27 +1,62 @@
 "use client";
 
-import { AlertTriangle, Check, Copy, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  Pencil,
+  RotateCcw,
+  ThumbsDown,
+  ThumbsUp,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Markdown } from "@/components/chat/Markdown";
 import { SourceLink, SourcePanel } from "@/components/chat/SourcePanel";
 import type { Turn } from "@/components/chat/use-chat";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-export function UserMessage({ content }: { content: string }) {
+export function UserMessage({
+  content,
+  onEdit,
+}: {
+  content: string;
+  onEdit?: () => void;
+}) {
+  const reveal =
+    "opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/message:opacity-100 sm:group-hover/message:opacity-100";
+
   return (
-    // `group/message` + the button's opacity rules mean the control appears on hover for
-    // pointer users and is always present on touch, where there is no hover to reveal it.
+    // `group/message` + the button's opacity rules mean the controls appear on hover for
+    // pointer users and are always present on touch, where there is no hover to reveal it.
     <li className="group/message flex items-center justify-end gap-1">
-      <CopyButton
-        text={content}
-        label="Copy your message"
-        className="opacity-100 transition-opacity sm:opacity-0 sm:group-focus-within/message:opacity-100 sm:group-hover/message:opacity-100"
-      />
+      {onEdit && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onEdit}
+              aria-label="Edit this question"
+              className={cn("size-8 text-muted-foreground", reveal)}
+            >
+              <Pencil className="size-3.5" aria-hidden />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Edit</TooltipContent>
+        </Tooltip>
+      )}
+      <CopyButton text={content} label="Copy your message" className={reveal} />
       <div className="max-w-[85%] rounded-2xl rounded-br-md bg-primary px-4 py-2.5 text-primary-foreground sm:max-w-[75%]">
-        <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{content}</p>
+        <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
+          {content}
+        </p>
       </div>
     </li>
   );
@@ -100,7 +135,12 @@ export function AssistantMessage({
       )}
 
       {!turn.streaming && !turn.error && turn.content && (
-        <MessageActions turn={turn} isLast={isLast} onRetry={onRetry} onRate={onRate} />
+        <MessageActions
+          turn={turn}
+          isLast={isLast}
+          onRetry={onRetry}
+          onRate={onRate}
+        />
       )}
     </li>
   );
@@ -136,7 +176,8 @@ function RefusalState({ turn }: { turn: Turn }) {
 
       {turn.refusal && (
         <p className="mt-3 font-mono text-[11px] text-amber-800/60 dark:text-amber-200/40">
-          best match {turn.refusal.score} · answers below {turn.refusal.threshold} are not used
+          best match {turn.refusal.score} · answers below{" "}
+          {turn.refusal.threshold} are not used
         </p>
       )}
     </div>
@@ -150,12 +191,16 @@ function ErrorState({ turn, onRetry }: { turn: Turn; onRetry: () => void }) {
     // The persistent alert region in Chat.tsx does the announcing; this is the visual half.
     <div className="flex flex-col gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
       <p className="flex items-start gap-2 text-sm text-foreground">
-        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden />
+        <AlertTriangle
+          className="mt-0.5 size-4 shrink-0 text-destructive"
+          aria-hidden
+        />
         <span>{turn.error}</span>
       </p>
       {turn.retryAfterSeconds != null && (
         <p className="pl-6 text-xs text-muted-foreground">
-          You can try again in about {Math.ceil(turn.retryAfterSeconds / 60)} minute
+          You can try again in about {Math.ceil(turn.retryAfterSeconds / 60)}{" "}
+          minute
           {turn.retryAfterSeconds >= 120 ? "s" : ""}.
         </p>
       )}

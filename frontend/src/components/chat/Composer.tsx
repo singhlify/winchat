@@ -1,10 +1,14 @@
 "use client";
 
-import { ArrowUp, Square, Undo2 } from "lucide-react";
+import { ArrowUp, Square } from "lucide-react";
 import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const MAX_LENGTH = 2000;
 const MAX_ROWS_HEIGHT = 200;
@@ -29,18 +33,14 @@ export function Composer({
   onChange,
   onSubmit,
   onStop,
-  onUndo,
   busy,
-  canUndo,
   ref,
 }: {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   onStop: () => void;
-  onUndo: () => void;
   busy: boolean;
-  canUndo: boolean;
   ref?: Ref<ComposerHandle>;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -84,7 +84,11 @@ export function Composer({
           maxLength={MAX_LENGTH}
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+            if (
+              event.key === "Enter" &&
+              !event.shiftKey &&
+              !event.nativeEvent.isComposing
+            ) {
               event.preventDefault();
               onSubmit();
             }
@@ -139,21 +143,17 @@ export function Composer({
           Independent project · not affiliated with the University of Windsor
         </span>
         <span className="hidden shrink-0 sm:inline">
-          <kbd className="rounded border border-border px-1 py-px font-sans">Enter</kbd> to send
+          <kbd className="rounded border border-border px-1 py-px font-sans">
+            Enter
+          </kbd>{" "}
+          to send
         </span>
-        {canUndo && !busy && (
-          <button
-            type="button"
-            onClick={onUndo}
-            className="inline-flex min-h-6 items-center gap-1 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:hidden"
-          >
-            <Undo2 className="size-3" aria-hidden />
-            Undo
-          </button>
-        )}
         {/* Only shown when it starts to matter — a permanent counter is noise. */}
         {nearLimit && (
-          <span aria-live="polite" className={remaining < 0 ? "text-destructive" : undefined}>
+          <span
+            aria-live="polite"
+            className={remaining < 0 ? "text-destructive" : undefined}
+          >
             {remaining} characters left
           </span>
         )}
