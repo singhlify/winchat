@@ -1,6 +1,8 @@
 "use client";
 
 import { ArrowUp, Square } from "lucide-react";
+
+import { Credit } from "@/components/Credit";
 import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -144,7 +146,7 @@ export function Composer({
             stated where people actually look — not in a footer nobody scrolls to. This
             sits under the composer, the one element present on every screen. */}
         <span className="min-w-0 truncate">
-          Not affiliated with the University of Windsor
+          <Credit />
         </span>
         <span className="hidden shrink-0 sm:inline">
           <kbd className="rounded border border-border px-1 py-px font-sans">

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { Credit } from "@/components/Credit";
+
 import { CorpusField } from "@/components/CorpusField";
 
 import { SourcesBrowser } from "@/app/sources/SourcesBrowser";
@@ -107,6 +109,10 @@ export default async function SourcesPage() {
           <SourcesBrowser sources={sources} />
         )}
       </main>
+
+      <footer className="border-border mt-12 border-t pt-6 pb-10">
+        <Credit className="text-muted-foreground text-sm" />
+      </footer>
     </div>
   );
 }

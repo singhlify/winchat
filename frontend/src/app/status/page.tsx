@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
+import { Credit } from "@/components/Credit";
+
 import { Button } from "@/components/ui/button";
 import { fetchReadiness } from "@/lib/api/client";
 import type { DependencyCheck } from "@/lib/api/schemas";
@@ -37,7 +39,9 @@ export default function StatusPage() {
       <main id="main" className="flex flex-col gap-4">
         <header className="flex items-baseline justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">System status</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              System status
+            </h1>
             <p className="text-sm text-muted-foreground">
               Each dependency answers a real call, not a ping.
             </p>
@@ -57,7 +61,9 @@ export default function StatusPage() {
             role="alert"
             className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm"
           >
-            {error instanceof Error ? error.message : "Could not reach the API."}
+            {error instanceof Error
+              ? error.message
+              : "Could not reach the API."}
           </p>
         )}
 
@@ -66,7 +72,11 @@ export default function StatusPage() {
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <Dot
                 status={
-                  data.status === "ok" ? "ok" : data.status === "error" ? "error" : "not_configured"
+                  data.status === "ok"
+                    ? "ok"
+                    : data.status === "error"
+                      ? "error"
+                      : "not_configured"
                 }
               />
               api v{data.version} · {data.env} · {data.status}
@@ -83,10 +93,14 @@ export default function StatusPage() {
                     <div>
                       <p className="font-medium">{name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {[check.provider, check.model].filter(Boolean).join(" · ") || "—"}
+                        {[check.provider, check.model]
+                          .filter(Boolean)
+                          .join(" · ") || "—"}
                       </p>
                       {check.detail && (
-                        <p className="mt-0.5 text-sm text-muted-foreground">{check.detail}</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">
+                          {check.detail}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -101,6 +115,10 @@ export default function StatusPage() {
           </>
         )}
       </main>
+
+      <footer className="border-border mt-12 border-t pt-6 pb-10">
+        <Credit className="text-muted-foreground text-sm" />
+      </footer>
     </div>
   );
 }
@@ -111,12 +129,22 @@ const DOT_COLOURS: Record<DependencyCheck["status"], string> = {
   not_configured: "bg-amber-400",
 };
 
-function Dot({ status, className }: { status: DependencyCheck["status"]; className?: string }) {
+function Dot({
+  status,
+  className,
+}: {
+  status: DependencyCheck["status"];
+  className?: string;
+}) {
   return (
     <span
       role="img"
       aria-label={status}
-      className={cn("inline-block size-2.5 shrink-0 rounded-full", DOT_COLOURS[status], className)}
+      className={cn(
+        "inline-block size-2.5 shrink-0 rounded-full",
+        DOT_COLOURS[status],
+        className,
+      )}
     />
   );
 }

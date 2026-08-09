@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CorpusField } from "@/components/CorpusField";
+import { Credit } from "@/components/Credit";
 import { SiteNav } from "@/components/SiteNav";
 import { CountUp } from "@/components/CountUp";
 import { HeroScroll } from "@/components/HeroScroll";
@@ -302,35 +303,38 @@ export default async function LandingPage() {
             or admission decisions, use the university’s own pages.
           </p>
 
-          <nav
-            aria-label="Footer"
-            className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm"
-          >
-            <Link
-              href="/app"
-              className="text-muted-foreground hover:text-foreground"
+          <div className="border-border mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t pt-6">
+            <nav
+              aria-label="Footer"
+              className="flex flex-wrap gap-x-6 gap-y-2 text-sm"
             >
-              Open WinChat
-            </Link>
-            <Link
-              href="/sources"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              All {sourceCount ?? ""} sources
-            </Link>
-            <Link
-              href="/status"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Status
-            </Link>
-            <a
-              href="https://ask.uwindsor.ca"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Official UWindsor FAQ
-            </a>
-          </nav>
+              <Link
+                href="/app"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Open WinChat
+              </Link>
+              <Link
+                href="/sources"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                All {sourceCount ?? ""} sources
+              </Link>
+              <Link
+                href="/status"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Status
+              </Link>
+              <a
+                href="https://ask.uwindsor.ca"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Official UWindsor FAQ
+              </a>
+            </nav>
+            <Credit className="text-muted-foreground text-sm" />
+          </div>
         </div>
       </footer>
     </div>
