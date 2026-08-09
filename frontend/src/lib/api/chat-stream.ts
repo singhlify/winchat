@@ -8,6 +8,7 @@
  */
 
 import { API_BASE_URL, ApiError } from "@/lib/api/client";
+import { getTurnstileToken, turnstileConfigured } from "@/lib/turnstile";
 import {
   chatRequestSchema,
   parseChatEvent,
@@ -34,8 +35,19 @@ export async function* streamChat(
     model: model ?? null,
   });
 
-  const headers: Record<string, string> = { "content-type": "application/json" };
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
   if (accessToken) headers.authorization = `Bearer ${accessToken}`;
+
+  // Guests prove they are a browser; signed-in visitors already proved it to an identity
+  // provider, so asking them again is pure latency. A null token is sent as nothing at
+  // all — the API treats that as "feature off" when it holds no Turnstile secret, which
+  // is what keeps an unconfigured deployment working exactly as before.
+  if (!accessToken && turnstileConfigured) {
+    const token = await getTurnstileToken();
+    if (token) headers["cf-turnstile-response"] = token;
+  }
 
   let response: Response;
   try {

@@ -27,9 +27,10 @@ from winchat_api.llm.base import ProviderError
 from winchat_api.llm.registry import build_chat_provider, get_chat_provider
 from winchat_api.retrieval.rerank.registry import get_reranker
 from winchat_api.security.auth import AuthenticatedUser, optional_user
-from winchat_api.security.identity import is_maintenance_request, subject_for
+from winchat_api.security.identity import client_ip, is_maintenance_request, subject_for
 from winchat_api.security.origin import require_browser_origin
 from winchat_api.security.rate_limit import check_limits, record_usage
+from winchat_api.security.turnstile import verify_turnstile
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,12 @@ async def chat(request: Request, body: ChatRequest, user: CurrentUser) -> Stream
     pool = getattr(request.app.state, "db_pool", None)
     if pool is None:
         raise HTTPException(status_code=503, detail="database is not available")
+
+    # Anonymous callers must prove they are a browser; signed-in ones already did that when
+    # they authenticated. Checked before retrieval and before the model, like the rate
+    # limit, so a rejected request costs nothing.
+    if user is None:
+        await verify_turnstile(request, client_ip=client_ip(request))
 
     subject = subject_for(request, user)
 

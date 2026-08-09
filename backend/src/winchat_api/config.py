@@ -187,6 +187,12 @@ class Settings(BaseSettings):
     # against the deployed service. Off for local curl work and in tests; see security/origin.py
     # for what it is and is not worth.
     require_browser_origin: bool = True
+    # Cloudflare Turnstile. Blank disables it entirely, so an unconfigured deployment
+    # behaves as before instead of rejecting everyone. Required for ANONYMOUS callers only:
+    # a signed-in user already proved themselves to an identity provider, and challenging
+    # them again buys nothing. The site key is public and lives in the frontend.
+    turnstile_secret_key: str | None = None
+    turnstile_timeout_s: float = 8.0
 
     @property
     def supabase_jwks_url(self) -> str | None:

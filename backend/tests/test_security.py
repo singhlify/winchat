@@ -435,3 +435,56 @@ async def test_a_conversation_belonging_to_someone_else_is_a_404_not_a_403(monke
         )
 
     assert excinfo.value.status_code == 404
+
+
+# --- Turnstile: off unless configured, and actually verified when it is ---------------
+
+
+async def test_turnstile_is_a_no_op_when_unconfigured(monkeypatch):
+    """An unconfigured deployment must behave exactly as before, not reject everyone."""
+    from winchat_api.security.turnstile import verify_turnstile
+
+    monkeypatch.setenv("TURNSTILE_SECRET_KEY", "")
+    get_settings.cache_clear()
+
+    await verify_turnstile(_Req({}))  # must not raise
+
+
+async def test_a_missing_turnstile_token_is_rejected_when_configured(monkeypatch):
+    from winchat_api.security.turnstile import verify_turnstile
+
+    monkeypatch.setenv("TURNSTILE_SECRET_KEY", "a-secret")
+    get_settings.cache_clear()
+
+    with pytest.raises(HTTPException) as excinfo:
+        await verify_turnstile(_Req({}))
+
+    assert excinfo.value.status_code == 403
+
+
+async def test_turnstile_fails_OPEN_when_cloudflare_is_unreachable(monkeypatch):
+    """Deliberate: a third party being down is our problem, not the visitor's.
+
+    Failing closed would hand Cloudflare the ability to take this app offline. The rate
+    limiter and the global spend breaker still bound the damage in the meantime.
+    """
+    import httpx
+
+    from winchat_api.security import turnstile
+
+    monkeypatch.setenv("TURNSTILE_SECRET_KEY", "a-secret")
+    get_settings.cache_clear()
+
+    class _Boom:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return False
+
+        async def post(self, *args, **kwargs):
+            raise httpx.ConnectError("cloudflare unreachable")
+
+    monkeypatch.setattr(turnstile.httpx, "AsyncClient", lambda **kw: _Boom())
+
+    await turnstile.verify_turnstile(_Req({turnstile.TOKEN_HEADER: "a-token"}))  # must not raise
