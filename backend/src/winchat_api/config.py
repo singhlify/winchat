@@ -1,8 +1,7 @@
 """Application configuration.
 
 Everything is environment-driven. Paths are derived from this file's location so the app behaves
-identically no matter which directory it is launched from — no absolute paths anywhere (a named
-anti-goal, see CONTRIBUTING.md).
+identically no matter which directory it is launched from. No absolute paths anywhere.
 """
 
 from functools import lru_cache

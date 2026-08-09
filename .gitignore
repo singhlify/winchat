@@ -6,12 +6,8 @@
 # Scraped corpus — regenerable via scripts/scrape_ask_uwindsor.py, large, drifts from source
 data/ask_uwindsor/
 data/**/raw/
-# NOT `*.jsonl`. That blanket rule was here, was redundant with the two paths above, and
-# silently excluded backend/evals/golden/uwindsor.jsonl — the golden set the entire eval
-# harness reads. The code shipped, the data did not: CI could never have run the evals, a
-# clone could not reproduce a single published number, and the Docker build failed on
-# `COPY evals` with a message about a missing directory rather than a missing file.
-# Ignore data by PATH, never by extension.
+# Ignore data by path, never by extension. A blanket `*.jsonl` here silently excluded the
+# golden eval set, so the code shipped and the data it is measured against did not.
 
 # Python (uv)
 .venv/
@@ -37,3 +33,8 @@ chroma/
 .idea/
 .vscode/
 
+
+# Local development context — not part of the shipped project
+docs/
+CONTRIBUTING.md
+scripts/azure_free_tier_audit.sh

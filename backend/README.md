@@ -1,7 +1,7 @@
 # winchat-api
 
-The Python AI core for WinChat v2 (FastAPI). See the repo root `README.md` for how to run
-the full stack, and `docs/PLAN.md` for architecture.
+The Python AI core for WinChat (FastAPI). See the repo root `README.md` for how to run the
+full stack.
 
 ```bash
 uv sync                                   # install
