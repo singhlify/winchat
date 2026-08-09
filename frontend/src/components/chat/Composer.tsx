@@ -100,7 +100,11 @@ export function Composer({
           }}
           placeholder="Ask about admissions, fees, courses, campus…"
           aria-describedby="composer-hint"
-          className="max-h-[200px] flex-1 resize-none bg-transparent px-2 py-1.5 text-[15px] leading-relaxed outline-none placeholder:text-muted-foreground/70"
+          // text-base (16px) on mobile, NOT the 15px this used to be. iOS Safari zooms the
+          // whole page when a focused input is under 16px — so tapping the composer, the
+          // single most-used control in the app, threw the layout out on every iPhone. The
+          // shadcn Input and Textarea already do this; the chat composer did not.
+          className="max-h-[200px] flex-1 resize-none bg-transparent px-2 py-1.5 text-base leading-relaxed outline-none placeholder:text-muted-foreground/70 sm:text-[15px]"
         />
 
         {busy ? (
@@ -112,7 +116,7 @@ export function Composer({
                 variant="secondary"
                 onClick={onStop}
                 aria-label="Stop generating"
-                className="size-9 shrink-0 rounded-xl"
+                className="size-11 shrink-0 rounded-xl sm:size-9"
               >
                 <Square className="size-3.5 fill-current" aria-hidden />
               </Button>
@@ -125,7 +129,7 @@ export function Composer({
             size="icon"
             disabled={value.trim().length === 0}
             aria-label="Send question"
-            className="size-9 shrink-0 rounded-xl"
+            className="size-11 shrink-0 rounded-xl sm:size-9"
           >
             <ArrowUp className="size-4" aria-hidden />
           </Button>
