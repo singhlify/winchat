@@ -13,6 +13,7 @@ import {
   titleFrom,
 } from "@/lib/conversations";
 import { useSession } from "@/lib/session";
+import { useViewportHeight } from "@/lib/use-viewport-height";
 import { useConversationHydration } from "@/lib/use-conversation-hydration";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { usePersistentState } from "@/lib/use-persistent-state";
@@ -32,6 +33,11 @@ export function ChatShell({
   sourceCount?: number;
 }) {
   const router = useRouter();
+
+  // Keeps the shell as tall as the *visible* area when a keyboard is open. `dvh` alone
+  // does not shrink for the keyboard on any current browser, and the viewport-meta opt-out
+  // that would fix it has no WebKit support.
+  useViewportHeight();
 
   // Open by default on desktop, closed on mobile — but only until the user decides,
   // after which their choice wins for the rest of the session.
@@ -93,7 +99,7 @@ export function ChatShell({
   );
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden bg-background">
+    <div className="flex h-[var(--app-height,100dvh)] overflow-hidden bg-background">
       <Sidebar
         open={sidebarOpen}
         onClose={() => setOverride(false)}

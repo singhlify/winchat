@@ -6,7 +6,11 @@ import { Providers } from "@/app/providers";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const TITLE = "WinChat — University of Windsor FAQ, answered with sources";
@@ -41,11 +45,20 @@ export const metadata: Metadata = {
     url: "/",
     locale: "en_CA",
   },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+    },
   },
   category: "education",
 };
@@ -61,8 +74,9 @@ export const viewport: Viewport = {
   // ends up hidden behind the keyboard on a phone. `resizes-content` resizes the layout
   // viewport instead, so the composer is pushed above it.
   //
-  // Chromium-originated progressive enhancement, not a universal fix: browsers that ignore
-  // it fall back to today's behaviour, so nothing depends on it being honoured.
+  // Chromium ONLY — WebKit has no support at any version, so this does nothing on iPhone,
+  // which is most of this app's traffic. It is half the fix; `useViewportHeight` is the
+  // other half and works everywhere `visualViewport` does. Neither is load-bearing alone.
   interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
@@ -70,15 +84,24 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-CA" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+    <html
+      lang="en-CA"
+      className={cn("font-sans", geist.variable)}
+      suppressHydrationWarning
+    >
       {/* suppressHydrationWarning on <body> too, not just <html>.
           Browser extensions inject attributes onto the body before React hydrates —
           ColorZilla adds `cz-shortcut-listen`, Grammarly adds its own — and React reports
           that as a hydration mismatch even though the app's own markup matches perfectly.
           It suppresses attribute noise on this element only, not mismatches in children. */}
-      <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
+      <body
+        className="bg-background text-foreground antialiased"
+        suppressHydrationWarning
+      >
         {/* First tab stop on every page. Without it a keyboard user traverses the whole
             header on every navigation before reaching content (WCAG 2.4.1). */}
         <a
