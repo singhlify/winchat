@@ -5,7 +5,6 @@ import { CorpusField } from "@/components/CorpusField";
 import { Activity, ArrowRight, Library, MessageSquare } from "lucide-react";
 
 import { Credit } from "@/components/Credit";
-import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/SiteNav";
 import { CountUp } from "@/components/CountUp";
 import { HeroScroll } from "@/components/HeroScroll";
@@ -235,14 +234,11 @@ export default async function LandingPage() {
               <Reveal
                 key={stat.label}
                 delay={index * 0.08}
-                // Left, centre, right across the three columns, but only once they sit
-                // side by side. Stacked on mobile they share one left edge, and staggering
-                // the alignment there would read as a mistake rather than as rhythm.
-                className={cn(
-                  "px-2 py-7 sm:px-6",
-                  index === 1 && "sm:text-center",
-                  index === 2 && "sm:text-right",
-                )}
+                // Centred once the three sit side by side. Staggering them left/centre/right
+                // used the band's full width but left each column reading as its own
+                // fragment; centred, the three figures line up as one row of results.
+                // Mobile stays left, where they stack into a single column.
+                className="px-2 py-7 sm:px-6 sm:text-center"
               >
                 <dt className="sr-only">{stat.label}</dt>
                 <dd>
