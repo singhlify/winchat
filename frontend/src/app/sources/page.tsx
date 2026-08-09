@@ -104,7 +104,7 @@ export default async function SourcesPage() {
           )}
         </main>
 
-        <footer className="border-border mt-12 border-t pt-6 pb-10">
+        <footer className="border-border mt-12 border-t pt-6 pb-10 text-center sm:text-left">
           <Credit className="text-muted-foreground text-sm" />
         </footer>
       </div>

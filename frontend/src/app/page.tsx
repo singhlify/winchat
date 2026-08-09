@@ -159,7 +159,7 @@ export default async function LandingPage() {
               page is claiming — a cited answer — so the second column carries evidence
               instead of decoration. */}
               <div className="lg:mb-2">
-                <RetrievalMark className="mb-5 w-full max-w-[280px] text-foreground lg:ml-auto" />
+                <RetrievalMark className="text-foreground mx-auto mb-5 w-full max-w-[280px] lg:mr-0 lg:ml-auto" />
                 <figure className="border-border bg-muted/40 rounded-2xl border p-5">
                   <figcaption className="text-muted-foreground text-2xs tracking-[0.12em] uppercase">
                     A real answer
@@ -272,7 +272,7 @@ export default async function LandingPage() {
             same near-white ground, so a full-bleed band in the brand blue gives the page a
             terminal beat and stops the closing CTA reading as one more row of text. */}
         <section className="bg-band text-band-foreground">
-          <div className="mx-auto grid max-w-5xl gap-8 px-6 py-16 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="mx-auto grid max-w-5xl gap-8 px-6 py-16 text-center lg:grid-cols-[1fr_auto] lg:items-center lg:text-left">
             <div>
               <h2 className="font-display text-3xl sm:text-4xl">
                 Ask it something
@@ -283,7 +283,7 @@ export default async function LandingPage() {
             </div>
             <Link
               href="/app"
-              className="bg-background text-foreground inline-flex items-center gap-2 justify-self-start rounded-full px-8 py-3.5 text-base font-medium transition-opacity hover:opacity-90 lg:justify-self-end"
+              className="bg-background text-foreground inline-flex items-center gap-2 justify-self-center rounded-full px-8 py-3.5 text-base font-medium transition-opacity hover:opacity-90 lg:justify-self-end"
             >
               <MessageSquare className="size-4" aria-hidden />
               Open WinChat
@@ -312,10 +312,10 @@ export default async function LandingPage() {
             or admission decisions, use the university’s own pages.
           </p>
 
-          <div className="border-border mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t pt-6">
+          <div className="border-border mt-6 flex flex-col items-center gap-y-4 border-t pt-6 sm:flex-row sm:flex-wrap sm:justify-between sm:gap-x-6">
             <nav
               aria-label="Footer"
-              className="flex flex-wrap gap-x-6 gap-y-2 text-sm"
+              className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm sm:justify-start"
             >
               <Link
                 href="/app"

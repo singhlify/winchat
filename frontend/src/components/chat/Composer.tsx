@@ -140,7 +140,7 @@ export function Composer({
 
       <div
         id="composer-hint"
-        className="text-muted-foreground mt-1.5 flex items-center justify-between gap-3 px-1 text-[11px]"
+        className="text-muted-foreground mt-1.5 flex items-center justify-center gap-3 px-1 text-[11px] sm:justify-between"
       >
         {/* One row, two ends. These were on separate lines only because the model picker
             briefly sat between them; with it back in the nav, a whole extra line for one

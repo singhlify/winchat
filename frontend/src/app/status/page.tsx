@@ -62,7 +62,7 @@ export default function StatusPage() {
       <SiteNav />
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6">
         <main id="main" className="flex flex-col gap-4">
-          <header className="flex items-baseline justify-between gap-4">
+          <header className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-baseline sm:justify-between sm:gap-4 sm:text-left">
             <div>
               <h1 className="text-2xl font-semibold tracking-tight">
                 System status
@@ -115,9 +115,9 @@ export default function StatusPage() {
                 {Object.entries(data.checks).map(([name, check]) => (
                   <li
                     key={name}
-                    className="flex items-start justify-between gap-4 rounded-xl border border-border px-4 py-3"
+                    className="border-border flex flex-col items-center gap-3 rounded-xl border px-4 py-3 text-center sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:text-left"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-start sm:gap-3">
                       <Dot status={check.status} className="mt-1.5" />
                       <div>
                         <p className="font-medium">
@@ -147,7 +147,7 @@ export default function StatusPage() {
           )}
         </main>
 
-        <footer className="border-border mt-12 border-t pt-6 pb-10">
+        <footer className="border-border mt-12 border-t pt-6 pb-10 text-center sm:text-left">
           <Credit className="text-muted-foreground text-sm" />
         </footer>
       </div>
