@@ -92,7 +92,15 @@ export async function getTurnstileToken(): Promise<string | null> {
       document.body.appendChild(container);
       widgetId = api.render(container, {
         sitekey: SITE_KEY,
-        size: "invisible",
+        // `appearance: "execute"` is what makes the widget render nothing until
+        // `execute()` is called — there is no `size: "invisible"`, which an earlier
+        // version passed and Turnstile would simply have ignored.
+        //
+        // This pairs with the dashboard widget mode set to **Invisible**. It must not be
+        // used with "Managed": that mode escalates suspicious traffic to an interactive
+        // challenge, and a challenge rendered into the 0x0 offscreen container below is
+        // one nobody can solve — the request would hang until the timeout and fail.
+        appearance: "execute",
       });
     }
 
