@@ -258,3 +258,33 @@ body::after {
     display: none;
   }
 }
+
+/* --- Pointer cursor -----------------------------------------------------------------
+ * Tailwind v4 reset gives `button` `cursor: default`, reversing v3's `cursor: pointer`.
+ * The consequence is that every button in a v4 app silently stops looking clickable,
+ * which is exactly the kind of regression that survives review because nothing renders
+ * differently in a screenshot.
+ *
+ * Restored for anything a person can activate, and deliberately NOT for disabled
+ * controls, where a pointer would promise something that will not happen.
+ * ---------------------------------------------------------------------------------- */
+button:not(:disabled):not([aria-disabled="true"]),
+[role="button"]:not([aria-disabled="true"]),
+[role="menuitem"],
+[role="option"],
+[role="tab"],
+a[href],
+summary,
+label[for],
+select:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+input[type="submit"]:not(:disabled),
+input[type="reset"]:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}

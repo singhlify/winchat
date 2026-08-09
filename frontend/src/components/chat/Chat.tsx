@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowDown } from "lucide-react";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 import { FollowUps } from "@/components/chat/FollowUps";
@@ -232,8 +233,9 @@ export function Chat({
           <button
             type="button"
             onClick={scrollToBottom}
-            className="pointer-events-auto absolute -top-12 left-1/2 z-10 -translate-x-1/2 rounded-full border border-border bg-background px-3 py-1.5 text-xs shadow-md transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            className="border-border bg-background hover:bg-accent focus-visible:outline-ring pointer-events-auto absolute -top-12 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs shadow-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
           >
+            <ArrowDown className="size-3.5" aria-hidden />
             Jump to latest
           </button>
         </div>

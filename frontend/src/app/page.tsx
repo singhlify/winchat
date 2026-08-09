@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CorpusField } from "@/components/CorpusField";
-import { ArrowRight, Library } from "lucide-react";
+import { Activity, ArrowRight, Library, MessageSquare } from "lucide-react";
 
 import { Credit } from "@/components/Credit";
 import { SiteNav } from "@/components/SiteNav";
@@ -279,8 +279,9 @@ export default async function LandingPage() {
             </div>
             <Link
               href="/app"
-              className="bg-background text-foreground justify-self-start rounded-full px-8 py-3.5 text-base font-medium transition-opacity hover:opacity-90 lg:justify-self-end"
+              className="bg-background text-foreground inline-flex items-center gap-2 justify-self-start rounded-full px-8 py-3.5 text-base font-medium transition-opacity hover:opacity-90 lg:justify-self-end"
             >
+              <MessageSquare className="size-4" aria-hidden />
               Open WinChat
             </Link>
           </div>
@@ -314,20 +315,23 @@ export default async function LandingPage() {
             >
               <Link
                 href="/app"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
               >
+                <MessageSquare className="size-3.5" aria-hidden />
                 Open WinChat
               </Link>
               <Link
                 href="/sources"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
               >
+                <Library className="size-3.5" aria-hidden />
                 All {sourceCount ?? ""} sources
               </Link>
               <Link
                 href="/status"
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
               >
+                <Activity className="size-3.5" aria-hidden />
                 Status
               </Link>
               <a

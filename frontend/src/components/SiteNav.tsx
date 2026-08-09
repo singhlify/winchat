@@ -1,5 +1,6 @@
 "use client";
 
+import { MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -99,8 +100,9 @@ export function SiteNav({
           {cta && (
             <Link
               href="/app"
-              className="bg-primary text-primary-foreground hidden rounded-full px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 sm:inline-block"
+              className="bg-primary text-primary-foreground hidden items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 sm:inline-flex"
             >
+              <MessageSquare className="size-3.5" aria-hidden />
               Open WinChat
             </Link>
           )}
