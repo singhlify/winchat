@@ -3,6 +3,7 @@ import { Instrument_Serif, Source_Sans_3 } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "@/app/providers";
+import { ServiceWorker } from "@/components/ServiceWorker";
 import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { cn } from "@/lib/utils";
 
@@ -102,8 +103,8 @@ export const viewport: Viewport = {
   // other half and works everywhere `visualViewport` does. Neither is load-bearing alone.
   interactiveWidget: "resizes-content",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#fdfdfe" },
+    { media: "(prefers-color-scheme: dark)", color: "#101828" },
   ],
 };
 
@@ -133,6 +134,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
+        <ServiceWorker />
         <SiteJsonLd siteUrl={SITE_URL} description={DESCRIPTION} />
         <Providers>{children}</Providers>
       </body>

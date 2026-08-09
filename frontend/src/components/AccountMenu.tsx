@@ -2,7 +2,6 @@
 
 import { Check, LogOut, Monitor, Moon, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { AuthPanel } from "@/components/AuthPanel";
@@ -117,10 +116,6 @@ export function AccountMenu({
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
-
-        <DropdownMenuItem asChild>
-          <Link href="/sources">All sources</Link>
-        </DropdownMenuItem>
 
         {email && (
           <>

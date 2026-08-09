@@ -35,7 +35,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/", // /api is listed for tidiness rather than defence. Crawlers issue GET and would get
         // nothing useful; the actual guard is the Origin check plus the rate limiter.
-        disallow: ["/status", "/auth/", "/api/"],
+        disallow: ["/status", "/auth/", "/api/", "/offline"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
