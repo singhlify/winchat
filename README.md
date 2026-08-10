@@ -28,21 +28,19 @@ Deployed on Render and Vercel.
 
 ## Results
 
-The full suite, 26 hand-written cases, against the deployed configuration
-(`llama-3.3-70b`, judged by `gpt-oss-120b`):
+<!-- BEGIN GENERATED METRICS -->
+Not yet generated. Run the commands below.
+<!-- END GENERATED METRICS -->
 
-| | |
-|---|---|
-| retrieval recall | 100% |
-| retrieval MRR | 0.847 |
-| refusal accuracy | 100% |
-| faithfulness | ~96% |
-| correctness | 96.0% |
+Regenerate after any change that could move the numbers:
 
-Faithfulness is quoted at ~96% rather than the 100% the judge reports: the judge accepts one
-answer that computes a date instead of copying it, which the deterministic tier catches and
-the judge does not. The suite runs the same code path the HTTP endpoint calls, and fails the
-build when any gate drops.
+```bash
+cd backend && uv run python -m winchat_api.evals.run --json eval-report.json
+cd .. && uv run --project backend python scripts/update_metrics.py backend/eval-report.json
+```
+
+Two eval cases are known to fail and are listed in [KNOWN_ISSUES.md](KNOWN_ISSUES.md). The
+deterministic gate names them, so a third failure breaks the build.
 
 ## Running it locally
 

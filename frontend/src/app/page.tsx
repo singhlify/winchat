@@ -8,6 +8,7 @@ import { Credit } from "@/components/Credit";
 import { SiteNav } from "@/components/SiteNav";
 import { CountUp } from "@/components/CountUp";
 import { HeroScroll } from "@/components/HeroScroll";
+import { METRICS } from "@/lib/metrics.generated";
 import { Reveal } from "@/components/Reveal";
 import { RetrievalMark } from "@/components/RetrievalMark";
 import { fetchSources } from "@/lib/api/client";
@@ -35,25 +36,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-/** Measured on the golden set by the eval suite in this repo. Update both together. */
-const MEASURED = [
-  {
-    value: "100%",
-    label: "retrieval recall",
-    detail: "the right article was found in every graded case",
-  },
-  {
-    value: "96%",
-    label: "answer correctness",
-    detail: "judged by a different model family than the one answering",
-  },
-  {
-    value: "556",
-    label: "source articles",
-    detail: "indexed from ask.uwindsor.ca",
-  },
-];
 
 const TRUST = [
   {
@@ -202,52 +184,55 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        <section
-          aria-labelledby="measured-heading"
-          className="mx-auto max-w-5xl px-6 py-16"
-        >
-          <h2
-            id="measured-heading"
-            className="font-display text-3xl sm:text-4xl"
+        {METRICS.length > 0 && (
+          <section
+            aria-labelledby="measured-heading"
+            className="mx-auto max-w-5xl px-6 py-16"
           >
-            Evaluation
-          </h2>
-          <p className="text-muted-foreground mt-3 max-w-2xl text-base leading-relaxed">
-            These come from an evaluation suite that runs on every change. The
-            build fails when they drop below their thresholds.
-          </p>
+            <h2
+              id="measured-heading"
+              className="font-display text-3xl sm:text-4xl"
+            >
+              Evaluation
+            </h2>
+            <p className="text-muted-foreground mt-3 max-w-2xl text-base leading-relaxed">
+              These come from an evaluation suite that runs on every change. The
+              build fails when they drop below their thresholds.
+            </p>
 
-          <dl className="border-border mt-10 grid divide-y divide-border border-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {MEASURED.map((stat, index) => (
-              <Reveal
-                key={stat.label}
-                delay={index * 0.08}
-                className="px-2 py-7 sm:px-6 sm:text-center"
-              >
-                <dt className="sr-only">{stat.label}</dt>
-                <dd>
-                  <CountUp
-                    value={stat.value}
-                    className="text-gold-strong font-display block text-5xl leading-none"
-                  />
-                  <span className="mt-3 block text-sm font-medium">
-                    {stat.label}
-                  </span>
-                  <span className="text-muted-foreground mt-1.5 block text-xs leading-relaxed">
-                    {stat.detail}
-                  </span>
-                </dd>
-              </Reveal>
-            ))}
-          </dl>
+            <dl className="border-border mt-10 grid divide-y divide-border border-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              {METRICS.map((stat, index) => (
+                <Reveal
+                  key={stat.label}
+                  delay={index * 0.08}
+                  className="px-2 py-7 sm:px-6 sm:text-center"
+                >
+                  <dt className="sr-only">{stat.label}</dt>
+                  <dd>
+                    <CountUp
+                      value={stat.value}
+                      className="text-gold-strong font-display block text-5xl leading-none"
+                    />
+                    <span className="mt-3 block text-sm font-medium">
+                      {stat.label}
+                    </span>
+                    <span className="text-muted-foreground mt-1.5 block text-xs leading-relaxed">
+                      {stat.detail}
+                    </span>
+                  </dd>
+                </Reveal>
+              ))}
+            </dl>
 
-          <p className="text-muted-foreground border-gold/50 mt-8 max-w-2xl border-l-2 pl-4 text-sm leading-relaxed">
-            The graded set is 26 hand-written questions, so the intervals around
-            these figures are wide. One known failure remains: the model
-            sometimes computes a date instead of copying it. Confirm anything
-            affecting a deadline or a payment against the official page.
-          </p>
-        </section>
+            <p className="text-muted-foreground border-gold/50 mt-8 max-w-2xl border-l-2 pl-4 text-sm leading-relaxed">
+              The graded set is 26 hand-written questions, so the intervals
+              around these figures are wide. One known failure remains: the
+              model sometimes computes a date instead of copying it. Confirm
+              anything affecting a deadline or a payment against the official
+              page.
+            </p>
+          </section>
+        )}
 
         <section className="bg-band text-band-foreground">
           <div className="mx-auto grid max-w-5xl gap-8 px-6 py-16 text-center lg:grid-cols-[1fr_auto] lg:items-center lg:text-left">
