@@ -36,7 +36,11 @@ class Settings(BaseSettings):
     llm_retry_budget_s: float = 20.0
     groq_api_key: str | None = None
 
-    embedding_provider: str = "ollama"
+    # Matches the deployed configuration and the 1024-wide embedding column. The previous
+    # default of `ollama` disagreed with both, so an unconfigured run embedded queries with
+    # 768-dimensional nomic against a 1024-dimensional index and failed inside Postgres.
+    embedding_provider: str = "cohere"
+    # Read only by the ollama and openai_compatible providers. Cohere uses cohere_embed_model.
     embedding_model: str = "nomic-embed-text"
     embedding_timeout_s: float = 30.0
     ollama_base_url: str = "http://localhost:11434"
