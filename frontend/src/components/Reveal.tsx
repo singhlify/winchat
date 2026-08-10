@@ -4,8 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
 /**
- * Reveal a block as it enters the viewport. The 14px travel is deliberately small: a long
- * slide reads as decoration, a short one reads as the page settling.
+ * Reveal a block as it enters the viewport. The travel is 14px, small enough not to distract.
  */
 export function Reveal({
   children,

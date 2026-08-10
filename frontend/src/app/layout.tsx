@@ -8,8 +8,7 @@ import { SiteJsonLd } from "@/components/SiteJsonLd";
 import { cn } from "@/lib/utils";
 
 /**
- * Two faces, chosen rather than inherited. Geist was here because it ships with Next.js, the
- * same reason it is on a large share of apps built this year, which is exactly the problem.
+ * Display and body faces are set explicitly rather than inheriting the Next.js default.
  */
 const sans = Source_Sans_3({
   subsets: ["latin"],
@@ -31,9 +30,8 @@ const DESCRIPTION =
   "Ask about University of Windsor admissions, tuition, courses, UWinsite and campus services. Every answer is drawn from the university's own published FAQ articles and links back to them.";
 
 /**
- * `metadataBase` is what turns the relative OG and canonical URLs below into absolute
- * ones. Without it Next emits relative image URLs, which crawlers and social scrapers
- * silently drop, the most common reason link previews come out blank.
+ * `metadataBase` turns the relative OG and canonical URLs below into absolute ones. Without
+ * it Next emits relative image URLs, which crawlers drop, leaving blank link previews.
  */
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

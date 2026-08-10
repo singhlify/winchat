@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 
 /**
- * The top bar. Deliberately close to every major chat UI's, because that layout is now what
- * people expect and expectation is most of what makes an interface feel effortless.
+ * The top bar. Layout follows the common chat-application convention.
  */
 export function Header({
   model,

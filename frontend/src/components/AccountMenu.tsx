@@ -27,9 +27,8 @@ const THEMES = [
 ] as const;
 
 /**
- * One control on the right of the header, holding everything that is a preference rather than
- * part of the conversation: theme, account, sign-out, and the links off to sources. This is
- * the pattern every major chat UI uses, and the reason it works is subtraction.
+ * One control on the right of the header, holding the preferences rather than the
+ * conversation: theme, account, sign-out, and the link to sources.
  */
 export function AccountMenu({
   onSession,

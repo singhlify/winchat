@@ -21,8 +21,7 @@ export interface ComposerHandle {
 }
 
 /**
- * The input. A textarea, not an input: real questions wrap, and a single-line field that
- * scrolls sideways hides what you typed.
+ * The input. A textarea rather than an input, because questions wrap.
  */
 export function Composer({
   value,

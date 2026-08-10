@@ -11,14 +11,12 @@ import type { DependencyCheck } from "@/lib/api/schemas";
 import { cn } from "@/lib/utils";
 
 /**
- * Dependency status. A Client Component on purpose: fetching from the browser exercises the
- * same cross-origin path the chat stream uses, so a green board here means the browser really
- * can reach the API. Not merely that the Next.js server can.
+ * Dependency status. A Client Component so the fetch uses the same cross-origin path as the
+ * chat stream, which is what the visitor's browser actually has to reach.
  */
 /**
- * What each dependency means in words a visitor can act on. The raw keys and provider strings
- * are accurate and useless: "reranker · cohere · rerank-v3.5" says nothing about whether
- * answers will be any good.
+ * Plain-language description of each dependency, since the raw provider strings do not say
+ * what a failure means for answers.
  */
 const EXPLAINS: Record<string, { title: string; means: string }> = {
   config: {

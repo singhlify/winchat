@@ -18,9 +18,8 @@ import {
 import { authConfigured, getSupabase } from "@/lib/supabase";
 
 /**
- * Sign-in control: email/password, social providers, and password recovery. Optional by
- * design. The FAQ is public, so requiring an account to ask a public question would be
- * friction with no security benefit.
+ * Sign-in control: email/password, social providers, and password recovery. Signing in is
+ * optional, because the FAQ is public.
  */
 
 type View = "in" | "up" | "forgot";

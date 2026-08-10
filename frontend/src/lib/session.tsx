@@ -3,8 +3,7 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
 /**
- * The signed-in access token, held once for the whole app. It used to live in `Chat`, because
- * that is where the header, and therefore the sign-in panel, happened to be rendered.
+ * The signed-in access token, held once for the whole app.
  */
 
 interface SessionValue {

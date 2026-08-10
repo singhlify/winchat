@@ -1,9 +1,8 @@
 import type { MetadataRoute } from "next";
 
 /**
- * Web app manifest. `start_url` is `/app` rather than `/`: someone who installs this has
- * already decided what it is for, and landing them on a marketing page every launch is the
- * most common way an installed app feels like a bookmark.
+ * Web app manifest. `start_url` is `/app` rather than `/`, so an installed app opens on the
+ * chat instead of the landing page.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {

@@ -12,9 +12,8 @@ import { cn } from "@/lib/utils";
 import type { Citation } from "@/lib/api/schemas";
 
 /**
- * Renders an answer as markdown, with [n] markers turned into clickable citations. Markdown
- * matters more than it looks: the model replies with numbered steps, bold labels and links,
- * and rendering that as preformatted text was making correct answers look like a debug dump.
+ * Renders an answer as markdown, with [n] markers turned into clickable citations. The model
+ * replies with numbered steps, bold labels and links.
  */
 
 const CITATION_PROTOCOL = "citation:";

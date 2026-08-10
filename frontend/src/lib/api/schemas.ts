@@ -176,10 +176,8 @@ export const chatRequestSchema = z.object({
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
 
 /**
- * A conversation saved to the signed-in user's account. Validated rather than trusted, like
- * every other response: this data crosses a network boundary and is rendered into the UI, so
- * a shape change upstream should fail loudly here instead of surfacing as an undefined
- * halfway down a component tree.
+ * A conversation saved to the signed-in user's account. Validated like every other response,
+ * so an upstream shape change fails here rather than deep in a component tree.
  */
 export const conversationSummarySchema = z.object({
   id: z.string(),

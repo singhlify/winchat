@@ -4,8 +4,7 @@ import { animate, useInView, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Count a figure up when it scrolls into view. Used only on the measured results, since
- * those numbers are the point of that section.
+ * Count a figure up when it scrolls into view. Used only on the measured results.
  */
 export function CountUp({
   value,

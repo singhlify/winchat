@@ -3,9 +3,8 @@ import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 
 /**
- * Shown by the service worker when a navigation fails. Says what is actually true rather than
- * "you are offline", which is not always the reason: the backend sleeps on a free instance
- * and a cold start can take the better part of a minute, which looks identical from here.
+ * Shown by the service worker when a navigation fails. The wording does not claim the visitor
+ * is offline, because a cold start on a sleeping free instance looks the same from here.
  */
 export const metadata: Metadata = {
   title: "Offline · WinChat",

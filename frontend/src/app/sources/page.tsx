@@ -10,8 +10,7 @@ import { fetchSources } from "@/lib/api/client";
 import type { Source } from "@/lib/api/schemas";
 
 /**
- * Every source, listed. This page exists for people first: it is the assistant's complete,
- * checkable boundary.
+ * Every source, listed. The complete set of articles the assistant can draw on.
  */
 
 export const revalidate = 3600;

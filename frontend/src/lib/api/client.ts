@@ -40,8 +40,8 @@ interface RequestOptions {
 }
 
 /**
- * A hung request is worse than a failed one. It shows a spinner forever. Every call
- * gets a deadline, combined with any caller-supplied abort signal.
+ * Every call gets a deadline, combined with any caller-supplied abort signal, so a hung
+ * request fails instead of showing a spinner indefinitely.
  */
 async function request<T>(
   path: string,

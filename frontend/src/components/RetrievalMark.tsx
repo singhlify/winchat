@@ -3,9 +3,8 @@
 import { motion, useReducedMotion } from "motion/react";
 
 /**
- * The hero graphic: a diagram of what the app actually does. Drawn as SVG rather than
- * illustrated, and specific rather than abstract. It shows a question resolving to two of
- * 556 indexed articles, which is the product's whole claim.
+ * The hero graphic: a question resolving to two of the 556 indexed articles. SVG so it
+ * inherits the theme colours.
  */
 export function RetrievalMark({ className }: { className?: string }) {
   const reduced = useReducedMotion();

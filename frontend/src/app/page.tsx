@@ -13,8 +13,7 @@ import { RetrievalMark } from "@/components/RetrievalMark";
 import { fetchSources } from "@/lib/api/client";
 
 /**
- * The landing page. The app moved to /app so that / can be a real page: server-rendered prose
- * that a crawler and a language model can actually read.
+ * The landing page, server-rendered so crawlers can read it. The app itself is at /app.
  */
 
 export const revalidate = 3600;

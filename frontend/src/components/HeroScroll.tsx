@@ -9,9 +9,8 @@ import {
 import { useRef, type ReactNode } from "react";
 
 /**
- * Scroll-linked treatment for the hero. The hero fades and drifts up slightly as it leaves,
- * which does one useful thing rather than one showy one: it hands attention over to the next
- * section instead of letting two blocks compete while both are half on screen.
+ * Scroll-linked treatment for the hero. It fades and drifts up as it leaves, so it does not
+ * compete with the next section while both are partly on screen.
  */
 export function HeroScroll({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);

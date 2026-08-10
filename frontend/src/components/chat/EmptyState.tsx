@@ -3,9 +3,8 @@
 import { ArrowUpRight } from "lucide-react";
 
 /**
- * The first screen. It answers three questions a first-time visitor actually has. What can I
- * ask, where do the answers come from, and can I trust it, instead of showing a bare input
- * and a logo.
+ * The first screen: what can be asked, where the answers come from, and a link to the full
+ * source list.
  */
 
 export const SUGGESTIONS = [

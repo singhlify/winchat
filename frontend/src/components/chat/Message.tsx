@@ -153,8 +153,7 @@ export function AssistantMessage({
 }
 
 /**
- * A refusal is a calm, informative state, not an error. Styling correct behaviour in red
- * teaches people to distrust the system precisely when it is being most trustworthy.
+ * A refusal is a normal state, so it is not styled as an error.
  */
 function RefusalState({ turn }: { turn: Turn }) {
   return (
@@ -216,9 +215,8 @@ function ErrorState({ turn, onRetry }: { turn: Turn; onRetry: () => void }) {
 }
 
 /**
- * The wait has two distinct stages and says which one it is in. "Searching" then "Writing"
- * tells the user the system is progressing rather than hung, and the two stages are real,
- * because sources arrive as their own event before the first token.
+ * The wait has two stages, "Searching" then "Writing". They are real: sources arrive as their
+ * own event before the first token.
  */
 function PendingState({ hasSources }: { hasSources: boolean }) {
   return (

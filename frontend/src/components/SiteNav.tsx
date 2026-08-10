@@ -10,9 +10,7 @@ import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 /**
- * The site's one navigation bar. Everything outside the chat used to have its own header, or
- * none at all: the landing page had a bespoke one with no theme control, the sources page had
- * a bare "back" link, and the app had a wordmark-less toolbar with no way home.
+ * The site's one navigation bar, used on every page including the chat.
  */
 export function SiteNav({
   leading,
@@ -25,9 +23,8 @@ export function SiteNav({
   cta?: boolean;
   /**
    * Page-specific controls, placed before the account menu. The chat puts its model picker
-   * here rather than inside the account menu, because the model changes the answer you are
-   * about to get: that is a property of the conversation, not a preference, and burying it
-   * would hide the one setting worth seeing.
+   * here because the model changes the answer, so it belongs with the conversation rather
+   * than with the preferences.
    */
   trailing?: React.ReactNode;
   className?: string;

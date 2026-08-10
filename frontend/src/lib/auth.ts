@@ -18,9 +18,8 @@ export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number]["id"];
 const UNCONFIGURED = "Sign-in is not configured for this deployment.";
 
 /**
- * Supabase messages are written for developers. A few of them reach end users often enough
- * to be worth translating; everything else passes through, because inventing a friendly
- * message for an error you did not anticipate usually means hiding the useful one.
+ * Translates the few Supabase errors that reach end users often. Anything else passes
+ * through unchanged rather than being replaced by a guess.
  */
 function humanize(message: string): string {
   const lowered = message.toLowerCase();

@@ -6,8 +6,7 @@ import { fetchConversations } from "@/lib/api/client";
 import { mergeServerConversations } from "@/lib/conversations";
 
 /**
- * Pull the account's saved conversations into this browser when a session appears. This is
- * what makes signing in worth doing.
+ * Pull the account's saved conversations into this browser when a session appears.
  */
 export function useAccountSync(accessToken: string | null): void {
   // Tracks which token has already been synced, so a re-render does not refetch. A ref rather

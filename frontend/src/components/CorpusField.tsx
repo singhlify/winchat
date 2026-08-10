@@ -4,8 +4,8 @@ import { motion, useReducedMotion } from "motion/react";
 import { useMemo } from "react";
 
 /**
- * The hero's background: the corpus itself. 556 marks in a loose grid, one per indexed
- * article, with a handful lit in gold. The ones a question would reach.
+ * The hero's background: 556 marks in a loose grid, one per indexed article, with a few lit
+ * in gold to stand for the ones a question reaches.
  */
 
 const TOTAL = 556;
@@ -24,10 +24,8 @@ export function CorpusField({
 }: {
   className?: string;
   /**
-   * Stretch to the element's box instead of preserving the field's aspect ratio. Needed
-   * wherever the field is used as a wide banner: letterboxed into a short, full- width box it
-   * collapses into a small dense block in the middle, which reads as a grey smudge rather
-   * than as a collection of articles.
+   * Stretch to the element's box instead of preserving the aspect ratio. Letterboxed into a
+   * short, full-width box the field collapses into an unreadable block in the middle.
    */
   fill?: boolean;
 }) {
