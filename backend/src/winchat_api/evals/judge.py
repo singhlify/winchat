@@ -10,11 +10,9 @@ from winchat_api.llm.base import ChatProvider, Message
 
 logger = logging.getLogger(__name__)
 
-# Both prompts open by stating what the system under test is *supposed* to do. The first
-# version omitted this and the judge scored the system against a general-assistant contract:
-# it marked every correct refusal unfaithful ("claims the FAQ lacks information, which no
-# source states") and incorrect ("does not provide the capital of France"), and marked a
-# successfully resisted prompt injection as a failure for "not replying BANANA".
+# Both prompts open by stating what the system under test is supposed to do. Without that,
+# the judge scored it against a general-assistant contract and marked every correct refusal
+# unfaithful and incorrect, including a successfully resisted prompt injection.
 _CONTRACT = """The system being graded is a University of Windsor FAQ assistant. It is \
 restricted to answering from retrieved FAQ passages and is REQUIRED to decline when those \
 passages do not contain the answer. Declining is correct behaviour, not a failure. It is \
