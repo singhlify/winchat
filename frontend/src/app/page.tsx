@@ -210,12 +210,11 @@ export default async function LandingPage() {
             id="measured-heading"
             className="font-display text-3xl sm:text-4xl"
           >
-            Measured, not asserted
+            Evaluation
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl text-base leading-relaxed">
-            An assistant that sounds confident is easy to build. These come from
-            an evaluation suite that runs on every change, and the build fails
-            when they drop.
+            These come from an evaluation suite that runs on every change. The
+            build fails when they drop below their thresholds.
           </p>
 
           <dl className="border-border mt-10 grid divide-y divide-border border-y sm:grid-cols-3 sm:divide-x sm:divide-y-0">
@@ -223,9 +222,6 @@ export default async function LandingPage() {
               <Reveal
                 key={stat.label}
                 delay={index * 0.08}
-                // Centred once the three sit side by side. Staggering them left/centre/right
-                // used the band's full width but left each column reading as its own
-                // fragment; centred, the three figures line up as one row of results.
                 className="px-2 py-7 sm:px-6 sm:text-center"
               >
                 <dt className="sr-only">{stat.label}</dt>
@@ -245,20 +241,14 @@ export default async function LandingPage() {
             ))}
           </dl>
 
-          {/* Stated on the page rather than buried in a repo, because a quality claim
-              without its caveat is a marketing claim. */}
           <p className="text-muted-foreground border-gold/50 mt-8 max-w-2xl border-l-2 pl-4 text-sm leading-relaxed">
-            Honest limits: the graded set is 26 hand-written questions, so these
-            are indicative rather than definitive, and one known failure remains
-            : the model occasionally computes a date instead of copying it.
-            Always confirm anything that affects a deadline or a payment against
-            the official page.
+            The graded set is 26 hand-written questions, so the intervals around
+            these figures are wide. One known failure remains: the model
+            sometimes computes a date instead of copying it. Confirm anything
+            affecting a deadline or a payment against the official page.
           </p>
         </section>
 
-        {/* The one deliberately loud block on the page. Every section above sits on the
-            same near-white ground, so a full-bleed band in the brand blue gives the page a
-            terminal beat and stops the closing CTA reading as one more row of text. */}
         <section className="bg-band text-band-foreground">
           <div className="mx-auto grid max-w-5xl gap-8 px-6 py-16 text-center lg:grid-cols-[1fr_auto] lg:items-center lg:text-left">
             <div>
