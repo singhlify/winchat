@@ -179,9 +179,8 @@ def _check_config() -> DependencyCheck:
 
     problems: list[str] = []
 
-    # The salt is what makes an anonymous subject unguessable. With the shipped default it is
-    # public knowledge, so anyone can compute the hash for a given IP, enough to confirm
-    # whether someone used the service, and to reason about the counter keyspace.
+    # The salt makes an anonymous subject unguessable. The shipped default is public, so with
+    # it anyone can compute the hash for a given IP and confirm whether that address was used.
     if settings.rate_limit_salt == Settings.model_fields["rate_limit_salt"].default:
         problems.append("RATE_LIMIT_SALT is still the built-in default. Set a random value")
 

@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 GOLDEN = BACKEND_ROOT / "evals" / "golden" / "uwindsor.jsonl"
 
-# Well past a trial key's one-minute window. Offline work can afford to wait; the point is
-# to measure the reranker that ships, not the one a rate limit left half-running.
+# Well past a trial key's one-minute window. A reranker that gives up on a 429 falls back to
+# unranked order, which would measure the wrong system.
 MEASUREMENT_RETRY_BUDGET_S = 120.0
 
 

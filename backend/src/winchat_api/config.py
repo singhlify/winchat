@@ -56,8 +56,8 @@ class Settings(BaseSettings):
     fastembed_model: str = "nomic-ai/nomic-embed-text-v1.5"
     # Baked into the image at build time so a cold start does not download the model.
     fastembed_cache_dir: str | None = None
-    # For EMBEDDING_PROVIDER=cohere (the deployed configuration). Hosted, so the model is not
-    # resident in the container, which is the entire reason it is the shipped choice.
+    # For EMBEDDING_PROVIDER=cohere, the deployed configuration. Hosted, so the model is not
+    # resident in the container.
     cohere_embed_model: str = "embed-v4.0"
     cohere_embed_dimension: int = 1024
     # Two budgets because the two callers have opposite tolerances. A user waiting on a chat
@@ -83,8 +83,7 @@ class Settings(BaseSettings):
     # embed-v4.0 by `python -m winchat_api.chat.calibrate`: on-topic 0.4641-0.7117 off-topic
     # 0.1492-0.2891 0.38 sits mid-gap with ~0.09 margin either side.
     refusal_min_dense_score: float = 0.38
-    # A second gate on reranker relevance. Left off until it can be calibrated with a real
-    # Cohere key; shipping an uncalibrated threshold is worse than shipping none.
+    # A second gate on reranker relevance. Off until it is calibrated against a real key.
     refusal_min_rerank_score: float | None = None
 
     rerank_provider: str = "cohere"  # cohere | llm | none
@@ -111,8 +110,7 @@ class Settings(BaseSettings):
     # Offline work can afford to wait out a per-minute budget; a chat request cannot.
     eval_retry_budget_s: float = 900.0
 
-    # CI gates. Set from the first measured baseline, then ratcheted up. Never guessed,
-    # because a threshold nobody can meet gets disabled and one nobody can fail is decoration.
+    # CI gates, set from the first measured baseline and raised since. Not guessed.
     eval_min_retrieval_recall: float = 0.95
     eval_min_deterministic_pass: float = 0.85
     eval_min_faithfulness: float = 0.90

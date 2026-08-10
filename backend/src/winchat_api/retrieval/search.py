@@ -59,7 +59,6 @@ async def dense_search(
     must be at least `limit`, whose default of 40 is below this pipeline's dense limit.
     """
     settings = get_settings()
-    # Never below the requested limit; the max() is the whole point of the setting.
     ef_search = max(settings.retrieval_hnsw_ef_search, limit)
 
     async with pool.acquire() as connection, connection.transaction():

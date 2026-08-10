@@ -52,8 +52,7 @@ def check_case(
     if case.must_not_match and re.search(case.must_not_match, answer, re.IGNORECASE):
         result.fail(f"matched forbidden pattern: {case.must_not_match}")
 
-    # Every [n] the model wrote must resolve to a source it was actually given. A dangling
-    # citation is a fabricated reference wearing a citation's clothes.
+    # Every [n] the model wrote must resolve to a source it was given.
     valid = {citation.index for citation in citations}
     for marker in {int(m) for m in re.findall(r"\[(\d+)\]", answer)}:
         if marker not in valid:
