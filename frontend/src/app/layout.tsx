@@ -84,10 +84,9 @@ export const viewport: Viewport = {
   // name of an "app-like" feel.
   width: "device-width",
   initialScale: 1,
-  // The default is `resizes-visual`, where the on-screen keyboard resizes only the visual
-  // viewport and leaves layout untouched, which is exactly how a bottom-pinned composer ends
-  // up hidden behind the keyboard on a phone. `resizes-content` resizes the layout viewport
-  // instead, so the composer is pushed above it.
+  // The default `resizes-visual` leaves the layout viewport alone when the keyboard opens,
+  // which hides a bottom-pinned composer behind it. `resizes-content` resizes the layout
+  // viewport instead, so the composer is pushed above the keyboard.
   interactiveWidget: "resizes-content",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fdfdfe" },

@@ -164,9 +164,8 @@ export function AuthPanel({
       {open && (
         <div
           role="dialog"
-          // Non-modal on purpose: the page behind stays usable, because the whole point is
-          // that signing in is optional. A modal would imply otherwise and would need a focus
-          // trap that fights the "just carry on" path below.
+          // Non-modal, because signing in is optional and the page behind stays usable. A
+          // modal would also need a focus trap.
           aria-modal="false"
           aria-labelledby="auth-panel-title"
           aria-describedby="auth-panel-description"

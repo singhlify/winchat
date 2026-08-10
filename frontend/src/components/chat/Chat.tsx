@@ -94,9 +94,9 @@ export function Chat({
     turns,
   ]);
 
-  // `setAccessToken` is a useState setter behind the context, so it is referentially stable
-  // and listing it costs nothing, but the linter cannot prove that through a context
-  // boundary, and silencing the rule is worse than satisfying it.
+  // `setAccessToken` is a useState setter behind the context, so it is referentially stable.
+  // The linter cannot prove that through a context boundary, so it is listed rather than
+  // suppressed.
 
   useShortcuts({
     onNewChat: clear,

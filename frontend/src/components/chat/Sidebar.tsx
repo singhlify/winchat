@@ -147,9 +147,9 @@ export function SidebarToggle({
       variant="ghost"
       size="icon"
       onClick={onToggle}
-      // `aria-expanded` conveys the state; the label says what it does. No `aria-controls` on
-      // purpose. The element it would reference differs between the desktop column and the
-      // mobile drawer, and a reference that resolves to a hidden node is worse than none.
+      // `aria-expanded` carries the state and the label says what the control does. No
+      // `aria-controls`: the element it would reference differs between the desktop column
+      // and the mobile drawer, and would sometimes resolve to a hidden node.
       aria-expanded={open}
       aria-label={open ? "Hide chat history" : "Show chat history"}
       className="size-9 shrink-0"
