@@ -1,6 +1,5 @@
-"""The retrieval pipeline, end to end. query -> embed -> dense top-50 ┐ -> lexical top-50┘ fused
-with RRF -> rerank -> top-n The two arms run concurrently because neither depends on the other;
-the wall-clock cost of hybrid retrieval is therefore the slower arm, not the sum.
+"""The retrieval pipeline: embed, dense and lexical search concurrently, fuse with RRF,
+rerank, return the top n.
 """
 
 import asyncio

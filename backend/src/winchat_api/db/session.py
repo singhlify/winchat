@@ -1,7 +1,5 @@
-"""Running queries as the signed-in user, so Row Level Security actually applies.
-
-The pool connects as a privileged role. Issuing a query on it directly bypasses every policy in
-the schema.
+"""Running queries as the signed-in user so Row Level Security applies. The pool's own role
+is privileged and bypasses it.
 """
 
 import json

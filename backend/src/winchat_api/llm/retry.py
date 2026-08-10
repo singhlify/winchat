@@ -1,8 +1,4 @@
-"""Rate-limit retry.
-
-Providers meter by tokens per minute. When the budget is exhausted the correct response is to
-wait exactly as long as the server says and try again, not to fail, and not to guess a backoff.
-"""
+"""Rate-limit retry. Waits the interval the provider reports rather than guessing a backoff."""
 
 import asyncio
 import logging

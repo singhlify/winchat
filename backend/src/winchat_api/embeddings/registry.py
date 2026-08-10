@@ -1,8 +1,4 @@
-"""Embedding provider selection.
-
-Mirrors `llm/registry.py`. Ollama is the default for local work: open weights, runs on the
-machine, no vendor call.
-"""
+"""Embedding provider selection, keyed by EMBEDDING_PROVIDER."""
 
 from collections.abc import Callable
 from functools import lru_cache

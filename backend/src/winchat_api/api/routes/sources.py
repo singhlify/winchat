@@ -1,8 +1,4 @@
-"""The source catalogue.
-
-Every answer traces back to a published `ask.uwindsor.ca` article, and this endpoint exposes the
-whole list. It earns trust, and it states the assistant's boundary honestly.
-"""
+"""The source catalogue: every article the assistant can draw on."""
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel

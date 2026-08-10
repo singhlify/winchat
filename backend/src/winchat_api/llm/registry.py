@@ -1,8 +1,4 @@
-"""Chat provider selection.
-
-The only place that maps a config string to a concrete vendor. Adding Anthropic or OpenAI
-means one entry in `_BUILDERS`, and every call site keeps talking to `ChatProvider`.
-"""
+"""Chat provider selection, keyed by LLM_PROVIDER."""
 
 from collections.abc import Callable
 from functools import lru_cache

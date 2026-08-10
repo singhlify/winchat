@@ -1,7 +1,5 @@
-"""Health endpoints.
-
-Two endpoints, deliberately separate: ``/healthz`` is liveness. Answers "is this process up?"
-with zero external calls, so a platform health check never fails because a third party is slow.
+"""Health endpoints. `/healthz` is liveness and makes no external calls;
+`/readyz` checks every dependency.
 """
 
 import asyncio

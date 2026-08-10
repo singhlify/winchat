@@ -1,9 +1,4 @@
-"""Thumbs up / thumbs down on an answer.
-
-The third evaluation signal, alongside deterministic assertions and the model judge. It is the
-only one that catches an answer both of the others consider fine, which is exactly the class of
-failure worth knowing about.
-"""
+"""Thumbs up and thumbs down on an answer."""
 
 import json
 import logging

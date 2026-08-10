@@ -1,10 +1,4 @@
-"""The model catalogue.
-
-A curated list, not a passthrough of everything the provider serves. Two reasons: weak models
-make the product look broken for a reason that is not the pipeline's, and accepting an arbitrary
-model name from a client turns the API into an open proxy to whatever the provider will bill
-for.
-"""
+"""The model catalogue. An allowlist, so a client cannot name an arbitrary model."""
 
 from fastapi import APIRouter
 from pydantic import BaseModel

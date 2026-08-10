@@ -1,10 +1,6 @@
-"""The eval harness. uv run python -m winchat_api.evals.run # both tiers, gated uv run python -m
-winchat_api.evals.run --tier1 # deterministic only, no model cost uv run python -m
-winchat_api.evals.run --json out.json Exits non-zero when any gate fails, which is what makes it
-a CI gate rather than a report.
+"""The eval harness. Exits non-zero when a gate fails.
 
-It runs the real pipeline. The same `answer_question` the HTTP endpoint calls. An eval that
-exercises a parallel implementation eventually measures something the users never touch.
+uv run python -m winchat_api.evals.run [--tier1] [--json out.json]
 """
 
 import argparse

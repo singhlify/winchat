@@ -1,8 +1,5 @@
-"""Persisting conversations for signed-in users.
-
-Every write goes through `user_scoped`, so Row Level Security is what actually enforces
-ownership. The `user_id = $n` in these statements is belt-and-braces, not the control: if
-someone later writes a query and forgets it, the policy still refuses the row.
+"""Persisting conversations for signed-in users. Writes go through `user_scoped`, so Row
+Level Security enforces ownership.
 """
 
 import json

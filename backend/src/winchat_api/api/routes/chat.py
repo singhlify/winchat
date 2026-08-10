@@ -1,8 +1,4 @@
-"""The chat endpoint. Server-Sent Events (a one-way stream of updates over plain HTTP).
-
-Streaming is not decoration. A grounded answer takes a second or two of retrieval before the
-first token exists; without streaming the user stares at nothing for the whole generation.
-"""
+"""The chat endpoint. Streams the answer over Server-Sent Events."""
 
 import json
 import logging

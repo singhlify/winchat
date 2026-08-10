@@ -1,7 +1,5 @@
-"""Refusing expensive requests that did not come from the app.
-
-CORS does not do this. A browser enforces CORS; `curl`, a scraper and a bot do not send an
-`Origin` header at all, and the middleware happily lets them through.
+"""Refusing expensive requests that did not come from the app. CORS does not cover this:
+non-browser clients send no Origin header at all.
 """
 
 import logging

@@ -1,8 +1,6 @@
-"""Smoke check: prove both providers really work, with visible output.
+"""Smoke check that both providers work, with visible output.
 
-`/readyz` proves the wiring; this proves the behaviour, real generated text, and an embedding
-space where related sentences actually sit closer together than unrelated ones. uv run python -m
-winchat_api.smoke
+uv run python -m winchat_api.smoke
 """
 
 import asyncio

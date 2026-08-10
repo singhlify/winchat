@@ -1,6 +1,4 @@
-"""Splitting answers into retrievable chunks.
-
-Sized for this corpus, not from a tutorial default. Measured over all 556 answers: median 621
+"""Splitting answers into retrievable chunks. Sizes come from this corpus: median 621
 characters, 90th percentile 1,900, max 4,263.
 """
 

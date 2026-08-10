@@ -1,8 +1,5 @@
-"""Tier 2: LLM-as-judge over faithfulness and correctness.
-
-Two separate scores, because they fail independently. An answer can be perfectly faithful to its
-sources and still not address the question, and a "correct-sounding" answer can be faithful to
-nothing.
+"""Tier 2: LLM-as-judge. Faithfulness and correctness are scored separately because they
+fail independently.
 """
 
 import json

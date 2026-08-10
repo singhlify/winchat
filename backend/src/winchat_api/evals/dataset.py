@@ -1,9 +1,4 @@
-"""The golden set: hand-written cases with verified expectations.
-
-Every `must_include` value was read out of the actual corpus, not guessed. A golden set whose
-expectations were invented measures nothing, it just encodes the author's assumptions and then
-confirms them.
-"""
+"""The golden set. Every expectation was read out of the corpus rather than invented."""
 
 import json
 from dataclasses import dataclass, field

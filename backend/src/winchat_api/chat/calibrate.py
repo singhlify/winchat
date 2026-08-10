@@ -1,12 +1,6 @@
-"""Where should REFUSAL_MIN_DENSE_SCORE sit for the current embedding model? uv run python -m
-winchat_api.chat.calibrate
+"""Reports where REFUSAL_MIN_DENSE_SCORE should sit for the current embedding model.
 
-Embeds sixteen questions, eight this corpus can answer and eight it cannot, then reports the
-best dense similarity each one achieves.
-
-A usable threshold is any number in the gap between the two groups; the script suggests the
-midpoint and reports how much margin that leaves on each side. Why this is a script and not a
-paragraph in a runbook.
+uv run python -m winchat_api.chat.calibrate
 """
 
 import asyncio

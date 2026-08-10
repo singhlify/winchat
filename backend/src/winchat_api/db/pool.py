@@ -1,9 +1,4 @@
-"""Postgres connection pool.
-
-Plain SQL over asyncpg. No `supabase-js`, no ORM. The database is ordinary Postgres, so this
-code moves to any Postgres host unchanged; that portability is the reason Supabase was chosen
-without being locked into.
-"""
+"""Postgres connection pool. Plain SQL over asyncpg, no ORM."""
 
 import asyncpg
 from pgvector.asyncpg import register_vector

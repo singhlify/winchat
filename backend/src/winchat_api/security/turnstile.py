@@ -1,9 +1,4 @@
-"""Proof that a request came from a browser with a human behind it.
-
-Cloudflare Turnstile, verified server-side. The client solves an invisible challenge and sends
-the resulting token; this exchanges it with Cloudflare's `siteverify` endpoint, which is the
-only step that actually proves anything. A token the server never checks is decoration.
-"""
+"""Server-side verification of Cloudflare Turnstile tokens."""
 
 import logging
 

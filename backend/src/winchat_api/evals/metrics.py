@@ -1,8 +1,4 @@
-"""Tier 1: deterministic checks.
-
-No model, no cost, no variance. These run first and are the ones worth gating hardest on,
-because they cannot flake.
-"""
+"""Tier 1: deterministic checks. No model call, so they cannot flake."""
 
 import re
 from dataclasses import dataclass, field

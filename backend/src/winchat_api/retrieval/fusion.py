@@ -1,10 +1,8 @@
-"""Reciprocal Rank Fusion, merging the dense and lexical result lists.
+"""Reciprocal Rank Fusion over the dense and lexical result lists.
 
-RRF scores a document by `sum(1 / (k + rank))` over the lists it appears in. It uses *ranks*,
-never raw scores, which is precisely why it works here: cosine similarity (0-1, tightly
-clustered near the top) and `ts_rank_cd` (unbounded, corpus-dependent) are not on comparable
-scales, and any attempt to normalize them into a weighted sum invents a calibration that does
-not exist.
+RRF scores by rank rather than by raw score. Cosine similarity and `ts_rank_cd` are on
+different scales, so combining the scores directly would require a calibration between them
+that does not exist.
 """
 
 from collections.abc import Sequence

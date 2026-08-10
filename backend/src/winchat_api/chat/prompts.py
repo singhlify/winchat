@@ -1,8 +1,4 @@
-"""Prompts.
-
-Kept in one module so the eval harness can pin the exact prompt a score was produced
-with. A quality number attached to an unknown prompt version means nothing.
-"""
+"""Prompts, kept in one module so the eval harness can pin the version a score came from."""
 
 SYSTEM_PROMPT = """You are WinChat, an assistant that answers questions about the \
 University of Windsor using the university's official FAQ articles.

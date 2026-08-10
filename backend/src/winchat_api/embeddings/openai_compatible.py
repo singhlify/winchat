@@ -1,9 +1,4 @@
-"""Embeddings over an OpenAI-compatible `/v1/embeddings` endpoint.
-
-The deployment counterpart to the Ollama provider. Ollama is ideal locally, free, open weights,
-nothing leaves the machine, but it needs a GPU-less container with the model resident, which
-does not fit a small backend instance.
-"""
+"""Embeddings over an OpenAI-compatible `/v1/embeddings` endpoint."""
 
 from collections.abc import Sequence
 

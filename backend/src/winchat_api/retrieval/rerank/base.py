@@ -1,9 +1,6 @@
-"""The provider-agnostic reranker interface.
-
-A reranker is a cross-encoder: instead of comparing two independent vectors, it reads the query
-and the passage *together* and scores the pair. That is far more accurate and far too slow to
-run over the whole corpus, which is exactly why it sits after retrieval, over a few dozen
-candidates.
+"""The reranker interface. A cross-encoder reads the query and passage together, which is
+more accurate than comparing vectors but too slow for the whole corpus, so it runs over the
+fused candidates only.
 """
 
 from collections.abc import Sequence

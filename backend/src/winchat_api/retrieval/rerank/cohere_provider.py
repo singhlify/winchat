@@ -1,10 +1,4 @@
-"""Cohere Rerank.
-
-Chosen over other cross-encoders partly for a Canadian-market reason: Cohere is a Toronto
-company and its Command/Embed/Rerank line maps one-to-one onto a RAG pipeline, so familiarity
-with it is a small local edge. Called over plain HTTP rather than the SDK, one endpoint, one
-payload, and it keeps the dependency list honest.
-"""
+"""Cohere Rerank, called over plain HTTP rather than the SDK."""
 
 import asyncio
 import logging

@@ -1,9 +1,4 @@
-"""Reading the scraped corpus off disk.
-
-The scraper's output is the contract: one JSON object per line, keyed by `a_id`. This module
-is the only place that knows that format, so re-scraping or changing the source shape touches
-one file.
-"""
+"""Reading the scraped corpus off disk. The only module that knows the file format."""
 
 import hashlib
 import json

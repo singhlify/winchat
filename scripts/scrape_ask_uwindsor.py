@@ -3,14 +3,12 @@
 Enumerates every published answer from the site's own sitemap, fetches each
 detail page, caches the raw HTML, and extracts clean structured data.
 
-Design notes (defend these out loud):
-- Source of truth is the sitemap (/ci/sitemap/answers/page/1), not link-crawling
-  or a_id brute-force. It lists all answers + a `lastmod` timestamp each.
-- `a_id` is the stable primary key; the URL slug is decoration.
-- Raw HTML is cached to disk so re-parsing / re-chunking never re-hits the server.
-- `lastmod` is stored so a future incremental refresh can re-fetch only changed
-  answers (diff stored lastmod vs sitemap) instead of pulling all 558 again.
-- Rate-limited to ~1 req/sec, honest identifying User-Agent (no bot spoofing).
+- The sitemap (/ci/sitemap/answers/page/1) is the source of truth, not link crawling or
+  a_id enumeration. It lists every answer with a `lastmod` timestamp.
+- `a_id` is the primary key. The URL slug is not stable.
+- Raw HTML is cached so re-parsing does not re-hit the server.
+- `lastmod` is stored so a refresh can re-fetch only changed answers.
+- Rate limited to about 1 request/second, with an identifying User-Agent.
 
 Run:  uv run python scripts/scrape_ask_uwindsor.py
 """

@@ -1,8 +1,4 @@
-"""The ingestion pipeline: corpus file → chunks → embeddings → pgvector.
-
-Offline by design. Nothing here ever runs during a chat request, embedding documents inside a
-request is the classic mistake this architecture is built to avoid.
-"""
+"""The ingestion pipeline: corpus file, chunks, embeddings, pgvector. Offline only."""
 
 import logging
 import time

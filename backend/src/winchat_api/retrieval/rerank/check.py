@@ -1,9 +1,6 @@
-"""Does the reranker actually help?
+"""Compares recall and MRR with and without the configured reranker.
 
-Measure, do not assume. uv run python -m winchat_api.retrieval.rerank.check Runs the golden
-set's retrieval-scored cases twice, once with no reranker, once with the configured one, and
-prints recall@top_n and MRR side by side. No generation, so it costs nothing on the LLM budget
-and is fast enough to run after any retrieval change.
+uv run python -m winchat_api.retrieval.rerank.check
 """
 
 import asyncio

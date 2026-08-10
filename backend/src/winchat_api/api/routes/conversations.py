@@ -1,10 +1,4 @@
-"""Reading a signed-in user's saved conversations.
-
-The endpoint that makes an account worth having. Conversations were already written for signed-
-in users, and there was no way to read them back, so the history existed, belonged to the
-account, and could only be reached from the device that happened to hold its id in
-`localStorage`.
-"""
+"""Reading a signed-in user's saved conversations."""
 
 import logging
 from typing import Annotated

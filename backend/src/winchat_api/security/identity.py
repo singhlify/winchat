@@ -1,8 +1,5 @@
-"""Deciding who a request is, for rate-limiting purposes.
-
-Shared by every endpoint that spends money or writes rows, so the rule is defined once. An
-endpoint that derives the caller's identity its own way is an endpoint whose limits can be
-bypassed by using a different endpoint.
+"""Deciding who a request is, for rate-limiting purposes. Defined once so a caller cannot
+get a fresh budget by switching endpoints.
 """
 
 import hmac

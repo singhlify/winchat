@@ -1,7 +1,5 @@
-"""Groq chat provider, the default generation backend.
-
-Groq serves open-weight models (Llama / Qwen class) fast and cheaply. We talk to the
-vendor SDK here and nowhere else; the rest of the app only knows `ChatProvider`.
+"""Groq chat provider, the default generation backend. The only module that talks to the
+Groq SDK.
 """
 
 from collections.abc import AsyncIterator, Sequence

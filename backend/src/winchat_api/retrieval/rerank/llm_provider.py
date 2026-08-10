@@ -1,10 +1,4 @@
-"""Reranking with the language model we already have.
-
-A dedicated cross-encoder (Cohere Rerank) is the better tool, but it needs a vendor key. This
-implements the same `Reranker` interface using the configured LLM, so the pipeline gets its
-precision stage today and swapping in Cohere later is a config change, which is the entire
-point of having the interface.
-"""
+"""A reranker built on the configured LLM, for running without a Cohere key."""
 
 import json
 import logging

@@ -1,8 +1,5 @@
-"""Turning retrieved chunks into a numbered context block the model can cite.
-
-Citations are grouped by `a_id`, not by chunk. Two chunks from the same FAQ answer are one
-source to a reader. Numbering them [1] and [2] would imply two independent confirmations of the
-same claim, which is exactly the kind of false corroboration a citation UI must not manufacture.
+"""Turns retrieved chunks into a numbered context block. Chunks are grouped by `a_id`, so
+one article is one citation.
 """
 
 from collections.abc import Sequence

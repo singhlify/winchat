@@ -1,9 +1,6 @@
-"""Ask the assistant one question from the terminal. uv run python -m winchat_api.ask "how do I
-drop a course?" Runs the exact request-path pipeline, then prints what the model wrote alongside
-what retrieval actually fed it.
+"""Ask one question from the terminal, printing the answer and the sources behind it.
 
-Being able to see the sources next to the answer is how you tell a retrieval failure from a
-generation failure.
+uv run python -m winchat_api.ask "how do I drop a course?"
 """
 
 import asyncio

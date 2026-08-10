@@ -1,10 +1,4 @@
-"""Embeddings computed in-process with ONNX.
-
-The deployment answer. Ollama needs a separate daemon holding the model in memory, which does
-not fit a small instance; `sentence-transformers` drags in ~2.5 GB of torch. fastembed runs the
-same nomic weights through onnxruntime in about 53 MB, inside the API process, no daemon, no
-vendor, no API key, and no network hop on the request path.
-"""
+"""Embeddings computed in-process with ONNX. About 53 MB, no daemon and no vendor call."""
 
 import asyncio
 from collections.abc import Sequence

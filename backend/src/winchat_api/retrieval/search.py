@@ -1,8 +1,7 @@
-"""The two retrieval arms: dense (meaning) and lexical (exact terms).
+"""The two retrieval arms: dense vector search and Postgres full-text search.
 
-Both are needed. Dense vectors have a *structural* failure on exact strings, course codes, form
-numbers, "UWinsite", that no better embedding model fixes, because a fixed-length vector cannot
-encode exact string identity.
+Both are needed. A fixed-length vector cannot encode exact string identity, so dense search
+misses course codes and form numbers; lexical search cannot match a paraphrase.
 """
 
 import asyncpg

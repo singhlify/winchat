@@ -1,8 +1,4 @@
-"""Verifying Supabase access tokens.
-
-The frontend signs users in with Supabase and sends the resulting JWT as a bearer token. This
-module verifies it, signature, expiry, issuer and audience, and hands back a user id.
-"""
+"""Verifying Supabase access tokens: signature, expiry, issuer and audience."""
 
 import logging
 import time

@@ -1,8 +1,5 @@
-"""Per-subject rate limiting and a global circuit breaker.
-
-OWASP LLM10 (Unbounded Consumption): an LLM endpoint without a spend ceiling is one scripted
-loop away from a surprise invoice. Two limits, because they stop different things. The
-per-subject window stops one user monopolising the service; the daily breaker caps total spend.
+"""Per-subject rate limiting and a global daily circuit breaker. The window stops one caller
+monopolising the service; the breaker caps total spend.
 """
 
 import hashlib

@@ -1,7 +1,5 @@
-"""Deciding when not to answer.
-
-Two independent defences, because neither is sufficient alone: a retrieval threshold here, and
-rule 3 of the system prompt telling the model to refuse when the sources do not answer.
+"""The retrieval-side refusal check. Rule 3 of the system prompt is the second, independent
+one.
 """
 
 from dataclasses import dataclass

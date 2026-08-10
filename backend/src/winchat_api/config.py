@@ -1,8 +1,4 @@
-"""Application configuration.
-
-Everything is environment-driven. Paths are derived from this file's location so the app behaves
-identically no matter which directory it is launched from. No absolute paths anywhere.
-"""
+"""Application configuration, all environment-driven. Paths derive from this file's location."""
 
 from functools import lru_cache
 from pathlib import Path
