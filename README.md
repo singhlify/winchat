@@ -5,6 +5,9 @@ university's public FAQ, with a citation on every claim.
 
 **[Try it](https://winchat.vercel.app)**, no account needed.
 
+[![CI](https://github.com/singhlify/winchat/actions/workflows/ci.yml/badge.svg)](https://github.com/singhlify/winchat/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ![WinChat answering a question with its source linked underneath](assets/landing.png)
 
 ## What it does
