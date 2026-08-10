@@ -51,10 +51,8 @@ class CohereReranker(Reranker):
             "top_n": min(top_n, len(documents)),
         }
 
-        # Trial keys are capped at 10 calls/minute, and without a retry a burst of questions
-        # silently degraded to unranked order, which is how a working reranker can look like
-        # it does nothing. The budget is small on purpose: this sits in the request path, so
-        # waiting a few seconds is worth it and waiting a minute is not.
+        # Trial keys allow 10 calls/minute, and without a retry a burst degrades to unranked
+        # order. The budget is small because this is the request path.
         deadline = asyncio.get_running_loop().time() + self._retry_budget_s
         attempt = 0
 

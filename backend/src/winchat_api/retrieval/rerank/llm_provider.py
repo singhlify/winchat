@@ -10,12 +10,14 @@ from winchat_api.retrieval.rerank.base import Reranker, RerankError
 
 logger = logging.getLogger(__name__)
 
-# These two trade against each other and the trade is NOT settled. Measured over the 18
-# retrieval-scored golden cases (baseline, no reranker: recall 83.3%, MRR 0.409): 20
-# candidates / 240 chars -> recall 88.9%, MRR 0.833 <- current 12 candidates / 400 chars ->
-# recall 66.7%, MRR 0.528 Fewer candidates with longer snippets was much worse: the small
-# model over-filters, and dropping to 12 also cuts off correct passages sitting at fused rank
-# 13-20.
+# Candidate count and snippet length trade against each other, measured over the 18
+# retrieval-scored golden cases (baseline without a reranker: recall 83.3%, MRR 0.409):
+#
+#   20 candidates / 240 chars -> recall 88.9%, MRR 0.833   (current)
+#   12 candidates / 400 chars -> recall 66.7%, MRR 0.528
+#
+# The small model over-filters, and 12 candidates also cuts off correct passages at fused
+# rank 13 to 20.
 MAX_CANDIDATES = 20
 SNIPPET_CHARS = 240
 

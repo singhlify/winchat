@@ -49,10 +49,8 @@ class Settings(BaseSettings):
     # nonsense rather than raising.
     embedding_base_url: str | None = None
     embedding_api_key: str | None = None
-    # For EMBEDDING_PROVIDER=fastembed: same nomic weights, run in-process through ONNX. Its
-    # vectors are NOT interchangeable with Ollama's despite the identical model name.
-    # Switching requires a re-ingest, which the pipeline triggers automatically because
-    # model_id changes.
+    # Same nomic weights as Ollama but run in-process, and the vectors are not interchangeable
+    # with Ollama's despite the identical model name. Switching re-ingests, since model_id changes.
     fastembed_model: str = "nomic-ai/nomic-embed-text-v1.5"
     # Baked into the image at build time so a cold start does not download the model.
     fastembed_cache_dir: str | None = None

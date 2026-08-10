@@ -11,10 +11,8 @@ from urllib.parse import urlparse
 
 REQUIRED_FIELDS = ("a_id", "question", "answer_text", "url")
 
-# Every citation the app renders is a link the user is invited to trust, shown next to a
-# University of Windsor answer. The URL comes from a file on disk, so nothing downstream
-# distinguishes "scraped from ask.uwindsor.ca" from "someone edited answers.jsonl", the UI
-# lends its credibility to whatever host ends up in this field.
+# The URL comes from a file on disk and is rendered as a citation link, so nothing downstream
+# distinguishes a scraped host from an edited one. The allowlist is checked at ingest.
 ALLOWED_SOURCE_HOSTS = frozenset({"ask.uwindsor.ca"})
 
 

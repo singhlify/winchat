@@ -18,10 +18,9 @@ _DENSE_SQL = """
     limit $2
 """
 
-# `plainto_tsquery` ANDs every term, which requires one chunk to contain all of them,
-# "deadline to drop a course without penalty" then matches nothing at all. Rewriting the
-# operators to OR restores recall, and `ts_rank_cd` still ranks chunks matching more terms
-# higher.
+# `plainto_tsquery` ANDs every term, so "deadline to drop a course without penalty" matched
+# nothing. Rewriting the operators to OR restores recall, and `ts_rank_cd` still ranks chunks
+# matching more terms higher.
 _LEXICAL_SQL = """
     with parsed as (
         select replace(plainto_tsquery('english', $1)::text, '&', '|')::tsquery as query
