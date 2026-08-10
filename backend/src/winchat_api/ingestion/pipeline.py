@@ -78,11 +78,9 @@ async def _write_answer(
     vectors: Sequence[list[float]],
     model_id: str,
 ) -> None:
-    """Replace an answer and all of its chunks atomically.
-
-    Takes the pool, not a connection, and holds one only for the duration of the write. An
-    earlier version held a single connection across the whole embedding loop and the pooler
-    closed it out from under us. Never hold a database connection across slow external I/O.
+    """Replace an answer and all of its chunks atomically. Takes the pool and holds a connection
+    only for the write: an earlier version held one across the embedding loop and the pooler closed
+    it.
     """
     async with pool.acquire() as connection, connection.transaction():
         await connection.execute(
@@ -130,10 +128,8 @@ async def _write_answer(
 
 
 class MassDeletionRefused(RuntimeError):
-    """A refresh asked to delete more of the corpus than the guard allows.
-
-    Raised before anything is written. A partial scrape looks exactly like a corpus where
-    most answers were unpublished, and on a schedule nobody is watching the number.
+    """A refresh asked to delete more of the corpus than the guard allows. Raised before anything
+    is written.
     """
 
 

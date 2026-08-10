@@ -102,12 +102,8 @@ async def verify_token(token: str) -> AuthenticatedUser:
 
 
 async def require_user(request: Request) -> AuthenticatedUser:
-    """FastAPI dependency: the signed-in user, or 401.
-
-    The counterpart to `optional_user`, for the one thing in this API that is genuinely
-    private: a person's own saved conversations. Everything else stays anonymous-friendly on
-    purpose, so this is deliberately a separate dependency rather than a flag. A route either
-    requires an account or it does not, and that should be visible in its signature.
+    """FastAPI dependency: the signed-in user, or 401. Separate from `optional_user` so a route's
+    signature shows whether it requires an account.
     """
     token = _bearer_token(request)
     if token is None:

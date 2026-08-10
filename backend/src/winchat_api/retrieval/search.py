@@ -55,10 +55,8 @@ def _to_chunks(rows, stage: str) -> list[RetrievedChunk]:
 async def dense_search(
     pool: asyncpg.Pool, query_vector: list[float], limit: int
 ) -> list[RetrievedChunk]:
-    """Nearest neighbours by cosine distance.
-
-    `<=>` is pgvector's cosine operator. `ef_search` must be at least `limit`, and pgvector's
-    default is 40.
+    """Nearest neighbours by cosine distance. `<=>` is pgvector's cosine operator, and `ef_search`
+    must be at least `limit`, whose default of 40 is below this pipeline's dense limit.
     """
     settings = get_settings()
     # Never below the requested limit; the max() is the whole point of the setting.

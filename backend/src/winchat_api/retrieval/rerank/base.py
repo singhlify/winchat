@@ -26,10 +26,8 @@ class RerankError(RuntimeError):
 
 
 class NoOpReranker(Reranker):
-    """Used when no reranker is configured: truncate, do not reorder.
-
-    Deliberately not silent. The retrieval result records that reranking was skipped, so
-    a quality comparison can never accidentally credit a reranker that never ran.
+    """Used when no reranker is configured: truncate, do not reorder. The retrieval result records
+    that reranking was skipped.
     """
 
     name = "none"

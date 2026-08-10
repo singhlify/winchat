@@ -35,11 +35,8 @@ def suggested_delay(error: RateLimitError) -> float | None:
 async def with_rate_limit_retry[T](
     call: Callable[[], Awaitable[T]], *, budget_s: float = 20.0, label: str = "call"
 ) -> T:
-    """Retry rate limits until `budget_s` is spent.
-
-    A time budget, not an attempt count: how long a caller is willing to wait is the real
-    constraint, and it differs by caller. A user watching a chat box should wait seconds; an
-    offline eval draining a whole suite through a per-minute budget can afford minutes.
+    """Retry rate limits until `budget_s` is spent. A time budget rather than an attempt count,
+    because callers differ: a user waits seconds, an offline suite can wait minutes.
     """
     deadline = time.monotonic() + budget_s
     attempt = 0

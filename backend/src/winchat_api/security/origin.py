@@ -13,11 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 def require_browser_origin(request: Request) -> None:
-    """Reject a request whose `Origin` is missing or not in the CORS allowlist.
-
-    Used as a FastAPI dependency on the endpoints that spend money. Deliberately reuses
-    `CORS_ALLOW_ORIGINS` rather than introducing a second list: two allowlists that must agree
-    eventually disagree, and the one nobody remembers is the one that is wrong.
+    """Reject a request whose `Origin` is missing or not in the CORS allowlist. Reuses
+    `CORS_ALLOW_ORIGINS` rather than keeping a second list that has to agree with it.
     """
     settings = get_settings()
     if not settings.require_browser_origin:

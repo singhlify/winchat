@@ -48,11 +48,8 @@ def _sse(event: str, payload: dict) -> str:
 
 
 def _error_event(message: str, exc: Exception) -> str:
-    """A user-facing error, with the provider's own text kept server-side.
-
-    Upstream errors are not safe to forward verbatim: a Groq rate-limit body, for one, contains
-    the organisation id and the account's quota. The full exception is logged; the client gets a
-    sentence it can act on.
+    """A user-facing error. The provider's own text is not forwarded: a Groq rate-limit body
+    contains the organisation id and the account quota. The full exception is logged.
     """
     text = str(exc).lower()
 

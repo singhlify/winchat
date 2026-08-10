@@ -18,11 +18,8 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Open the connection pool once per process, not once per request.
-
-    A missing DATABASE_URL is not fatal here. The app still starts and `/readyz` reports the
-    database as unconfigured. Refusing to boot would make the health endpoint that explains the
-    problem unreachable.
+    """Open the connection pool once per process. A missing DATABASE_URL is not fatal: the app
+    starts and `/readyz` reports it, so the endpoint that explains the problem stays reachable.
     """
     settings = get_settings()
     app.state.db_pool = None

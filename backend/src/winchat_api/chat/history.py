@@ -65,12 +65,8 @@ async def load_history(
 
 
 async def list_conversations(pool: asyncpg.Pool, user_id: str, *, limit: int = 100) -> list[dict]:
-    """Every conversation belonging to this user, newest first.
-
-    Exists so a second device can find conversations it never created. Before this, history was
-    written for signed-in users and never readable back, the account stored your chats and
-    could not show them to you, which made "sign in to keep your history" a claim the product
-    did not deliver.
+    """Every conversation belonging to this user, newest first. Lets a second device find
+    conversations it did not create.
     """
     async with user_scoped(pool, user_id) as connection:
         rows = await connection.fetch(
@@ -89,11 +85,9 @@ async def list_conversations(pool: asyncpg.Pool, user_id: str, *, limit: int = 1
 
 
 async def load_conversation(pool: asyncpg.Pool, user_id: str, conversation_id: str) -> list[dict]:
-    """Full transcript for one conversation, oldest first.
-
-    Separate from `load_history`, which exists for a different job: that one loads the last few
-    turns as model context and returns bare role/content. This returns what a UI needs, every
-    turn, in order, with the retrieval trace so citations survive the round trip.
+    """Full transcript for one conversation, oldest first. `load_history` is separate and returns
+    bare role/content for model context; this returns the retrieval trace as well, so citations
+    survive the round trip.
     """
     async with user_scoped(pool, user_id) as connection:
         rows = await connection.fetch(
@@ -117,10 +111,8 @@ async def save_turn(
     answer: str,
     plan: AnswerPlan,
 ) -> str | None:
-    """Store the question and the answer. Returns the conversation id.
-
-    Never raises into the request: the answer has already been delivered by the time this
-    runs, and losing history is not a reason to show the user an error.
+    """Store the question and the answer, returning the conversation id. Never raises into the
+    request: the answer is already delivered, and losing history is not worth an error.
     """
     try:
         async with user_scoped(pool, user_id) as connection:

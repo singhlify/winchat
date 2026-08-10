@@ -117,13 +117,8 @@ async def _check_embeddings() -> DependencyCheck:
 
 
 async def _check_reranker() -> DependencyCheck:
-    """Report which reranker is actually live.
-
-    This exists because of a real incident: the API was started before a Cohere key was added to
-    .env, settings are cached per process, and it ran for a whole session with reranking
-    silently off. Answering "the sources do not mention it" for questions the corpus does
-    answer. Retrieval recall differs by 17 points between those two states, and nothing surfaced
-    the difference.
+    """Report which reranker is live. The API once ran a whole session with reranking silently off
+    after starting without a Cohere key, which is worth 17 points of retrieval recall.
     """
     settings = get_settings()
     configured = settings.rerank_provider
@@ -145,11 +140,8 @@ async def _check_reranker() -> DependencyCheck:
 
 
 async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
-    """Query the corpus itself.
-
-    `select 1` would only prove the socket is open. Counting indexed chunks proves the schema
-    exists and the corpus was actually ingested. An empty index is a working database and a
-    broken assistant, and readiness should not call that healthy.
+    """Query the corpus. `select 1` proves only that the socket is open; counting indexed chunks
+    proves the schema exists and the corpus was ingested.
     """
     settings = get_settings()
     if not settings.database_url:
@@ -180,11 +172,7 @@ async def _check_database(pool: asyncpg.Pool | None) -> DependencyCheck:
 
 
 def _check_config() -> DependencyCheck:
-    """Settings that are safe locally and dangerous in production.
-
-    A dependency check answers "can I reach it". This one answers "am I configured the way a
-    deployed service must be", a different question, and one nothing else asks.
-    """
+    """Settings that are safe locally and wrong in production. Nothing else checks these."""
     settings = get_settings()
     if settings.app_env in NON_DEPLOYED_ENVS:
         return DependencyCheck(status="ok", detail=f"{settings.app_env}, deployment checks skipped")

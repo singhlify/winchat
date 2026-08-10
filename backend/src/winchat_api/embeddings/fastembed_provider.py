@@ -41,10 +41,8 @@ class FastEmbedProvider(EmbeddingProvider):
         return _load(self._model_name, self._cache_dir)
 
     async def warm(self) -> None:
-        """Load the model ahead of the first request.
-
-        Worth doing at startup on a scale-to-zero host: otherwise the first user after a
-        cold start pays the model load on top of their query.
+        """Load the model ahead of the first request, so a cold start does not charge the first
+        user for it.
         """
         await asyncio.to_thread(self._embedder)
 

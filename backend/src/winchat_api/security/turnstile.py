@@ -15,10 +15,8 @@ TOKEN_HEADER = "cf-turnstile-response"
 
 
 async def verify_turnstile(request: Request, *, client_ip: str | None = None) -> None:
-    """Raise 403 unless this request carries a valid, unused Turnstile token.
-
-    A no-op when unconfigured, for a maintenance caller, or for a signed-in user, the
-    caller decides which of those apply and simply does not call this.
+    """Raise 403 unless the request carries a valid, unused Turnstile token. Callers skip it for
+    signed-in and maintenance requests.
     """
     settings = get_settings()
     secret = settings.turnstile_secret_key

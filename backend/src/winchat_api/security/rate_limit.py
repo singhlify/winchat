@@ -42,13 +42,9 @@ def user_subject(user_id: str) -> Subject:
 async def check_limits(
     pool: asyncpg.Pool, subject: Subject, *, bypass_subject_limits: bool = False
 ) -> LimitDecision:
-    """Both limits, evaluated before any expensive work happens.
-
-    `bypass_subject_limits` waives the PER-SUBJECT hourly and daily caps for a maintenance
-    caller. It deliberately does NOT waive the global daily breaker below, and that asymmetry is
-    the whole design: the per-subject caps exist to stop one visitor monopolising a shared free
-    tier, annoying during testing, and nothing worse than annoying to waive; the global cap is
-    the SPEND CEILING on the Groq and Cohere keys.
+    """Both limits, evaluated before any expensive work. `bypass_subject_limits` waives the per-
+    subject caps for a maintenance caller but never the global daily breaker, which is the spend
+    ceiling on the provider keys.
     """
     settings = get_settings()
 
@@ -125,10 +121,8 @@ async def check_limits(
 
 
 async def record_usage(pool: asyncpg.Pool, subject: Subject, *, tokens: int = 0) -> None:
-    """Record one billable request. Recorded on accept, so a refusal still counts.
-
-    A refused question costs a retrieval and an embedding call, and counting only answered
-    questions would leave an obvious hole: ask nonsense forever, free of charge.
+    """Record one billable request, on accept, so a refusal still counts. A refused question still
+    costs a retrieval and an embedding call.
     """
     await pool.execute(
         "insert into usage_events (subject, subject_kind, tokens) values ($1, $2, $3)",

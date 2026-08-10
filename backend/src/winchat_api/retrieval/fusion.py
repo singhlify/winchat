@@ -36,11 +36,9 @@ def reciprocal_rank_fusion(
 
 
 def best_per_answer(chunks: Sequence[RetrievedChunk]) -> list[RetrievedChunk]:
-    """Keep only the highest-ranked chunk of each source answer, preserving order.
-
-    Measured need, not tidiness. Several golden cases failed with the correct answer at dense
-    rank 1 but fused rank 8, because the six final slots were being spent on two or three
-    distinct answers, the same FAQ article occupying three of them.
+    """Keep only the highest-ranked chunk of each source answer, preserving order. Without it the
+    final slots fill with several chunks of one article; golden cases failed with the correct
+    answer at dense rank 1 and fused rank 8.
     """
     seen: set[str] = set()
     unique: list[RetrievedChunk] = []

@@ -27,12 +27,9 @@ Answer in the same language the user asked in."""
 
 
 def build_user_message(question: str, context: str, search_query: str | None = None) -> str:
-    """Context first, question last. Recall is best at the edges of a long prompt.
-
-    When a follow-up was resolved into a standalone query, the model is told what it was
-    resolved to. Without this it sees only the raw follow-up: asked "what timings?" over
-    passages about academic-advising hours, it answered with those, because a vague question
-    makes almost any hours look responsive.
+    """Context first, question last. When a follow-up was resolved into a standalone query the
+    model is told what it was resolved to, otherwise it sees only the raw follow-up and treats
+    loosely related passages as responsive.
     """
     resolved = ""
     if search_query and search_query.strip().lower() != question.strip().lower():

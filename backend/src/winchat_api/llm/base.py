@@ -26,10 +26,7 @@ class Completion:
 
 @runtime_checkable
 class ChatProvider(Protocol):
-    """A chat-completion backend.
-
-    Implementations must be safe to share across requests (one client per process).
-    """
+    """A chat-completion backend. Implementations must be safe to share across requests."""
 
     name: str
     model: str
@@ -42,11 +39,8 @@ class ChatProvider(Protocol):
         max_tokens: int | None = None,
         json_object: bool = False,
     ) -> Completion:
-        """Generate the full response.
-
-        `json_object` asks the provider to constrain output to valid JSON. The eval judge
-        depends on it: parsing a verdict out of prose is a source of flaky scores, and a grader
-        that fails to parse silently biases the number it produces.
+        """Generate the full response. `json_object` constrains output to valid JSON, which the
+        eval judge needs: parsing a verdict out of prose produces flaky scores.
         """
         ...
 

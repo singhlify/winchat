@@ -42,12 +42,8 @@ def available_providers() -> list[str]:
 
 
 def build_reranker(settings: Settings, *, retry_budget_s: float | None = None) -> Reranker:
-    """Build the configured reranker, optionally overriding how long it may wait on a 429.
-
-    The override exists for offline harnesses. They issue rerank calls in a tight loop and trip
-    a per-minute limit the request path never approaches, and a reranker that gives up falls
-    back to unranked order, so without it a benchmark quietly measures a reranker that was
-    barely running.
+    """Build the configured reranker, optionally overriding how long it may wait on a 429. Offline
+    harnesses need a longer budget, because a reranker that gives up falls back to unranked order.
     """
     builder = _BUILDERS.get(settings.rerank_provider)
     if builder is None:
@@ -63,10 +59,7 @@ def build_reranker(settings: Settings, *, retry_budget_s: float | None = None) -
 
 @lru_cache
 def get_reranker() -> Reranker:
-    """The configured reranker, on the request path.
-
-    Falls back to the no-op when Cohere is selected but unkeyed, so a missing optional key
-    degrades quality instead of taking the app down. The fallback is visible in every response,
-    never silent.
+    """The request-path reranker. Falls back to the no-op when Cohere is selected but unkeyed, and
+    the fallback is recorded in the response.
     """
     return build_reranker(get_settings())

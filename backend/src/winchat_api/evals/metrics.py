@@ -81,10 +81,8 @@ def recall(results: list[DeterministicResult]) -> float:
 
 
 def mean_reciprocal_rank(results: list[DeterministicResult]) -> float:
-    """MRR: rewards putting the right source first, not merely somewhere in the list.
-
-    Recall alone hides a real regression, a change that pushes the right answer from
-    rank 1 to rank 6 keeps recall at 100% while making every answer worse.
+    """Mean reciprocal rank. Recall alone hides a change that pushes the right answer from rank 1
+    to rank 6.
     """
     scored = [r for r in results if r.retrieval_hit is not None]
     if not scored:

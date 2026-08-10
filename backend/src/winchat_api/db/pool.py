@@ -18,11 +18,8 @@ async def _init_connection(connection: asyncpg.Connection) -> None:
 async def create_pool(
     *, min_size: int = 1, max_size: int = 10, with_vector_type: bool = True
 ) -> asyncpg.Pool:
-    """Open a pool.
-
-    `with_vector_type=False` is for the migration runner: the `vector` type does not exist until
-    the first migration creates the extension, and registering a codec for a type that is not
-    there yet fails the connection before it can fix itself.
+    """Open a pool. `with_vector_type=False` is for the migration runner: the `vector` type does
+    not exist until the first migration creates the extension.
     """
     settings = get_settings()
     if not settings.database_url:

@@ -73,11 +73,8 @@ def load_answers(path: Path) -> list[Answer]:
 
 
 def _check_source(url: str, path: Path, line_number: int) -> None:
-    """Refuse an answer whose URL is not from an allowed source.
-
-    Fails the whole ingest rather than skipping the row. A corpus with unexpected hosts in it is
-    not a corpus with one bad line. It is a file that is not what it claims to be, and quietly
-    dropping rows would hide that.
+    """Refuse an answer whose URL is not from an allowed source. Fails the whole ingest rather than
+    skipping the row, because unexpected hosts mean the file is not what it claims to be.
     """
     parsed = urlparse(url)
     if parsed.scheme not in {"http", "https"}:
