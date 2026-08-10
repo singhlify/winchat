@@ -136,7 +136,7 @@ async def stream_answer(llm: ChatProvider, plan: AnswerPlan) -> AsyncIterator[st
         yield NO_CONTEXT_MESSAGE
         return
 
-    async for token in llm.stream(plan.messages, temperature=0.1, max_tokens=800):
+    async for token in llm.stream(plan.messages, temperature=0.0, max_tokens=800):
         yield token
 
 
@@ -173,7 +173,7 @@ async def answer_question(
         return Answer(text=NO_CONTEXT_MESSAGE, plan=plan, model=llm.model)
 
     started = time.perf_counter()
-    completion = await llm.complete(plan.messages, temperature=0.1, max_tokens=800)
+    completion = await llm.complete(plan.messages, temperature=0.0, max_tokens=800)
     plan.timings["generate"] = round((time.perf_counter() - started) * 1000, 1)
 
     return Answer(

@@ -10,6 +10,7 @@ import logging
 import sys
 import time
 from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 
 import asyncpg
@@ -45,6 +46,15 @@ class CaseOutcome:
     latency_ms: float = 0.0
 
 
+# Deterministic cases that are known to fail, each tracked as a defect. The gate below
+# requires this set to match reality exactly, so a new failure and a fixed known failure both
+# break the build. See KNOWN_ISSUES.md.
+KNOWN_DETERMINISTIC_FAILURES = {
+    "g004": "corpus conflict, a_id 594 and 604 give different graduate deadlines",
+    "g005": "procedural answer drops the named UI element",
+}
+
+
 @dataclass
 class Report:
     model: str
@@ -59,6 +69,9 @@ class Report:
     correctness: float | None
     judged: int
     duration_s: float
+    deterministic_failed_ids: set[str] = field(default_factory=set)
+    unexpected_failures: set[str] = field(default_factory=set)
+    fixed_known_failures: set[str] = field(default_factory=set)
     failures: list[dict] = field(default_factory=list)
     gates: dict[str, bool] = field(default_factory=dict)
 
@@ -138,6 +151,14 @@ def build_report(outcomes: list[CaseOutcome], *, model, judge_model, reranker, d
         duration_s=round(duration, 1),
     )
 
+    report.deterministic_failed_ids = {
+        outcome.case.id for outcome in outcomes if not outcome.deterministic.passed
+    }
+    known = set(KNOWN_DETERMINISTIC_FAILURES)
+    ran = {outcome.case.id for outcome in outcomes}
+    report.unexpected_failures = report.deterministic_failed_ids - known
+    report.fixed_known_failures = (known & ran) - report.deterministic_failed_ids
+
     for outcome in outcomes:
         problems = list(outcome.deterministic.failures)
         if outcome.verdict and outcome.verdict.faithful is False:
@@ -154,8 +175,10 @@ def build_report(outcomes: list[CaseOutcome], *, model, judge_model, reranker, d
                 }
             )
 
+    # No percentage slack. Every case passes except the documented ones, and a documented
+    # failure that starts passing also fails, so the list cannot silently go stale.
     report.gates = {
-        "deterministic": report.deterministic_pass_rate >= settings.eval_min_deterministic_pass,
+        "deterministic": not report.unexpected_failures and not report.fixed_known_failures,
         "retrieval_recall": report.retrieval_recall >= settings.eval_min_retrieval_recall,
     }
     if report.faithfulness is not None:
@@ -191,6 +214,13 @@ def print_report(report: Report) -> None:
                 print(f"      - {problem}")
             print()
 
+    if report.unexpected_failures:
+        print(f"\n  UNEXPECTED failures: {', '.join(sorted(report.unexpected_failures))}")
+    if report.fixed_known_failures:
+        print(
+            f"\n  known failures now passing: {', '.join(sorted(report.fixed_known_failures))}"
+            "\n  Remove them from KNOWN_DETERMINISTIC_FAILURES and close the issue."
+        )
     for name, passed in report.gates.items():
         print(f"  gate {name:<18} {'PASS' if passed else 'FAIL'}")
     print("=" * 68)
@@ -272,13 +302,29 @@ async def main() -> int:
                 "answer": o.answer,
                 "refused": o.refused,
                 "passed": o.deterministic.passed,
+                "deterministic": o.deterministic.passed,
                 "failures": o.deterministic.failures,
+                "retrieval_hit": o.deterministic.retrieval_hit,
                 "retrieval_rank": o.deterministic.retrieval_rank,
+                # Scored only where a refusal is expected, matching metrics.refusal_accuracy.
+                # A second definition of the same metric would drift from it.
+                "refusal_correct": (
+                    None
+                    if not o.case.expect_refusal
+                    else not any("refus" in f for f in o.deterministic.failures)
+                ),
+                "faithful": None if o.verdict is None else o.verdict.faithful,
+                "correct": None if o.verdict is None else o.verdict.correct,
                 "verdict": asdict(o.verdict) if o.verdict else None,
                 "latency_ms": o.latency_ms,
             }
             for o in outcomes
         ]
+        payload["generated_at"] = datetime.now(UTC).strftime("%Y-%m-%d")
+        payload["known_failures"] = KNOWN_DETERMINISTIC_FAILURES
+        # Sets do not survive JSON.
+        for key in ("deterministic_failed_ids", "unexpected_failures", "fixed_known_failures"):
+            payload[key] = sorted(payload.get(key) or [])
         args.json.write_text(json.dumps(payload, indent=2))
         print(f"wrote {args.json}")
 
