@@ -75,7 +75,7 @@ async def retrieve(
 
     # Deduplicated to one chunk per source answer before the final cut, so the top_n slots
     # hold n distinct answers rather than three copies of one.
-    fused = best_per_answer(reciprocal_rank_fusion([dense, lexical]))
+    fused = best_per_answer(reciprocal_rank_fusion([dense, lexical], k=settings.retrieval_rrf_k))
     result.fused_count = len(fused)
 
     started = time.perf_counter()
