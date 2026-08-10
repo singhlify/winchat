@@ -66,9 +66,7 @@ export async function* streamChat(
       if (payload && typeof payload === "object" && "detail" in payload) {
         detail = String((payload as { detail: unknown }).detail);
       }
-    } catch {
-      // Keep the status-based message.
-    }
+    } catch {}
     throw new ApiError(
       detail,
       response.status,

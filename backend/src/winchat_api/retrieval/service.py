@@ -38,7 +38,7 @@ class RetrievalResult:
 
     @property
     def top_score(self) -> float:
-        """Relevance of the best passage. What the Phase 4 refusal threshold reads."""
+        """Relevance of the best passage, which the refusal threshold reads."""
         return self.chunks[0].rank_score if self.chunks else 0.0
 
 

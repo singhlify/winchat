@@ -18,13 +18,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # --- app ---
     app_env: str = "local"
     log_level: str = "INFO"
-    # Comma-separated in the environment; parsed by the validator below.
     cors_allow_origins: str = "http://localhost:3000"
 
-    # --- LLM (provider-agnostic; see llm/registry.py) ---
     llm_provider: str = "groq"
     llm_model: str = "llama-3.3-70b-versatile"
     # A curated allowlist, not everything the provider serves. Exposing weak models makes the
@@ -39,7 +36,6 @@ class Settings(BaseSettings):
     llm_retry_budget_s: float = 20.0
     groq_api_key: str | None = None
 
-    # --- embeddings (provider-agnostic; see embeddings/registry.py) ---
     embedding_provider: str = "ollama"
     embedding_model: str = "nomic-embed-text"
     embedding_timeout_s: float = 30.0
@@ -114,7 +110,6 @@ class Settings(BaseSettings):
     eval_min_faithfulness: float = 0.90
     eval_min_correctness: float = 0.85
 
-    # --- auth & abuse control ---
     supabase_url: str | None = None
     supabase_jwt_secret: str | None = None  # only for legacy HS256 projects
     # Signing in is optional: the FAQ is public, and gating a public question behind a
@@ -155,8 +150,6 @@ class Settings(BaseSettings):
             return None
         return f"{self.supabase_url.rstrip('/')}/auth/v1/.well-known/jwks.json"
 
-    # --- data / database ---
-    # Phase 2 will fill this in (Supabase Postgres + pgvector).
     database_url: str | None = None
     corpus_path: Path = Field(default=REPO_ROOT / "data" / "ask_uwindsor" / "answers.jsonl")
 

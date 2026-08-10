@@ -46,9 +46,8 @@ class CaseOutcome:
     latency_ms: float = 0.0
 
 
-# Deterministic cases that are known to fail, each tracked as a defect. The gate below
-# requires this set to match reality exactly, so a new failure and a fixed known failure both
-# break the build. See KNOWN_ISSUES.md.
+# Known-failing deterministic cases, tracked in KNOWN_ISSUES.md. The gate requires this set
+# to match reality exactly, so a new failure and a fixed one both break the build.
 KNOWN_DETERMINISTIC_FAILURES = {
     "g004": "corpus conflict, a_id 594 and 604 give different graduate deadlines",
     "g005": "procedural answer drops the named UI element",
@@ -175,8 +174,7 @@ def build_report(outcomes: list[CaseOutcome], *, model, judge_model, reranker, d
                 }
             )
 
-    # No percentage slack. Every case passes except the documented ones, and a documented
-    # failure that starts passing also fails, so the list cannot silently go stale.
+    # No percentage slack, so the known-failure list cannot go stale.
     report.gates = {
         "deterministic": not report.unexpected_failures and not report.fixed_known_failures,
         "retrieval_recall": report.retrieval_recall >= settings.eval_min_retrieval_recall,
@@ -322,7 +320,6 @@ async def main() -> int:
         ]
         payload["generated_at"] = datetime.now(UTC).strftime("%Y-%m-%d")
         payload["known_failures"] = KNOWN_DETERMINISTIC_FAILURES
-        # Sets do not survive JSON.
         for key in ("deterministic_failed_ids", "unexpected_failures", "fixed_known_failures"):
             payload[key] = sorted(payload.get(key) or [])
         args.json.write_text(json.dumps(payload, indent=2))

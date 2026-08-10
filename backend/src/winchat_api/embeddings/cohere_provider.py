@@ -13,7 +13,6 @@ from winchat_api.embeddings.base import EmbeddingError, EmbeddingProvider
 
 logger = logging.getLogger(__name__)
 
-# Cohere rejects a batch larger than this outright.
 MAX_BATCH = 96
 
 

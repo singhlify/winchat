@@ -61,8 +61,7 @@ async def main() -> None:
             max_deletion_ratio=args.max_deletion_ratio,
         )
     except MassDeletionRefused as exc:
-        # Loud on purpose. This runs unattended, so the only useful failure is one that
-        # stops and says why.
+        # Loud on purpose: this runs unattended.
         logger.error("REFUSED: %s", exc)
         raise SystemExit(2) from exc
     finally:

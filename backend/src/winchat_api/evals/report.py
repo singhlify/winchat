@@ -11,11 +11,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-# 95% two-sided.
-Z = 1.959963984540054
-
-# Below this many cases the interval spans most of the range, so the point estimate carries
-# almost no information on its own.
+Z = 1.959963984540054  # 95% two-sided
 THIN_N = 8
 
 
@@ -37,11 +33,8 @@ class Proportion:
 
 
 def wilson(successes: int, total: int, z: float = Z) -> tuple[float, float] | None:
-    """Wilson score interval for a binomial proportion.
-
-    Used rather than the Wald interval because Wald collapses to zero width at p = 0 and
-    p = 1, which is exactly where this suite sits.
-    """
+    """Wilson score interval. Wald collapses to zero width at p = 0 and p = 1, where this
+    suite sits."""
     if total <= 0:
         return None
     if successes < 0 or successes > total:
