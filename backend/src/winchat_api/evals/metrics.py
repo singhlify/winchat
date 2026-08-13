@@ -1,4 +1,10 @@
-"""Tier 1: deterministic checks. No model call, so they cannot flake."""
+"""Tier 1: deterministic checks. No model call here, so the checks themselves cannot flake.
+
+Their inputs can, which is the distinction this tier was originally named after the wrong
+half of. The answer being matched comes from a hosted model, and temperature 0.0 makes
+decoding greedy without making the provider reproducible. A case whose assertions read the
+generated text is therefore measured over several runs; see `KnownFailure` in run.py.
+"""
 
 import re
 from dataclasses import dataclass, field

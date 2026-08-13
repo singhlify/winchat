@@ -5,6 +5,12 @@ stay in the suite and stay failing; the deterministic gate names them explicitly
 failure breaks the build and a fix here also breaks it until this file and
 `KNOWN_DETERMINISTIC_FAILURES` are updated together.
 
+Some of them fail only some of the time, because temperature 0.0 makes decoding greedy
+without making a hosted provider reproducible. Those cases declare a pass-rate band and are
+run several times, and the gate checks the measured rate against the band. Scoring them once
+would report the sample rather than the defect, which is exactly how issue 1 briefly appeared
+to be fixed. Never close one of these on a single run.
+
 ## 1. The corpus contradicts itself on graduate document deadlines
 
 Two published articles give different dates for the same rule.
