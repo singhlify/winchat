@@ -59,6 +59,17 @@ def test_fusion_of_nothing_is_empty():
     assert reciprocal_rank_fusion([[], []]) == []
 
 
+def test_k_decides_whether_agreement_beats_a_better_rank():
+    """Small k weights rank steeply, so a lone rank 1 wins; large k flattens it and the chunk
+    both arms returned wins instead. RETRIEVAL_RRF_K is configurable, so the order it
+    produces has to be pinned."""
+    dense = [_chunk(1), _chunk(2), _chunk(3), _chunk(4), _chunk(5)]
+    lexical = [_chunk(cid, stage="lexical") for cid in (6, 7, 8, 9, 5)]
+
+    assert reciprocal_rank_fusion([dense, lexical], k=1)[0].chunk_id == 1
+    assert reciprocal_rank_fusion([dense, lexical], k=60)[0].chunk_id == 5
+
+
 def test_chunks_from_one_answer_share_a_citation_number():
     """Two chunks of one FAQ answer are one source; numbering them twice fakes agreement."""
     chunks = [_chunk(1, a_id="246"), _chunk(2, a_id="246"), _chunk(3, a_id="900")]
@@ -163,3 +174,51 @@ async def test_llm_rerank_surfaces_unparseable_output_as_a_rerank_error():
 
     with pytest.raises(RerankError):
         await reranker.rerank("q", [_chunk(1)], top_n=6)
+
+
+# ------------------------------------------------------------- retrieval service
+
+
+class _PassThroughReranker:
+    name = "stub"
+
+    async def rerank(self, query, chunks, *, top_n):
+        return list(chunks[:top_n])
+
+
+async def _retrieve_with_stubs(monkeypatch, dense, lexical):
+    from winchat_api.config import get_settings
+    from winchat_api.retrieval import service
+
+    async def fake_dense(pool, vector, limit):
+        return dense
+
+    async def fake_lexical(pool, query, limit):
+        return lexical
+
+    class _Embedder:
+        async def embed_query(self, query):
+            return [0.0]
+
+    monkeypatch.setattr(service, "dense_search", fake_dense)
+    monkeypatch.setattr(service, "lexical_search", fake_lexical)
+    get_settings.cache_clear()
+
+    return await service.retrieve(
+        pool=object(),
+        embedder=_Embedder(),
+        reranker=_PassThroughReranker(),
+        query="q",
+    )
+
+
+async def test_retrieve_fuses_with_the_configured_k(monkeypatch):
+    """retrieve() once called reciprocal_rank_fusion without k, so RETRIEVAL_RRF_K was dead
+    configuration and only fusion.py's own default ever applied."""
+    dense = [_chunk(cid, a_id=str(cid)) for cid in (1, 2, 3, 4, 5)]
+    lexical = [_chunk(cid, a_id=str(cid), stage="lexical") for cid in (6, 7, 8, 9, 5)]
+
+    monkeypatch.setenv("RETRIEVAL_RRF_K", "1")
+    result = await _retrieve_with_stubs(monkeypatch, dense, lexical)
+
+    assert result.chunks[0].chunk_id == 1
