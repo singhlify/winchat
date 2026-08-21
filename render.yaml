@@ -36,10 +36,9 @@ services:
       - key: GROQ_API_KEY
         sync: false
 
-      # Hosted, because an in-process model makes the image 920 MB against a 512 MB free
-      # tier. MUST match what the corpus was ingested with. The stored vectors are
-      # cohere/embed-v4.0/1024 and a query embedded by anything else retrieves confident
-      # nonsense rather than raising. Changing either value here means a re-ingest.
+      # Hosted: an in-process model makes the image 920 MB against a 512 MB free tier. MUST
+      # match what the corpus was ingested with. Stored vectors are cohere/embed-v4.0/1024;
+      # a query embedded by anything else retrieves confident nonsense. Changing means re-ingest.
       - key: EMBEDDING_PROVIDER
         value: cohere
       - key: COHERE_EMBED_MODEL
@@ -81,5 +80,6 @@ services:
         value: "100"
       - key: RATE_LIMIT_USER_PER_DAY
         value: "400"
+      # The spend ceiling. Eight anonymous callers can still exhaust their own daily 60.
       - key: RATE_LIMIT_GLOBAL_PER_DAY
-        value: "2000"
+        value: "500"

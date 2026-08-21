@@ -122,12 +122,14 @@ class Settings(BaseSettings):
     # change, a different network or a VPN mints a fresh identity, so the budget is small.
     rate_limit_per_hour: int = 20
     rate_limit_per_day: int = 60
-    # Signed-in callers. Higher because the identity is stronger, not as a reward: a verified
-    # account costs an email round-trip to create, so the budget is harder to farm than an IP
-    # hash.
+    # Signed-in callers. Higher because the identity is stronger, not as a reward: an account
+    # costs an email round-trip to create, so the budget is harder to farm than an IP hash.
     rate_limit_user_per_hour: int = 100
     rate_limit_user_per_day: int = 400
-    rate_limit_global_per_day: int = 2000  # the actual spend ceiling (OWASP LLM10)
+    # The real spend ceiling (OWASP LLM10), sized to the bill rather than to demand.
+    # 500 still lets eight anonymous callers exhaust their own 60, and holds worst-case
+    # rerank spend near $30/month where 2000 allowed roughly $120.
+    rate_limit_global_per_day: int = 500
     # Salts the hash of anonymous client addresses. Change it and every anonymous caller
     # becomes a new subject, which is the intended blast radius of rotating it.
     rate_limit_salt: str = "winchat-dev-salt"
