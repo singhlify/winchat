@@ -11,6 +11,12 @@ run several times, and the gate checks the measured rate against the band. Scori
 would report the sample rather than the defect, which is exactly how issue 1 briefly appeared
 to be fixed. Never close one of these on a single run.
 
+Issues 1 and 2 were measured against `llama-3.3-70b-versatile`, which Groq has since
+retired. The generator is now `qwen/qwen3.6-27b`. Issue 1 is a conflict between two
+articles and does not depend on the model. Issue 2 describes one model's phrasing choice
+and may not survive the swap. Neither has been re-measured yet, and this paragraph comes
+out when they have been.
+
 ## 1. The corpus contradicts itself on graduate document deadlines
 
 Two published articles give different dates for the same rule.
