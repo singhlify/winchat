@@ -27,9 +27,7 @@ class Settings(BaseSettings):
     # A curated allowlist, not everything the provider serves. Exposing weak models makes the
     # product look bad for a failure that is not the pipeline's, and an unvalidated model name
     # from a client is an open proxy to whatever the provider will bill for.
-    llm_allowed_models: str = (
-        "qwen/qwen3.6-27b,openai/gpt-oss-120b,openai/gpt-oss-20b"
-    )
+    llm_allowed_models: str = "qwen/qwen3.6-27b,openai/gpt-oss-120b,openai/gpt-oss-20b"
     llm_timeout_s: float = 30.0
     # Providers meter by tokens per minute and Groq's free tier is low enough to hit. How
     # long to wait is a per-caller decision: a user watching a chat box gets seconds.
