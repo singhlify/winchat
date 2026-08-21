@@ -68,7 +68,7 @@ async def _judge_json(judge: ChatProvider, system: str, user: str) -> dict:
     completion = await judge.complete(
         [Message(role="system", content=system), Message(role="user", content=user)],
         temperature=0.0,
-        max_tokens=500,
+        max_tokens=2500,
         json_object=True,
     )
     return json.loads(completion.text)

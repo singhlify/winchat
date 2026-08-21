@@ -9,6 +9,11 @@ from groq import APIError, AsyncGroq
 from winchat_api.llm.base import ChatProvider, Completion, Message, ProviderError
 from winchat_api.llm.retry import with_rate_limit_retry
 
+# Reasoning models put their chain of thought in `content` unless told otherwise. "hidden"
+# drops it server-side, which beats stripping <think> out of a stream. It still costs
+# completion tokens, so every max_tokens here has to leave room for it.
+REASONING_FORMAT = "hidden"
+
 
 class GroqChatProvider(ChatProvider):
     name = "groq"
@@ -49,6 +54,7 @@ class GroqChatProvider(ChatProvider):
                     messages=self._to_payload(messages),
                     temperature=temperature,
                     max_tokens=max_tokens,
+                    reasoning_format=REASONING_FORMAT,
                     **extra,
                 ),
                 budget_s=self._retry_budget_s,
@@ -83,6 +89,7 @@ class GroqChatProvider(ChatProvider):
                     temperature=temperature,
                     max_tokens=max_tokens,
                     stream=True,
+                    reasoning_format=REASONING_FORMAT,
                 ),
                 budget_s=self._retry_budget_s,
                 label=f"groq/{self.model}",

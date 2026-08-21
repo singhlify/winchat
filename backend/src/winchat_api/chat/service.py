@@ -23,6 +23,9 @@ from winchat_api.retrieval.service import RetrievalResult, retrieve
 logger = logging.getLogger(__name__)
 
 MAX_HISTORY_TURNS = 6
+# Generous because a reasoning model spends most of a small budget thinking and returns
+# an empty string, which reads as a refusal rather than as truncation.
+ANSWER_MAX_TOKENS = 2500
 
 
 @dataclass
@@ -66,7 +69,7 @@ async def rewrite_query(llm: ChatProvider, question: str, history: Sequence[Chat
                 Message(role="user", content=f"{transcript}\nuser: {question}"),
             ],
             temperature=0.0,
-            max_tokens=100,
+            max_tokens=800,
         )
     except Exception as exc:
         logger.warning("query rewrite failed, using the raw question: %s", exc)
@@ -136,7 +139,7 @@ async def stream_answer(llm: ChatProvider, plan: AnswerPlan) -> AsyncIterator[st
         yield NO_CONTEXT_MESSAGE
         return
 
-    async for token in llm.stream(plan.messages, temperature=0.0, max_tokens=800):
+    async for token in llm.stream(plan.messages, temperature=0.0, max_tokens=ANSWER_MAX_TOKENS):
         yield token
 
 
@@ -173,7 +176,7 @@ async def answer_question(
         return Answer(text=NO_CONTEXT_MESSAGE, plan=plan, model=llm.model)
 
     started = time.perf_counter()
-    completion = await llm.complete(plan.messages, temperature=0.0, max_tokens=800)
+    completion = await llm.complete(plan.messages, temperature=0.0, max_tokens=ANSWER_MAX_TOKENS)
     plan.timings["generate"] = round((time.perf_counter() - started) * 1000, 1)
 
     return Answer(

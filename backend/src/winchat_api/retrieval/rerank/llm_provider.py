@@ -65,7 +65,7 @@ class LLMReranker(Reranker):
                     ),
                 ],
                 temperature=0.0,
-                max_tokens=200,
+                max_tokens=1200,
                 json_object=True,
             )
             ranked = json.loads(completion.text).get("ranked", [])
