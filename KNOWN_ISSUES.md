@@ -90,3 +90,25 @@ only by the initial ingest, not by a scheduled run.
 `evals/report.py` reports Wilson intervals per category, but the judge tier scores far fewer
 cases than the deterministic tier, so several per-category judge intervals span most of the
 range. They are shown rather than hidden, but they support very little.
+
+## 8. The Supabase pooler drops a connection mid-eval
+
+A full eval run died partway through with `asyncpg.exceptions.ConnectionDoesNotExistError`
+raised from a query against the Supabase connection pooler. Rerunning the same command
+immediately afterwards completed normally, with no configuration change in between.
+
+It has not been investigated. Nothing here says what causes it, how often it happens, or
+whether it correlates with run length, concurrency or idle time, because none of that has
+been measured. There is no reliable reproduction: the run that failed and the run that
+succeeded were the same command.
+
+```bash
+cd backend
+uv run python -m winchat_api.evals.run --json eval-report.json
+```
+
+The consequence is specific. The eval gate runs unattended in CI, and a run that dies this
+way exits non-zero and reads as a quality regression rather than an infrastructure blip.
+Anyone acting on a red eval job should confirm the failure is a scored case before treating
+it as one. A single retry is not a fix and has not been added, because retrying an
+undiagnosed connection fault would hide the frequency that would tell us what it is.
