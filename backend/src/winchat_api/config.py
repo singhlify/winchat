@@ -23,12 +23,12 @@ class Settings(BaseSettings):
     cors_allow_origins: str = "http://localhost:3000"
 
     llm_provider: str = "groq"
-    llm_model: str = "llama-3.3-70b-versatile"
+    llm_model: str = "qwen/qwen3.6-27b"
     # A curated allowlist, not everything the provider serves. Exposing weak models makes the
     # product look bad for a failure that is not the pipeline's, and an unvalidated model name
     # from a client is an open proxy to whatever the provider will bill for.
     llm_allowed_models: str = (
-        "llama-3.3-70b-versatile,openai/gpt-oss-120b,qwen/qwen3.6-27b,llama-3.1-8b-instant"
+        "qwen/qwen3.6-27b,openai/gpt-oss-120b,openai/gpt-oss-20b"
     )
     llm_timeout_s: float = 30.0
     # Providers meter by tokens per minute and Groq's free tier is low enough to hit. How
@@ -87,7 +87,7 @@ class Settings(BaseSettings):
     rerank_provider: str = "cohere"  # cohere | llm | none
     # Ordering candidates is far easier than answering from them, so the rerank stage
     # uses a small fast model; putting the slow one here doubles every question's latency.
-    rerank_llm_model: str = "llama-3.1-8b-instant"
+    rerank_llm_model: str = "openai/gpt-oss-20b"
     rerank_model: str = "rerank-v3.5"
     rerank_timeout_s: float = 15.0
     # Small on purpose: this is in the request path. Cohere trial keys allow 10 calls
@@ -98,7 +98,7 @@ class Settings(BaseSettings):
     # --- evaluation --- Pinned separately from the app model. Users may pick any model; a
     # quality claim is only coherent if it names one, so the eval always runs against this
     # one.
-    eval_model: str = "llama-3.3-70b-versatile"
+    eval_model: str = "qwen/qwen3.6-27b"
     # A different model family from the generator on purpose, models prefer their own
     # outputs, and a same-family judge inflates every score it produces.
     eval_judge_model: str = "openai/gpt-oss-120b"

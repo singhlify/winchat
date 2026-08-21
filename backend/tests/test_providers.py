@@ -83,7 +83,7 @@ async def test_unreachable_ollama_raises_embedding_error():
 
 def test_groq_provider_refuses_to_start_without_a_key():
     with pytest.raises(ProviderError, match="GROQ_API_KEY"):
-        GroqChatProvider(api_key="", model="llama-3.3-70b-versatile")
+        GroqChatProvider(api_key="", model="qwen/qwen3.6-27b")
 
 
 def test_registries_expose_the_documented_defaults():
