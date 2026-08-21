@@ -14,6 +14,7 @@ A test that passes only on a machine with credentials is not a test, it is a coi
 import pytest
 
 from winchat_api.config import get_settings
+from winchat_api.provider_budget import set_call_budget
 from winchat_api.retrieval.rerank.registry import get_reranker
 
 # Anything a developer's .env might supply. Set to empty rather than deleted, because
@@ -44,6 +45,7 @@ def hermetic_settings(monkeypatch):
     # reason. The guard has its own dedicated tests in test_security.py.
     monkeypatch.setenv("REQUIRE_BROWSER_ORIGIN", "false")
 
+    set_call_budget(None)
     get_settings.cache_clear()
     get_reranker.cache_clear()
     yield

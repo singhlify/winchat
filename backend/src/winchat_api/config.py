@@ -103,6 +103,12 @@ class Settings(BaseSettings):
     # Low on purpose: the whole suite against one model exceeds Groq's free-tier
     # tokens-per-minute budget, so concurrency mostly buys retries, not speed.
     eval_concurrency: int = 2
+    # Batch jobs have no caller for check_limits to meter, so they carry their own
+    # ceiling. Measured: a full eval makes about 160 provider attempts, a complete
+    # re-ingest about 560. Both leave room to grow and abort long before a stuck loop
+    # reaches a monthly quota.
+    eval_max_provider_calls: int = 400
+    ingest_max_provider_calls: int = 1500
     # Offline work can afford to wait out a per-minute budget; a chat request cannot.
     eval_retry_budget_s: float = 900.0
 

@@ -31,6 +31,7 @@ from winchat_api.evals.metrics import (
 )
 from winchat_api.llm.base import ChatProvider
 from winchat_api.llm.registry import build_chat_provider
+from winchat_api.provider_budget import current_budget, set_call_budget
 from winchat_api.retrieval.rerank.registry import get_reranker
 
 logger = logging.getLogger("evals")
@@ -350,6 +351,12 @@ def parse_args() -> argparse.Namespace:
         help="override how many times declared-flaky cases run, for re-measuring a band",
     )
     parser.add_argument("--no-gate", action="store_true", help="always exit 0")
+    parser.add_argument(
+        "--max-provider-calls",
+        type=int,
+        default=None,
+        help="abort once the run has made this many paid provider attempts",
+    )
     return parser.parse_args()
 
 
@@ -358,6 +365,9 @@ async def main() -> int:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     args = parse_args()
     settings = get_settings()
+
+    ceiling = args.max_provider_calls or settings.eval_max_provider_calls
+    set_call_budget(ceiling)
 
     cases = load_golden_set(args.golden)
     model = args.model or settings.eval_model
@@ -372,7 +382,7 @@ async def main() -> int:
     embedder = get_embedding_provider()
 
     print(
-        f"running {len(cases)} cases against {model}"
+        f"running {len(cases)} cases against {model}, ceiling {ceiling} provider calls"
         + ("" if judge is None else f", judged by {settings.eval_judge_model}")
     )
 
@@ -407,6 +417,7 @@ async def main() -> int:
         duration=time.perf_counter() - started,
     )
     print_report(report)
+    print(f"  provider calls       {current_budget().spent} of {ceiling} allowed\n")
 
     if args.json:
         payload = asdict(report)

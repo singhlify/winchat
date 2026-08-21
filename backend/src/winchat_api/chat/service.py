@@ -17,6 +17,7 @@ from winchat_api.chat.prompts import (
 from winchat_api.chat.refusal import Refusal, should_refuse
 from winchat_api.embeddings.base import EmbeddingProvider
 from winchat_api.llm.base import ChatProvider, Message
+from winchat_api.provider_budget import ProviderBudgetExceeded
 from winchat_api.retrieval.rerank.base import Reranker
 from winchat_api.retrieval.service import RetrievalResult, retrieve
 
@@ -71,6 +72,8 @@ async def rewrite_query(llm: ChatProvider, question: str, history: Sequence[Chat
             temperature=0.0,
             max_tokens=800,
         )
+    except ProviderBudgetExceeded:
+        raise
     except Exception as exc:
         logger.warning("query rewrite failed, using the raw question: %s", exc)
         return question

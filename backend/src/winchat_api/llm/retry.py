@@ -9,6 +9,8 @@ from collections.abc import Awaitable, Callable
 
 from groq import RateLimitError
 
+from winchat_api.provider_budget import spend
+
 logger = logging.getLogger(__name__)
 
 _DELAY_IN_MESSAGE = re.compile(r"try again in ([0-9.]+)\s*s", re.IGNORECASE)
@@ -43,6 +45,7 @@ async def with_rate_limit_retry[T](
 
     while True:
         attempt += 1
+        spend(label)
         try:
             return await call()
         except RateLimitError as exc:

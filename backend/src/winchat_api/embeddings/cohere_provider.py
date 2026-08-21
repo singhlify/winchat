@@ -10,6 +10,7 @@ from collections.abc import Sequence
 import httpx
 
 from winchat_api.embeddings.base import EmbeddingError, EmbeddingProvider
+from winchat_api.provider_budget import spend
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,7 @@ class CohereEmbeddingProvider(EmbeddingProvider):
 
         while True:
             attempt += 1
+            spend("cohere.embed")
             try:
                 response = await self._client.post("/v2/embed", json=payload)
                 response.raise_for_status()

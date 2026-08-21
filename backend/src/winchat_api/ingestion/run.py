@@ -14,6 +14,7 @@ from winchat_api.config import get_settings
 from winchat_api.db.pool import create_pool
 from winchat_api.embeddings.registry import build_embedding_provider
 from winchat_api.ingestion.pipeline import MassDeletionRefused, ingest
+from winchat_api.provider_budget import set_call_budget
 
 logger = logging.getLogger("ingestion")
 
@@ -31,6 +32,12 @@ def parse_args() -> argparse.Namespace:
         help="abort if a refresh would delete more than this share of the corpus "
         "(default 0.05). Pass 1 to allow any number.",
     )
+    parser.add_argument(
+        "--max-provider-calls",
+        type=int,
+        default=None,
+        help="abort once the run has made this many paid provider attempts",
+    )
     return parser.parse_args()
 
 
@@ -40,6 +47,7 @@ async def main() -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     args = parse_args()
     settings = get_settings()
+    set_call_budget(args.max_provider_calls or settings.ingest_max_provider_calls)
 
     # A long retry budget, unlike the request path: a hosted embedding endpoint meters per
     # minute and this run makes one call per answer, so hitting the limit is expected. The

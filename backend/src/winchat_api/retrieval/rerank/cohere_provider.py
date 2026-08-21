@@ -7,6 +7,7 @@ from collections.abc import Sequence
 
 import httpx
 
+from winchat_api.provider_budget import spend
 from winchat_api.retrieval.models import RetrievedChunk
 from winchat_api.retrieval.rerank.base import Reranker, RerankError
 
@@ -58,6 +59,7 @@ class CohereReranker(Reranker):
 
         while True:
             attempt += 1
+            spend("cohere.rerank")
             try:
                 response = await self._client.post("/v2/rerank", json=payload)
                 response.raise_for_status()
